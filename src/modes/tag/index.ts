@@ -8,6 +8,7 @@ import { configureGitAuth } from "../../github/operations/git-config";
 import { prepareMcpConfig } from "../../mcp/install-mcp-server";
 import { fetchGitHubData } from "../../github/data/fetcher";
 import { createPrompt } from "../../create-prompt";
+import { isEntityContext } from "../../github/context";
 
 /**
  * Tag mode implementation.
@@ -21,6 +22,10 @@ export const tagMode: Mode = {
   description: "Traditional implementation mode triggered by @claude mentions",
 
   shouldTrigger(context) {
+    // Tag mode only handles entity events
+    if (!isEntityContext(context)) {
+      return false;
+    }
     return checkContainsTrigger(context);
   },
 
@@ -51,7 +56,10 @@ export const tagMode: Mode = {
     octokit,
     githubToken,
   }: ModeOptions): Promise<ModeResult> {
-    // Tag mode handles entity-based events (issues, PRs, comments)
+    // Tag mode only handles entity-based events
+    if (!isEntityContext(context)) {
+      throw new Error("Tag mode requires entity context");
+    }
 
     // Check if actor is human
     await checkHumanActor(octokit.rest, context);
@@ -59,11 +67,6 @@ export const tagMode: Mode = {
     // Create initial tracking comment
     const commentData = await createInitialComment(octokit.rest, context);
     const commentId = commentData.id;
-
-    // Fetch GitHub data - entity events always have entityNumber and isPR
-    if (!context.entityNumber || context.isPR === undefined) {
-      throw new Error("Entity events must have entityNumber and isPR defined");
-    }
 
     const githubData = await fetchGitHubData({
       octokits: octokit,

@@ -9,6 +9,7 @@ import {
 import {
   parseGitHubContext,
   isPullRequestReviewCommentEvent,
+  isEntityContext,
 } from "../github/context";
 import { GITHUB_SERVER_URL } from "../github/api/config";
 import { checkAndCommitOrDeleteBranch } from "../github/operations/branch-cleanup";
@@ -23,13 +24,13 @@ async function run() {
     const triggerUsername = process.env.TRIGGER_USERNAME;
 
     const context = parseGitHubContext();
-    const { owner, repo } = context.repository;
 
     // This script is only called for entity-based events
-    if (!context.entityNumber) {
-      throw new Error("update-comment-link requires an entity number");
+    if (!isEntityContext(context)) {
+      throw new Error("update-comment-link requires an entity context");
     }
-    const entityNumber = context.entityNumber;
+
+    const { owner, repo } = context.repository;
 
     const octokit = createOctokit(githubToken);
 
@@ -80,7 +81,7 @@ async function run() {
         const { data: pr } = await octokit.rest.pulls.get({
           owner,
           repo,
-          pull_number: entityNumber,
+          pull_number: context.entityNumber,
         });
         console.log(`PR state: ${pr.state}`);
         console.log(`PR comments count: ${pr.comments}`);
