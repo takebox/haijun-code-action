@@ -223,19 +223,32 @@ The traditional implementation mode that responds to @claude mentions, issue ass
 
 ### Agent Mode
 
-For automation and scheduled tasks without trigger checking.
+**Note: Agent mode is currently in active development and may undergo breaking changes.**
 
-- **Triggers**: Always runs (no trigger checking)
-- **Features**: Perfect for scheduled tasks, works with `override_prompt`
-- **Use case**: Maintenance tasks, automated reporting, scheduled checks
+For automation with workflow_dis`patch and scheduled events only.
+
+- **Triggers**: Only runs on `workflow_dispatch` and `schedule` events
+- **Features**: Bypasses mention/assignment checking for automation scenarios
+- **Use case**: Manual workflow runs, scheduled maintenance tasks, cron jobs
+- **Note**: Does NOT work with `pull_request`, `issues`, or `issue_comment` events
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
-  with:
-    mode: agent
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    override_prompt: |
-      Check for outdated dependencies and create an issue if any are found.
+# Example with workflow_dispatch
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday
+
+jobs:
+  automated-task:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          override_prompt: |
+            Check for outdated dependencies and create an issue if any are found.
 ```
 
 ### Experimental Review Mode
