@@ -518,3 +518,28 @@ describe("stripHtmlComments (legacy)", () => {
     );
   });
 });
+
+describe("outbound comment sanitization and redaction", () => {
+  it("should sanitize content and redact all credential types for public comments", () => {
+    const rawComment =
+      "Done! Configured AWS AKIAIOSFODNN7EXAMPLE, Anthropic sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890, Slack xoxb-1234567890-abcdefghijkl-mnopqrstuvwx, and GitHub ghp_16C7e42F292c6912E7710c838347Ae178B4a <!-- secret note -->";
+    const sanitizedAndRedacted = redactSecrets(sanitizeContent(rawComment));
+
+    expect(sanitizedAndRedacted).not.toContain("AKIAIOSFODNN7EXAMPLE");
+    expect(sanitizedAndRedacted).not.toContain(
+      "sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890",
+    );
+    expect(sanitizedAndRedacted).not.toContain(
+      "xoxb-1234567890-abcdefghijkl-mnopqrstuvwx",
+    );
+    expect(sanitizedAndRedacted).not.toContain(
+      "ghp_16C7e42F292c6912E7710c838347Ae178B4a",
+    );
+    expect(sanitizedAndRedacted).not.toContain("secret note");
+
+    expect(sanitizedAndRedacted).toContain("[REDACTED_AWS_KEY_ID]");
+    expect(sanitizedAndRedacted).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(sanitizedAndRedacted).toContain("[REDACTED_SLACK_TOKEN]");
+    expect(sanitizedAndRedacted).toContain("[REDACTED_GITHUB_TOKEN]");
+  });
+});
