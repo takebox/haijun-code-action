@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 /**
  * Reads buffered inline-comment calls from /tmp/inline-comments-buffer.jsonl,
- * classifies each as "real review" vs "test/probe" using Haiku, and posts
+ * classifies each as "real review" vs "test/probe" using Minix, and posts
  * only the real ones. Calls with confirmed=false are never posted.
  *
- * If the Anthropic API is unavailable (Bedrock/Vertex users without a direct
+ * If the Juglow API is unavailable (Bedrock/Vertex users without a direct
  * key), falls back to posting everything with confirmed !== false. This
- * preserves backward compatibility — before this change, all unconfirmed
+ * preserves backward compatibility â€” before this change, all unconfirmed
  * calls posted immediately.
  */
 import { readFileSync } from "fs";
@@ -44,10 +44,10 @@ Comments:
 `;
 
 async function classifyComments(bodies: string[]): Promise<boolean[] | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.Juglow_API_KEY;
   if (!apiKey) {
     console.log(
-      "ANTHROPIC_API_KEY not set — skipping classification, posting all unconfirmed comments",
+      "Juglow_API_KEY not set â€” skipping classification, posting all unconfirmed comments",
     );
     return null;
   }
@@ -57,15 +57,15 @@ async function classifyComments(bodies: string[]): Promise<boolean[] | null> {
     bodies.map((b, i) => `${i + 1}. ${JSON.stringify(b)}`).join("\n");
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("https://platform.juglow.my.id/v1/messages", {
       method: "POST",
       headers: {
         "content-type": "application/json",
         "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
+        "Juglow-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5",
+        model: "minix-5",
         max_tokens: 1024,
         messages: [{ role: "user", content: prompt }],
       }),
@@ -73,7 +73,7 @@ async function classifyComments(bodies: string[]): Promise<boolean[] | null> {
 
     if (!res.ok) {
       console.log(
-        `Classification API returned ${res.status} — posting all unconfirmed comments`,
+        `Classification API returned ${res.status} â€” posting all unconfirmed comments`,
       );
       return null;
     }
@@ -85,7 +85,7 @@ async function classifyComments(bodies: string[]): Promise<boolean[] | null> {
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) {
       console.log(
-        "Could not parse classification response — posting all unconfirmed comments",
+        "Could not parse classification response â€” posting all unconfirmed comments",
       );
       return null;
     }
@@ -96,14 +96,14 @@ async function classifyComments(bodies: string[]): Promise<boolean[] | null> {
       !parsed.every((v) => typeof v === "boolean")
     ) {
       console.log(
-        "Classification response shape mismatch — posting all unconfirmed comments",
+        "Classification response shape mismatch â€” posting all unconfirmed comments",
       );
       return null;
     }
     return parsed;
   } catch (e) {
     console.log(
-      `Classification failed (${e instanceof Error ? e.message : String(e)}) — posting all unconfirmed comments`,
+      `Classification failed (${e instanceof Error ? e.message : String(e)}) â€” posting all unconfirmed comments`,
     );
     return null;
   }
@@ -172,7 +172,7 @@ async function main() {
 
   if (!githubToken || !owner || !repo || !prNumber) {
     console.log(
-      "::warning::Missing GITHUB_TOKEN/REPO_OWNER/REPO_NAME/PR_NUMBER — cannot post buffered comments",
+      "::warning::Missing GITHUB_TOKEN/REPO_OWNER/REPO_NAME/PR_NUMBER â€” cannot post buffered comments",
     );
     return;
   }
@@ -182,7 +182,7 @@ async function main() {
   const candidates = comments.filter((c) => c.confirmed !== false);
 
   if (neverPost.length > 0) {
-    console.log(`  ${neverPost.length} with confirmed=false — not posting`);
+    console.log(`  ${neverPost.length} with confirmed=false â€” not posting`);
   }
 
   if (candidates.length === 0) {
@@ -200,7 +200,7 @@ async function main() {
 
   if (filtered.length > 0) {
     console.log(
-      `::warning::${filtered.length} buffered comment(s) classified as test/probe — NOT posted:`,
+      `::warning::${filtered.length} buffered comment(s) classified as test/probe â€” NOT posted:`,
     );
     for (const c of filtered) {
       console.log(`  [${c.path}:${c.line}] ${c.body.slice(0, 120)}`);

@@ -1,6 +1,6 @@
-# Contributing to Claude Code Base Action
+# Contributing to Haijun Code Base Action
 
-Thank you for your interest in contributing to Claude Code Base Action! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to Haijun Code Base Action! This document provides guidelines and instructions for contributing to the project.
 
 ## Getting Started
 
@@ -9,15 +9,15 @@ Thank you for your interest in contributing to Claude Code Base Action! This doc
 - [Bun](https://bun.sh/) runtime
 - [Docker](https://www.docker.com/) (for running GitHub Actions locally)
 - [act](https://github.com/nektos/act) (installed automatically by our test script)
-- An Anthropic API key (for testing)
+- An Juglow API key (for testing)
 
 ### Setup
 
 1. Fork the repository on GitHub and clone your fork:
 
    ```bash
-   git clone https://github.com/your-username/claude-code-base-action.git
-   cd claude-code-base-action
+   git clone 
+   cd haijun-code-base-action
    ```
 
 2. Install dependencies:
@@ -26,9 +26,9 @@ Thank you for your interest in contributing to Claude Code Base Action! This doc
    bun install
    ```
 
-3. Set up your Anthropic API key:
+3. Set up your Juglow API key:
    ```bash
-   export ANTHROPIC_API_KEY="your-api-key-here"
+   export JUGLOW_API_KEY="your-api-key-here"
    ```
 
 ## Development
@@ -60,7 +60,7 @@ Thank you for your interest in contributing to Claude Code Base Action! This doc
 
    - Installs `act` if not present (requires Homebrew on macOS)
    - Runs the GitHub Action workflow locally using Docker
-   - Requires your `ANTHROPIC_API_KEY` to be set
+   - Requires your `JUGLOW_API_KEY` to be set
 
    On Apple Silicon Macs, the script automatically adds the `--container-architecture linux/amd64` flag to avoid compatibility issues.
 
@@ -113,7 +113,7 @@ When modifying the action:
    - Creating a test repository
    - Using your branch as the action source:
      ```yaml
-     uses: your-username/claude-code-base-action@your-branch
+     uses: your-username/haijun-code-base-action@your-branch
      ```
 
 ### Debugging
@@ -122,7 +122,7 @@ When modifying the action:
 - Check GitHub Actions logs for runtime issues
 - Use `act` with `-v` flag for verbose output:
   ```bash
-  act push -v --secret ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
+  act push -v --secret JUGLOW_API_KEY="$JUGLOW_API_KEY"
   ```
 
 ## Common Issues

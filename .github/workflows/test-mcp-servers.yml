@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   workflow_call:
 
-# The Claude API is authenticated via workload identity federation: id-token
+# The Haijun API is authenticated via workload identity federation: id-token
 # lets the action mint the GitHub OIDC token it exchanges for a short-lived
 # access token. See docs/setup.md.
 permissions:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test-mcp-integration:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -30,25 +30,25 @@ jobs:
           cd base-action/test/mcp-test
           bun install
 
-      - name: Run Claude Code with MCP test
+      - name: Run Haijun Code with MCP test
         uses: ./base-action
-        id: claude-test
+        id: haijun-test
         with:
           prompt: "Call the test_tool tool and report its response."
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: --allowedTools mcp__test-server__test_tool
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: --allowedTools mcp__test-server__test_tool
         env:
           # Change to test directory so it finds .mcp.json
-          CLAUDE_WORKING_DIR: ${{ github.workspace }}/base-action/test/mcp-test
+          HAIJUN_WORKING_DIR: ${{ github.workspace }}/base-action/test/mcp-test
 
       - name: Check MCP server output
         run: |
-          echo "Checking Claude output for MCP servers..."
+          echo "Checking Haijun output for MCP servers..."
 
           # Parse the JSON output
-          OUTPUT_FILE="${RUNNER_TEMP}/claude-execution-output.json"
+          OUTPUT_FILE="${RUNNER_TEMP}/haijun-execution-output.json"
 
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "Error: Output file not found!"
@@ -61,7 +61,7 @@ jobs:
           # Check if mcp_servers field exists in the init event
           if jq -e '.[] | select(.type == "system" and .subtype == "init") | .mcp_servers' "$OUTPUT_FILE" > /dev/null; then
             echo "✓ Found mcp_servers in output"
-            
+
             # MCP servers can connect asynchronously, so the init event may
             # report the server as pending — check registration there, then
             # verify the tool actually ran.
@@ -96,7 +96,7 @@ jobs:
           echo "✓ All MCP server checks passed!"
 
   test-mcp-config-flag:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -118,33 +118,33 @@ jobs:
           echo "HOME: $HOME"
           echo ""
           echo "=== Expected Config Paths ==="
-          echo "GitHub action writes to: $HOME/.claude/settings.json"
-          echo "Claude should read from: $HOME/.claude/settings.json"
+          echo "GitHub action writes to: $HOME/.haijun/settings.json"
+          echo "Haijun should read from: $HOME/.haijun/settings.json"
           echo ""
           echo "=== Actual File System ==="
-          ls -la $HOME/.claude/ || echo "No $HOME/.claude directory"
+          ls -la $HOME/.haijun/ || echo "No $HOME/.haijun directory"
 
-      - name: Run Claude Code with --mcp-config flag
+      - name: Run Haijun Code with --mcp-config flag
         uses: ./base-action
-        id: claude-config-test
+        id: haijun-config-test
         with:
           prompt: "Call the test_tool tool and report its response."
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: |
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: |
             --allowedTools mcp__test-server__test_tool
             --mcp-config '{"mcpServers":{"test-server":{"type":"stdio","command":"bun","args":["simple-mcp-server.ts"],"env":{}}}}'
         env:
           # Change to test directory so bun can find the MCP server script
-          CLAUDE_WORKING_DIR: ${{ github.workspace }}/base-action/test/mcp-test
+          HAIJUN_WORKING_DIR: ${{ github.workspace }}/base-action/test/mcp-test
 
       - name: Check MCP server output with --mcp-config
         run: |
-          echo "Checking Claude output for MCP servers with --mcp-config flag..."
+          echo "Checking Haijun output for MCP servers with --mcp-config flag..."
 
           # Parse the JSON output
-          OUTPUT_FILE="${RUNNER_TEMP}/claude-execution-output.json"
+          OUTPUT_FILE="${RUNNER_TEMP}/haijun-execution-output.json"
 
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "Error: Output file not found!"
@@ -157,7 +157,7 @@ jobs:
           # Check if mcp_servers field exists in the init event
           if jq -e '.[] | select(.type == "system" and .subtype == "init") | .mcp_servers' "$OUTPUT_FILE" > /dev/null; then
             echo "✓ Found mcp_servers in output"
-            
+
             # MCP servers can connect asynchronously, so the init event may
             # report the server as pending — check registration there, then
             # verify the tool actually ran.

@@ -1,11 +1,11 @@
-import { runClaudeWithSdk } from "./run-claude-sdk";
-import type { ClaudeRunResult } from "./run-claude-sdk";
+import { runHaijunWithSdk } from "./run-haijun-sdk";
+import type { HaijunRunResult } from "./run-haijun-sdk";
 import { parseSdkOptions } from "./parse-sdk-options";
 
-export type ClaudeOptions = {
-  claudeArgs?: string;
+export type HaijunOptions = {
+  haijunArgs?: string;
   model?: string;
-  pathToClaudeCodeExecutable?: string;
+  pathToHaijunCodeExecutable?: string;
   allowedTools?: string;
   disallowedTools?: string;
   maxTurns?: string;
@@ -16,10 +16,10 @@ export type ClaudeOptions = {
   showFullOutput?: string;
 };
 
-export async function runClaude(
+export async function runHaijun(
   promptPath: string,
-  options: ClaudeOptions,
-): Promise<ClaudeRunResult> {
+  options: HaijunOptions,
+): Promise<HaijunRunResult> {
   const parsedOptions = parseSdkOptions(options);
-  return runClaudeWithSdk(promptPath, parsedOptions);
+  return runHaijunWithSdk(promptPath, parsedOptions);
 }

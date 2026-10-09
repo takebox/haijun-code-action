@@ -14,16 +14,16 @@ describe("detectMode with enhanced routing", () => {
     actor: "test-user",
     inputs: {
       prompt: "",
-      triggerPhrase: "@claude",
+      triggerPhrase: "@haijun",
       assigneeTrigger: "",
       labelTrigger: "",
-      branchPrefix: "claude/",
+      branchPrefix: "haijun/",
       useStickyComment: false,
       classifyInlineComments: true,
       useCommitSigning: false,
       sshSigningKey: "",
       botId: "123456",
-      botName: "claude-bot",
+      botName: "haijun-bot",
       allowedBots: "",
       allowedNonWriteUsers: "",
       trackProgress: false,
@@ -150,12 +150,12 @@ describe("detectMode with enhanced routing", () => {
       expect(detectMode(context)).toBe("agent");
     });
 
-    it("should use tag mode for issues with @claude mention and no prompt", () => {
+    it("should use tag mode for issues with @haijun mention and no prompt", () => {
       const context: GitHubContext = {
         ...baseContext,
         eventName: "issues",
         eventAction: "opened",
-        payload: { issue: { number: 1, body: "@claude help" } } as any,
+        payload: { issue: { number: 1, body: "@haijun help" } } as any,
         entityNumber: 1,
         isPR: false,
       };
@@ -165,13 +165,13 @@ describe("detectMode with enhanced routing", () => {
   });
 
   describe("Comment Events (unchanged behavior)", () => {
-    it("should use tag mode for issue_comment with @claude mention", () => {
+    it("should use tag mode for issue_comment with @haijun mention", () => {
       const context: GitHubContext = {
         ...baseContext,
         eventName: "issue_comment",
         payload: {
           issue: { number: 1, body: "Test" },
-          comment: { body: "@claude help" },
+          comment: { body: "@haijun help" },
         } as any,
         entityNumber: 1,
         isPR: false,
@@ -186,7 +186,7 @@ describe("detectMode with enhanced routing", () => {
         eventName: "issue_comment",
         payload: {
           issue: { number: 1, body: "Test" },
-          comment: { body: "@claude help" },
+          comment: { body: "@haijun help" },
         } as any,
         entityNumber: 1,
         isPR: false,
@@ -196,13 +196,13 @@ describe("detectMode with enhanced routing", () => {
       expect(detectMode(context)).toBe("agent");
     });
 
-    it("should use tag mode for PR review comments with @claude mention", () => {
+    it("should use tag mode for PR review comments with @haijun mention", () => {
       const context: GitHubContext = {
         ...baseContext,
         eventName: "pull_request_review_comment",
         payload: {
           pull_request: { number: 1, body: "Test" },
-          comment: { body: "@claude check this" },
+          comment: { body: "@haijun check this" },
         } as any,
         entityNumber: 1,
         isPR: true,

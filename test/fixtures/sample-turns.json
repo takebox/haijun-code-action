@@ -26,7 +26,7 @@
       "id": "msg_sample123",
       "type": "message",
       "role": "assistant",
-      "model": "claude-test-model",
+      "model": "haijun-test-model",
       "content": [
         {
           "type": "text",
@@ -71,7 +71,7 @@
       "id": "msg_sample124",
       "type": "message",
       "role": "assistant",
-      "model": "claude-test-model",
+      "model": "haijun-test-model",
       "content": [
         {
           "type": "text",
@@ -118,7 +118,7 @@
       "id": "msg_sample125",
       "type": "message",
       "role": "assistant",
-      "model": "claude-test-model",
+      "model": "haijun-test-model",
       "content": [
         {
           "type": "text",
@@ -169,7 +169,7 @@
       "id": "msg_sample126",
       "type": "message",
       "role": "assistant",
-      "model": "claude-test-model",
+      "model": "haijun-test-model",
       "content": [
         {
           "type": "text",

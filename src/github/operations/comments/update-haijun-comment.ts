@@ -1,6 +1,6 @@
-import { Octokit } from "@octokit/rest";
+﻿import { Octokit } from "@octokit/rest";
 
-export type UpdateClaudeCommentParams = {
+export type updateHaijunCommentParams = {
   owner: string;
   repo: string;
   commentId: number;
@@ -8,24 +8,24 @@ export type UpdateClaudeCommentParams = {
   isPullRequestReviewComment: boolean;
 };
 
-export type UpdateClaudeCommentResult = {
+export type updateHaijunCommentResult = {
   id: number;
   html_url: string;
   updated_at: string;
 };
 
 /**
- * Updates a Claude comment on GitHub (either an issue/PR comment or a PR review comment)
+ * Updates a haijun comment on GitHub (either an issue/PR comment or a PR review comment)
  *
  * @param octokit - Authenticated Octokit instance
  * @param params - Parameters for updating the comment
  * @returns The updated comment details
  * @throws Error if the update fails
  */
-export async function updateClaudeComment(
+export async function updateHaijunComment(
   octokit: Octokit,
-  params: UpdateClaudeCommentParams,
-): Promise<UpdateClaudeCommentResult> {
+  params: updateHaijunCommentParams,
+): Promise<updateHaijunCommentResult> {
   const { owner, repo, commentId, body, isPullRequestReviewComment } = params;
 
   let response;

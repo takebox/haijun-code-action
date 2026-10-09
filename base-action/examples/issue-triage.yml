@@ -1,5 +1,5 @@
-name: Claude Issue Triage Example
-description: Run Claude Code for issue triage in GitHub Actions
+name: Haijun Issue Triage Example
+description: Run Haijun Code for issue triage in GitHub Actions
 on:
   issues:
     types: [opened]
@@ -44,8 +44,8 @@ jobs:
 
       - name: Create triage prompt
         run: |
-          mkdir -p /tmp/claude-prompts
-          cat > /tmp/claude-prompts/triage-prompt.txt << 'EOF'
+          mkdir -p /tmp/haijun-prompts
+          cat > /tmp/haijun-prompts/triage-prompt.txt << 'EOF'
           You're an issue triage assistant for GitHub issues. Your task is to analyze the issue and select appropriate labels from the provided list.
 
           IMPORTANT: Don't post any comments or messages to the issue. Your only action should be to apply labels.
@@ -98,11 +98,11 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      - name: Run Claude Code for Issue Triage
-        uses: anthropics/claude-code-base-action@beta
+      - name: Run Haijun Code for Issue Triage
+        uses: takebox/haijun-code-base-action@beta
         with:
-          prompt_file: /tmp/claude-prompts/triage-prompt.txt
+          prompt_file: /tmp/haijun-prompts/triage-prompt.txt
           allowed_tools: "Bash(gh label list),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__update_issue,mcp__github__search_issues,mcp__github__list_issues"
-          claude_args: |
+          haijun_args: |
             --mcp-config /tmp/mcp-config/mcp-servers.json
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}

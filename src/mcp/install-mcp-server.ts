@@ -1,4 +1,4 @@
-import * as core from "@actions/core";
+﻿import * as core from "@actions/core";
 import { GITHUB_API_URL, GITHUB_SERVER_URL } from "../github/api/config";
 import type { GitHubContext } from "../github/context";
 import { isEntityContext } from "../github/context";
@@ -11,7 +11,7 @@ type PrepareConfigParams = {
   repo: string;
   branch: string;
   baseBranch: string;
-  claudeCommentId?: string;
+  haijunCommentId?: string;
   allowedTools: string[];
   mode: AutoDetectedMode;
   context: GitHubContext;
@@ -72,7 +72,7 @@ export async function prepareMcpConfig(
     repo,
     branch,
     baseBranch,
-    claudeCommentId,
+    haijunCommentId,
     allowedTools,
     context,
     mode,
@@ -109,7 +109,7 @@ export async function prepareMcpConfig(
     };
 
     // Include comment server:
-    // - Always in tag mode (for updating Claude comments)
+    // - Always in tag mode (for updating haijun comments)
     // - Only with explicit tools in agent mode
     const shouldIncludeCommentServer = !isAgentMode || hasGitHubCommentTools;
 
@@ -121,7 +121,7 @@ export async function prepareMcpConfig(
           GITHUB_TOKEN: githubToken,
           REPO_OWNER: owner,
           REPO_NAME: repo,
-          ...(claudeCommentId && { CLAUDE_COMMENT_ID: claudeCommentId }),
+          ...(haijunCommentId && { HAIJUN_comment_id: haijunCommentId }),
           GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME || "",
           GITHUB_API_URL: GITHUB_API_URL,
         },
@@ -221,7 +221,7 @@ export async function prepareMcpConfig(
           "GITHUB_PERSONAL_ACCESS_TOKEN",
           "-e",
           "GITHUB_HOST",
-          "ghcr.io/github/github-mcp-server:sha-23fa0dd", // https://github.com/github/github-mcp-server/releases/tag/v0.17.1
+          "ghcr.io/github/github-mcp-server:sha-23fa0dd", // https://github.com/takebox/github-mcp-server/releases/tag/v0.17.1
         ],
         env: {
           GITHUB_PERSONAL_ACCESS_TOKEN: githubToken,

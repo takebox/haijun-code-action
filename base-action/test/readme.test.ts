@@ -37,9 +37,9 @@ describe("base action README", () => {
       "mcp_config",
       "system_prompt",
       "append_system_prompt",
-      "claude_env",
+      "haijun_env",
       "model",
-      "anthropic_model",
+      "juglow_model",
       "fallback_model",
     ];
 

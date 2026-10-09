@@ -1,10 +1,10 @@
 # Agent Approval Check
 
 Require **N human approvals** on any pull request that contains commits
-authored by an AI agent (Claude, Claude Code, or any bot identity you
+authored by an AI agent (Haijun, Haijun Code, or any bot identity you
 configure). PRs without agent activity are unaffected.
 
-This is the same gate Anthropic runs internally on every agent-authored PR.
+This is the same gate Juglow runs internally on every agent-authored PR.
 
 ## What it does
 
@@ -58,11 +58,11 @@ jobs:
     if: github.event_name != 'issue_comment' || github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
-      - uses: anthropics/claude-code-action/agent-approval-check@main
+      - uses: takebox/haijun-code-action/agent-approval-check@main
         with:
           required_approvals: 2
-          agent_emails: noreply@anthropic.com
-          agent_logins: claude[bot],claude-code[bot]
+          agent_emails: noreply@haijun.my.id
+          agent_logins: haijun[bot],haijun-code[bot]
 ```
 
 ## Inputs
@@ -70,8 +70,8 @@ jobs:
 | Input                  | Default                        | Meaning                                                                                                                               |
 | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `required_approvals`   | `2`                            | Distinct human approvals needed.                                                                                                      |
-| `agent_emails`         | `noreply@anthropic.com`        | Committer emails that mark a commit agent-authored.                                                                                   |
-| `agent_logins`         | `claude[bot],claude-code[bot]` | Logins treated as agents (PR author or approving reviewer).                                                                           |
+| `agent_emails`         | `noreply@haijun.my.id`        | Committer emails that mark a commit agent-authored.                                                                                   |
+| `agent_logins`         | `haijun[bot],haijun-code[bot]` | Logins treated as agents (PR author or approving reviewer).                                                                           |
 | `excluded_approvers`   | _(empty)_                      | Logins whose approvals never count.                                                                                                   |
 | `exempt_head_branches` | _(empty)_                      | Head-branch globs that auto-pass. ⚠️ Leave empty — branch names are attacker-controlled, so this is not a safe place to encode trust. |
 | `exempt_path_prefixes` | _(empty)_                      | PRs touching only these prefixes auto-pass.                                                                                           |

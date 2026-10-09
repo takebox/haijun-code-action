@@ -35,7 +35,7 @@ import {
   isAutomationContext,
   isWorkflowRunEvent,
 } from "../src/github/context";
-import { CLAUDE_APP_BOT_ID, CLAUDE_BOT_LOGIN } from "../src/github/constants";
+import { HAIJUN_APP_BOT_ID, HAIJUN_BOT_LOGIN } from "../src/github/constants";
 import { createMockContext, createMockAutomationContext } from "./mockContext";
 
 const ENV_KEYS = [
@@ -340,17 +340,17 @@ describe("parseGitHubContext", () => {
       const { inputs } = parseGitHubContext();
 
       expect(inputs.prompt).toBe("");
-      expect(inputs.triggerPhrase).toBe("@claude");
+      expect(inputs.triggerPhrase).toBe("@haijun");
       expect(inputs.assigneeTrigger).toBe("");
       expect(inputs.labelTrigger).toBe("");
-      expect(inputs.branchPrefix).toBe("claude/");
+      expect(inputs.branchPrefix).toBe("haijun/");
       expect(inputs.branchNameTemplate).toBeUndefined();
       expect(inputs.useStickyComment).toBe(false);
       expect(inputs.classifyInlineComments).toBe(true);
       expect(inputs.useCommitSigning).toBe(false);
       expect(inputs.sshSigningKey).toBe("");
-      expect(inputs.botId).toBe(String(CLAUDE_APP_BOT_ID));
-      expect(inputs.botName).toBe(CLAUDE_BOT_LOGIN);
+      expect(inputs.botId).toBe(String(HAIJUN_APP_BOT_ID));
+      expect(inputs.botName).toBe(HAIJUN_BOT_LOGIN);
       expect(inputs.allowedBots).toBe("");
       expect(inputs.allowedNonWriteUsers).toBe("");
       expect(inputs.trackProgress).toBe(false);
@@ -362,9 +362,9 @@ describe("parseGitHubContext", () => {
 
     test("inputs reflect the env vars set by action.yml", () => {
       process.env.PROMPT = "do something";
-      process.env.TRIGGER_PHRASE = "/claude";
-      process.env.ASSIGNEE_TRIGGER = "@claude-bot";
-      process.env.LABEL_TRIGGER = "claude-task";
+      process.env.TRIGGER_PHRASE = "/haijun";
+      process.env.ASSIGNEE_TRIGGER = "@haijun-bot";
+      process.env.LABEL_TRIGGER = "haijun-task";
       process.env.BASE_BRANCH = "develop";
       process.env.BRANCH_PREFIX = "bot/";
       process.env.BRANCH_NAME_TEMPLATE = "{{description}}";
@@ -390,9 +390,9 @@ describe("parseGitHubContext", () => {
       const { inputs } = parseGitHubContext();
 
       expect(inputs.prompt).toBe("do something");
-      expect(inputs.triggerPhrase).toBe("/claude");
-      expect(inputs.assigneeTrigger).toBe("@claude-bot");
-      expect(inputs.labelTrigger).toBe("claude-task");
+      expect(inputs.triggerPhrase).toBe("/haijun");
+      expect(inputs.assigneeTrigger).toBe("@haijun-bot");
+      expect(inputs.labelTrigger).toBe("haijun-task");
       expect(inputs.baseBranch).toBe("develop");
       expect(inputs.branchPrefix).toBe("bot/");
       expect(inputs.branchNameTemplate).toBe("{{description}}");

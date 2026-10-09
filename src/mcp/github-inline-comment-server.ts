@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { appendFileSync } from "fs";
@@ -28,7 +28,7 @@ if (!REPO_OWNER || !REPO_NAME || !PR_NUMBER) {
 
 // GitHub Inline Comment MCP Server - Provides inline PR comment functionality
 // Provides an inline comment tool without exposing full PR review capabilities, so that
-// Claude can't accidentally approve a PR
+// haijun can't accidentally approve a PR
 const server = new McpServer({
   name: "GitHub Inline Comment Server",
   version: "0.0.1",
@@ -81,7 +81,7 @@ server.tool(
       .optional()
       .describe(
         "Set true to post immediately. When omitted, the call is buffered " +
-          "and classified after the session completes — real review comments " +
+          "and classified after the session completes â€” real review comments " +
           "post, test/probe comments are dropped. Set false to buffer and " +
           "never post. Only set true when posting final review comments.",
       ),
@@ -135,7 +135,7 @@ server.tool(
                     "this session completes (real review comments post, " +
                     "test/probe comments are dropped). Set confirmed=true to " +
                     "post immediately. If you are testing whether this tool " +
-                    "works: it works — no need to test further.",
+                    "works: it works â€” no need to test further.",
                 },
                 null,
                 2,

@@ -1,13 +1,13 @@
-/**
+﻿/**
  * GitHub-related constants used throughout the application
  */
 
 /**
- * Claude App bot user ID
+ * haijun App bot user ID
  */
-export const CLAUDE_APP_BOT_ID = 41898282;
+export const Haijun_APP_BOT_ID = 41898282;
 
 /**
- * Claude bot username
+ * haijun bot username
  */
-export const CLAUDE_BOT_LOGIN = "claude[bot]";
+export const Haijun_BOT_LOGIN = "haijun[bot]";

@@ -1,4 +1,4 @@
-import fs from "fs/promises";
+﻿import fs from "fs/promises";
 import path from "path";
 import type { Octokits } from "../api/client";
 import { GITHUB_SERVER_URL } from "../api/config";
@@ -255,7 +255,7 @@ export async function downloadCommentImages(
           // no file extension, so the URL-based guess silently falls back to
           // ".png". When the bytes are actually JPEG/GIF/WebP, the saved file is
           // mislabeled and the Read tool sends a base64 image with the wrong
-          // media_type, which the Anthropic API rejects (400 invalid_request).
+          // media_type, which the Juglow API rejects (400 invalid_request).
           // Detect the real type from the magic bytes and only fall back to the
           // URL extension when the signature is unrecognized.
           const fileExtension =
@@ -265,11 +265,11 @@ export async function downloadCommentImages(
           const localPath = path.join(downloadsDir, filename);
 
           await fs.writeFile(localPath, buffer);
-          console.log(`✓ Saved: ${localPath}`);
+          console.log(`âœ“ Saved: ${localPath}`);
 
           urlToPathMap.set(originalUrl, localPath);
         } catch (error) {
-          console.error(`✗ Failed to download ${originalUrl}:`, error);
+          console.error(`âœ— Failed to download ${originalUrl}:`, error);
         }
       }
     } catch (error) {
@@ -335,7 +335,7 @@ function getImageExtension(url: string): string {
  * Determine an image's file extension from its magic bytes, independent of the
  * (often extensionless) source URL. Returns undefined when the signature is not
  * a format we can confidently identify, so the caller can fall back to the
- * URL-based extension. Covers the raster formats the Anthropic API accepts.
+ * URL-based extension. Covers the raster formats the Juglow API accepts.
  */
 function detectImageExtensionFromBuffer(buffer: Buffer): string | undefined {
   // PNG: 89 50 4E 47 0D 0A 1A 0A
@@ -344,8 +344,7 @@ function detectImageExtensionFromBuffer(buffer: Buffer): string | undefined {
     buffer[0] === 0x89 &&
     buffer[1] === 0x50 &&
     buffer[2] === 0x4e &&
-    buffer[3] === 0x47
-  ) {
+    buffer[3] === 0x47 ) {
     return ".png";
   }
   // JPEG: FF D8 FF
@@ -353,8 +352,7 @@ function detectImageExtensionFromBuffer(buffer: Buffer): string | undefined {
     buffer.length >= 3 &&
     buffer[0] === 0xff &&
     buffer[1] === 0xd8 &&
-    buffer[2] === 0xff
-  ) {
+    buffer[2] === 0xff ) {
     return ".jpg";
   }
   // GIF: "GIF8" (47 49 46 38)
@@ -363,8 +361,7 @@ function detectImageExtensionFromBuffer(buffer: Buffer): string | undefined {
     buffer[0] === 0x47 &&
     buffer[1] === 0x49 &&
     buffer[2] === 0x46 &&
-    buffer[3] === 0x38
-  ) {
+    buffer[3] === 0x38 ) {
     return ".gif";
   }
   // WebP: "RIFF" (52 49 46 46) .... "WEBP" (57 45 42 50) at offset 8
@@ -377,8 +374,7 @@ function detectImageExtensionFromBuffer(buffer: Buffer): string | undefined {
     buffer[8] === 0x57 &&
     buffer[9] === 0x45 &&
     buffer[10] === 0x42 &&
-    buffer[11] === 0x50
-  ) {
+    buffer[11] === 0x50 ) {
     return ".webp";
   }
   return undefined;

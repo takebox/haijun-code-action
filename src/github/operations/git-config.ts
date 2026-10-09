@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 /**
  * Configure git authentication for non-signing mode
@@ -12,7 +12,7 @@ import { homedir } from "os";
 import type { GitHubContext } from "../context";
 import { GITHUB_SERVER_URL } from "../api/config";
 
-const SSH_SIGNING_KEY_PATH = join(homedir(), ".ssh", "claude_signing_key");
+const SSH_SIGNING_KEY_PATH = join(homedir(), ".ssh", "Haijun_signing_key");
 
 type GitUser = {
   login: string;
@@ -40,7 +40,7 @@ export async function configureGitAuth(
   console.log(`Setting git user as ${botName}...`);
   await $`git config user.name "${botName}"`;
   await $`git config user.email "${botId}+${botName}@${noreplyDomain}"`;
-  console.log(`✓ Set git user as ${botName}`);
+  console.log(`âœ“ Set git user as ${botName}`);
 
   await replaceCheckoutCredentials(githubToken, context);
 
@@ -51,7 +51,7 @@ export async function configureGitAuth(
  * Replace the credential that actions/checkout persisted in the working tree.
  *
  * actions/checkout stores its token as an `http.<server>/.extraheader` entry
- * in .git/config for the duration of the job. Claude and the tools it invokes
+ * in .git/config for the duration of the job. haijun and the tools it invokes
  * run inside this working tree, so remove that entry and back git with the
  * action's own token instead (a credential helper when non-write users are
  * allowed, otherwise the origin URL). This applies to every mode, including API
@@ -65,7 +65,7 @@ export async function configureGitAuth(
  * was a silent no-op and the checkout credential (typically the workflow
  * GITHUB_TOKEN) stayed usable by git for the rest of the job. Clear the
  * header from the local config AND from every included file so it can no
- * longer authenticate while Claude runs.
+ * longer authenticate while haijun runs.
  */
 export async function replaceCheckoutCredentials(
   githubToken: string,
@@ -101,7 +101,7 @@ export async function replaceCheckoutCredentials(
   }
   console.log(
     removedHeader
-      ? "✓ Removed existing authentication headers"
+      ? "âœ“ Removed existing authentication headers"
       : "No existing authentication headers to remove",
   );
 
@@ -125,13 +125,13 @@ export async function replaceCheckoutCredentials(
     const cleanUrl = `https://${serverUrl.host}/${context.repository.owner}/${context.repository.repo}.git`;
     await $`git remote set-url origin ${cleanUrl}`;
     await $`git config credential.helper ${helperPath}`;
-    console.log("✓ Configured credential helper");
+    console.log("âœ“ Configured credential helper");
   } else {
     // Update the remote URL to include the token for authentication
     console.log("Updating remote URL with authentication...");
     const remoteUrl = `https://x-access-token:${githubToken}@${serverUrl.host}/${context.repository.owner}/${context.repository.repo}.git`;
     await $`git remote set-url origin ${remoteUrl}`;
-    console.log("✓ Updated remote URL with authentication token");
+    console.log("âœ“ Updated remote URL with authentication token");
   }
 }
 
@@ -164,14 +164,14 @@ export async function setupSshSigning(sshSigningKey: string): Promise<void> {
 
   // Write the signing key atomically with secure permissions (600)
   await writeFile(SSH_SIGNING_KEY_PATH, normalizedKey, { mode: 0o600 });
-  console.log(`✓ SSH signing key written to ${SSH_SIGNING_KEY_PATH}`);
+  console.log(`âœ“ SSH signing key written to ${SSH_SIGNING_KEY_PATH}`);
 
   // Configure git to use SSH signing
   await $`git config gpg.format ssh`;
   await $`git config user.signingkey ${SSH_SIGNING_KEY_PATH}`;
   await $`git config commit.gpgsign true`;
 
-  console.log("✓ Git configured to use SSH signing for commits");
+  console.log("âœ“ Git configured to use SSH signing for commits");
 }
 
 /**
@@ -181,7 +181,7 @@ export async function setupSshSigning(sshSigningKey: string): Promise<void> {
 export async function cleanupSshSigning(): Promise<void> {
   try {
     await rm(SSH_SIGNING_KEY_PATH, { force: true });
-    console.log("✓ SSH signing key cleaned up");
+    console.log("âœ“ SSH signing key cleaned up");
   } catch (error) {
     console.log("No SSH signing key to clean up");
   }

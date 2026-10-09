@@ -62,7 +62,7 @@ describe("setupBranch generated branch name validation", () => {
         entityNumber: 42,
         inputs: {
           useCommitSigning,
-          branchPrefix: "claude/",
+          branchPrefix: "haijun/",
           branchNameTemplate: INVALID_TEMPLATE,
         },
       });
@@ -73,7 +73,7 @@ describe("setupBranch generated branch name validation", () => {
       expect(exitCode).toBe(1);
       // Must fail on the name itself, not on a later git or API call.
       expect(loggedErrors.join("\n")).toContain(
-        'Invalid branch name: "claude/release:42"',
+        'Invalid branch name: "haijun/release:42"',
       );
     });
   }

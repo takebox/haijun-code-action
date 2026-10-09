@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile } from "fs/promises";
+﻿import { mkdir, rm, writeFile } from "fs/promises";
 import { prepareMcpConfig } from "../../mcp/install-mcp-server";
 import { parseAllowedTools } from "./parse-tools";
 import {
@@ -14,8 +14,8 @@ import type { Octokits } from "../../github/api/client";
  * Prepares the agent mode execution context.
  *
  * Agent mode runs whenever an explicit prompt is provided in the workflow configuration.
- * It bypasses the standard @claude mention checking and comment tracking used by tag mode,
- * providing direct access to Claude Code for automation workflows.
+ * It bypasses the standard @haijun mention checking and comment tracking used by tag mode,
+ * providing direct access to haijun Code for automation workflows.
  */
 export async function prepareAgentMode({
   context,
@@ -75,10 +75,10 @@ export async function prepareAgentMode({
     }
   }
 
-  // Create prompt directory. Clear any stale files from a prior invocation first —
+  // Create prompt directory. Clear any stale files from a prior invocation first â€”
   // see src/create-prompt/index.ts for context (non-ephemeral self-hosted runners
   // do not reliably honor the RUNNER_TEMP cleanup contract).
-  const promptDir = `${process.env.RUNNER_TEMP || "/tmp"}/claude-prompts`;
+  const promptDir = `${process.env.RUNNER_TEMP || "/tmp"}/haijun-prompts`;
   await rm(promptDir, { recursive: true, force: true });
   await mkdir(promptDir, { recursive: true });
 
@@ -87,20 +87,20 @@ export async function prepareAgentMode({
     context.inputs.prompt ||
     `Repository: ${context.repository.owner}/${context.repository.repo}`;
 
-  await writeFile(`${promptDir}/claude-prompt.txt`, promptContent);
+  await writeFile(`${promptDir}/haijun-prompt.txt`, promptContent);
 
-  // Parse allowed tools from user's claude_args
-  const userClaudeArgs = process.env.CLAUDE_ARGS || "";
-  const allowedTools = parseAllowedTools(userClaudeArgs);
+  // Parse allowed tools from user's HAIJUN_args
+  const userHaijunArgs = process.env.HAIJUN_args || "";
+  const allowedTools = parseAllowedTools(userHaijunArgs);
 
   // Check for branch info from environment variables (useful for auto-fix workflows)
-  const claudeBranch = process.env.CLAUDE_BRANCH || undefined;
+  const haijunBranch = process.env.HAIJUN_BRANCH || undefined;
   const defaultBranch = context.repository.default_branch || "main";
   const baseBranch = context.inputs.baseBranch || defaultBranch;
 
   // Detect current branch from GitHub environment
   const currentBranch =
-    claudeBranch ||
+    haijunBranch ||
     process.env.GITHUB_HEAD_REF ||
     process.env.GITHUB_REF_NAME ||
     defaultBranch;
@@ -112,33 +112,33 @@ export async function prepareAgentMode({
     repo: context.repository.repo,
     branch: currentBranch,
     baseBranch: baseBranch,
-    claudeCommentId: undefined, // No tracking comment in agent mode
+    haijunCommentId: undefined, // No tracking comment in agent mode
     allowedTools,
     mode: "agent",
     context,
   });
 
-  // Build final claude_args with multiple --mcp-config flags
-  let claudeArgs = "";
+  // Build final HAIJUN_args with multiple --mcp-config flags
+  let HaijunArgs = "";
 
   // Add our GitHub servers config if we have any
   const ourConfig = JSON.parse(ourMcpConfig);
   if (ourConfig.mcpServers && Object.keys(ourConfig.mcpServers).length > 0) {
     const escapedOurConfig = ourMcpConfig.replace(/'/g, "'\\''");
-    claudeArgs = `--mcp-config '${escapedOurConfig}'`;
+    HaijunArgs = `--mcp-config '${escapedOurConfig}'`;
   }
 
-  // Append user's claude_args (which may have more --mcp-config flags)
-  claudeArgs = `${claudeArgs} ${userClaudeArgs}`.trim();
+  // Append user's HAIJUN_args (which may have more --mcp-config flags)
+  HaijunArgs = `${HaijunArgs} ${userHaijunArgs}`.trim();
 
   return {
     commentId: undefined,
     branchInfo: {
       baseBranch: baseBranch,
       currentBranch: baseBranch, // Use base branch as current when creating new branch
-      claudeBranch: claudeBranch,
+      haijunBranch: haijunBranch,
     },
     mcpConfig: ourMcpConfig,
-    claudeArgs,
+    HaijunArgs,
   };
 }

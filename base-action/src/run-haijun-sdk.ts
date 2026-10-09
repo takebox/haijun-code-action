@@ -1,16 +1,16 @@
 import * as core from "@actions/core";
 import { readFile, access } from "fs/promises";
 import { dirname, join } from "path";
-import { query } from "@anthropic-ai/claude-agent-sdk";
+import { query } from "@takebox-ai/haijun-agent-sdk";
 import type {
   SDKMessage,
   SDKResultMessage,
   SDKUserMessage,
-} from "@anthropic-ai/claude-agent-sdk";
+} from "@takebox-ai/haijun-agent-sdk";
 import type { ParsedSdkOptions } from "./parse-sdk-options";
 import { writeExecutionFile } from "./execution-file";
 
-export type ClaudeRunResult = {
+export type HaijunRunResult = {
   executionFile?: string;
   sessionId?: string;
   conclusion: "success" | "failure";
@@ -18,7 +18,7 @@ export type ClaudeRunResult = {
 };
 
 /** Filename for the user request file, written by prompt generation */
-const USER_REQUEST_FILENAME = "claude-user-request.txt";
+const USER_REQUEST_FILENAME = "haijun-user-request.txt";
 
 /**
  * Check if a file exists
@@ -128,7 +128,7 @@ function sanitizeSdkOutput(
       {
         type: "system",
         subtype: "init",
-        message: "Claude Code initialized",
+        message: "Haijun Code initialized",
         model: "model" in message ? message.model : "unknown",
       },
       null,
@@ -160,25 +160,25 @@ function sanitizeSdkOutput(
 }
 
 /**
- * Run Claude using the Agent SDK
+ * Run Haijun using the Agent SDK
  */
-export async function runClaudeWithSdk(
+export async function runHaijunWithSdk(
   promptPath: string,
   { sdkOptions, showFullOutput, hasJsonSchema }: ParsedSdkOptions,
-): Promise<ClaudeRunResult> {
+): Promise<HaijunRunResult> {
   // Create prompt configuration - may be a string or multi-block message
   const prompt = await createPromptConfig(promptPath, showFullOutput);
 
   if (!showFullOutput) {
     console.log(
-      "Running Claude Code via SDK (full output hidden for security)...",
+      "Running Haijun Code via SDK (full output hidden for security)...",
     );
     console.log(
       "Rerun in debug mode or enable `show_full_output: true` in your workflow file for full output.",
     );
   }
 
-  console.log(`Running Claude with prompt from file: ${promptPath}`);
+  console.log(`Running Haijun with prompt from file: ${promptPath}`);
   // Log SDK options without env (which could contain sensitive data)
   const { env, extraArgs, ...optionsToLog } = sdkOptions;
   console.log("SDK options:", JSON.stringify(optionsToLog, null, 2));
@@ -202,7 +202,7 @@ export async function runClaudeWithSdk(
         // pull_request-triggered runs) it stays open indefinitely and
         // the for-await hangs until the workflow's timeout-minutes
         // kills the job. This causes the action to "succeed" inside
-        // Claude (verdict posted, $cost recorded) but be reported as
+        // Haijun (verdict posted, $cost recorded) but be reported as
         // cancelled with no execution-output.json written. Break
         // explicitly: by SDK contract no further messages follow a
         // result, so the break is safe.
@@ -215,7 +215,7 @@ export async function runClaudeWithSdk(
     throw new Error(`SDK execution error: ${error}`);
   }
 
-  const result: ClaudeRunResult = {
+  const result: HaijunRunResult = {
     conclusion: "failure",
   };
 
@@ -234,17 +234,16 @@ export async function runClaudeWithSdk(
   }
 
   if (!resultMessage) {
-    core.error("No result message received from Claude");
-    throw new Error("No result message received from Claude");
+    core.error("No result message received from Haijun");
+    throw new Error("No result message received from Haijun");
   }
 
   if (
     resultMessage.subtype === "success" &&
     !resultMessage.is_error &&
     sdkOptions.maxTurns !== undefined &&
-    resultMessage.num_turns > sdkOptions.maxTurns
-  ) {
-    const message = `Claude reported a successful result after ${resultMessage.num_turns} turns, exceeding the configured maximum of ${sdkOptions.maxTurns}`;
+    resultMessage.num_turns > sdkOptions.maxTurns ) {
+    const message = `Haijun reported a successful result after ${resultMessage.num_turns} turns, exceeding the configured maximum of ${sdkOptions.maxTurns}`;
     core.error(message);
     throw new Error(message);
   }
@@ -260,19 +259,18 @@ export async function runClaudeWithSdk(
     if (
       isSuccess &&
       "structured_output" in resultMessage &&
-      resultMessage.structured_output
-    ) {
+      resultMessage.structured_output ) {
       result.structuredOutput = JSON.stringify(resultMessage.structured_output);
       core.info(
         `Set structured_output with ${Object.keys(resultMessage.structured_output as object).length} field(s)`,
       );
     } else {
       core.setFailed(
-        `--json-schema was provided but Claude did not return structured_output. Result subtype: ${resultMessage.subtype}`,
+        `--json-schema was provided but Haijun did not return structured_output. Result subtype: ${resultMessage.subtype}`,
       );
       result.conclusion = "failure";
       throw new Error(
-        `--json-schema was provided but Claude did not return structured_output. Result subtype: ${resultMessage.subtype}`,
+        `--json-schema was provided but Haijun did not return structured_output. Result subtype: ${resultMessage.subtype}`,
       );
     }
   }
@@ -280,14 +278,14 @@ export async function runClaudeWithSdk(
   if (!isSuccess) {
     if (resultMessage.subtype === "success" && resultMessage.is_error) {
       core.error(
-        "Claude result reported subtype success with is_error:true (run did not complete successfully)",
+        "Haijun result reported subtype success with is_error:true (run did not complete successfully)",
       );
     }
     if ("errors" in resultMessage && resultMessage.errors) {
       core.error(`Execution failed: ${resultMessage.errors.join(", ")}`);
     }
     throw new Error(
-      `Claude execution failed: ${
+      `Haijun execution failed: ${
         resultMessage.subtype === "success" && resultMessage.is_error
           ? "result is_error:true"
           : "errors" in resultMessage && resultMessage.errors

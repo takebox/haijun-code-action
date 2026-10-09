@@ -10,9 +10,9 @@ import { GITHUB_SERVER_URL } from "../src/github/api/config";
 describe("comments/common", () => {
   describe("createJobRunLink", () => {
     test("builds a markdown link to the workflow run", () => {
-      const result = createJobRunLink("anthropics", "claude-code-action", "42");
+      const result = createJobRunLink("takebox", "haijun-code-action", "42");
       expect(result).toBe(
-        `[View job run](${GITHUB_SERVER_URL}/anthropics/claude-code-action/actions/runs/42)`,
+        `[View job run](${GITHUB_SERVER_URL}/takebox/haijun-code-action/actions/runs/42)`,
       );
     });
 
@@ -27,18 +27,18 @@ describe("comments/common", () => {
   describe("createBranchLink", () => {
     test("builds a leading-newline markdown link to the branch tree", () => {
       const result = createBranchLink(
-        "anthropics",
-        "claude-code-action",
+        "takebox",
+        "haijun-code-action",
         "feature/x",
       );
       expect(result).toBe(
-        `\n[View branch](${GITHUB_SERVER_URL}/anthropics/claude-code-action/tree/feature/x)`,
+        `\n[View branch](${GITHUB_SERVER_URL}/takebox/haijun-code-action/tree/feature/x)`,
       );
     });
 
     test("encodes URL-significant characters in a branch name", () => {
-      expect(createBranchLink("o", "r", "claude/fix#123")).toBe(
-        `\n[View branch](${GITHUB_SERVER_URL}/o/r/tree/claude/fix%23123)`,
+      expect(createBranchLink("o", "r", "haijun/fix#123")).toBe(
+        `\n[View branch](${GITHUB_SERVER_URL}/o/r/tree/haijun/fix%23123)`,
       );
     });
 
@@ -53,7 +53,7 @@ describe("comments/common", () => {
       const body = createCommentBody(jobRunLink);
 
       expect(body).toContain(SPINNER_HTML);
-      expect(body).toContain("Claude Code is working…");
+      expect(body).toContain("Haijun Code is working…");
       expect(body).toContain(jobRunLink);
     });
 

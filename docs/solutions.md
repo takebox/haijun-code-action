@@ -1,6 +1,6 @@
 # Solutions & Use Cases
 
-This guide provides complete, ready-to-use solutions for common automation scenarios with Claude Code Action. Each solution includes working examples, configuration details, and expected outcomes.
+This guide provides complete, ready-to-use solutions for common automation scenarios with Haijun Code Action. Each solution includes working examples, configuration details, and expected outcomes.
 
 ## 📋 Table of Contents
 
@@ -22,7 +22,7 @@ This guide provides complete, ready-to-use solutions for common automation scena
 ### Basic Example (No Tracking)
 
 ```yaml
-name: Claude Auto Review
+name: Haijun Auto Review
 on:
   pull_request:
     types: [opened, synchronize]
@@ -39,9 +39,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -58,7 +58,7 @@ jobs:
             Use `mcp__github_inline_comment__create_inline_comment` (with `confirmed: true`) to highlight specific code issues.
             Only post GitHub comments - don't submit review text as messages.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
 ```
 
@@ -69,14 +69,14 @@ jobs:
 - Specify tools for commenting and reviewing
 - PR branch is pre-checked out
 
-**Expected Output:** Claude posts review comments directly to the PR with inline annotations where appropriate.
+**Expected Output:** Haijun posts review comments directly to the PR with inline annotations where appropriate.
 
 ### Enhanced Example (With Progress Tracking)
 
 Want visual progress tracking for PR reviews? Use `track_progress: true` to get tracking comments like in v0.x:
 
 ```yaml
-name: Claude Auto Review with Tracking
+name: Haijun Auto Review with Tracking
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
@@ -93,9 +93,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           track_progress: true # ✨ Enables tracking comments
           prompt: |
             REPO: ${{ github.repository }}
@@ -109,7 +109,7 @@ jobs:
 
             Provide detailed feedback using inline comments for specific issues.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
 ```
 
@@ -122,7 +122,7 @@ jobs:
 
 **Expected Output:**
 
-1. Claude creates a tracking comment: "Claude Code is reviewing this pull request..."
+1. Haijun creates a tracking comment: "Haijun Code is reviewing this pull request..."
 2. Updates the comment with progress checkboxes as it works
 3. Posts detailed review feedback with inline annotations
 4. Updates tracking comment to "Completed" when done
@@ -157,9 +157,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -176,7 +176,7 @@ jobs:
 
             Post detailed security findings as PR comments.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"
 ```
 
@@ -215,9 +215,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -234,7 +234,7 @@ jobs:
 
             Be welcoming but thorough in your review. Use inline comments for code-specific feedback.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr view:*)"
 ```
 
@@ -272,9 +272,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -308,7 +308,7 @@ jobs:
             For each item, check if it's satisfied and comment on any that need attention.
             Post a summary comment with checklist results.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"
 ```
 
@@ -348,9 +348,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
 
@@ -365,7 +365,7 @@ jobs:
             Create a single issue summarizing any findings.
             If critical security issues are found, also comment on open PRs.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "Read,Bash(npm:*),Bash(gh issue:*),Bash(git:*)"
 ```
 
@@ -399,9 +399,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             ISSUE NUMBER: ${{ github.event.issue.number }}
@@ -426,7 +426,7 @@ jobs:
 
             If it appears to be a duplicate, post a comment mentioning the original issue.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "Bash(./scripts/gh.sh:*),Bash(./scripts/edit-issue-labels.sh:*)"
 ```
 
@@ -469,9 +469,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -486,7 +486,7 @@ jobs:
             Use standard REST API documentation format.
             Commit any documentation updates to this PR branch.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "Read,Write,Edit,Bash(git:*)"
 ```
 
@@ -525,9 +525,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           # Optional: Add track_progress: true for visual progress tracking during security reviews
           # track_progress: true
           prompt: |
@@ -558,7 +558,7 @@ jobs:
             Rate severity as: CRITICAL, HIGH, MEDIUM, LOW, or NONE.
             Post detailed findings with recommendations.
 
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*)"
 ```
 

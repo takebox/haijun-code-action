@@ -9,7 +9,7 @@
 """
 Agent Approval Check
 
-Enforces that PRs containing agent-authored commits (e.g. from Claude Code)
+Enforces that PRs containing agent-authored commits (e.g. from Haijun Code)
 receive N human approvals before the `agent-approval-check` commit status
 turns green. Mark that status as a required check on protected branches to
 gate merges.
@@ -111,7 +111,7 @@ WRITE_ACCESS_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 WRITE_PERMISSION_LEVELS = frozenset({"write", "push", "maintain", "admin"})
 DOCS_URL = (
     os.environ.get("DOCS_URL")
-    or "https://github.com/anthropics/claude-code-action/tree/main/agent-approval-check"
+    or "https://github.com/takebox/haijun-code-action/tree/main/agent-approval-check"
 )
 
 
@@ -339,8 +339,7 @@ class MutationBatch:
             and not self.update_comment
             and not self.create_stale_comment
             and not self.minimize_comments
-            and not self.unminimize_comments
-        )
+            and not self.unminimize_comments )
 
 
 class MutationBuilder:
@@ -446,12 +445,10 @@ def log_rate_limit(rate_limit: dict | None, context: str = "") -> None:
         percent_remaining = (remaining / limit) * 100 if limit > 0 else 0
         if percent_remaining < 10:
             logger.warning(
-                "Rate limit critically low: %.1f%% remaining", percent_remaining
-            )
+                "Rate limit critically low: %.1f%% remaining", percent_remaining )
         elif percent_remaining < 25:
             logger.warning(
-                "Rate limit getting low: %.1f%% remaining", percent_remaining
-            )
+                "Rate limit getting low: %.1f%% remaining", percent_remaining )
 
 
 def log_rest_rate_limit(response: httpx.Response, context: str = "") -> None:
@@ -613,8 +610,7 @@ def is_exempt_branch(head_ref: str, config: AgentConfig) -> bool:
     Uses fnmatch glob matching against configured exempt_head_branches patterns.
     """
     return any(
-        fnmatch.fnmatch(head_ref, pattern) for pattern in config.exempt_head_branches
-    )
+        fnmatch.fnmatch(head_ref, pattern) for pattern in config.exempt_head_branches )
 
 
 def is_agent_user(login: str, config: AgentConfig) -> bool:
@@ -775,8 +771,7 @@ def load_agent_config(config_path: Path) -> AgentConfig:
         for key in ("exact", "prefixes"):
             vals = entry.get(key, [])
             if not isinstance(vals, list) or not all(
-                isinstance(v, str) and v for v in vals
-            ):
+                isinstance(v, str) and v for v in vals ):
                 raise ValueError(
                     f"protected_bases[{repo!r}][{key!r}] must be a list of "
                     f"non-empty strings"
@@ -903,8 +898,7 @@ def check_for_agent_activity(
 
     if is_agent_pr:
         logger.info(
-            "PR created by agent app %s, no agent commits - using HEAD", pr_author
-        )
+            "PR created by agent app %s, no agent commits - using HEAD", pr_author )
         return AgentActivityResult(
             has_agent_activity=True,
             latest_agent_commit=commits[-1] if commits else None,
@@ -1210,12 +1204,10 @@ class GitHubClient:
         reraise=True,
     )
     def _rest_request(
-        self, method: str, path: str, context: str = "rest", **kwargs
-    ) -> httpx.Response:
+        self, method: str, path: str, context: str = "rest", **kwargs ) -> httpx.Response:
         url = f"{self.base_url}{path}"
         response = httpx.request(
-            method, url, headers=self.headers, timeout=30, **kwargs
-        )
+            method, url, headers=self.headers, timeout=30, **kwargs )
         response.raise_for_status()
         log_rest_rate_limit(response, context)
         return response
@@ -1294,8 +1286,7 @@ class GitHubClient:
         # For reviews/comments: just warn (old items likely stale)
 
         commits_incomplete = (commits_conn.get("pageInfo") or {}).get(
-            "hasPreviousPage", False
-        )
+            "hasPreviousPage", False )
         if commits_incomplete:
             logger.warning(
                 "PR has >100 commits - cannot verify all commits, will require approval"
@@ -1394,8 +1385,7 @@ class GitHubClient:
         same_sha_open_prs: list[tuple[int, str]] = []
         head_commit_nodes = pr_data["headCommit"]["nodes"]
         head_commit = (
-            (head_commit_nodes[0] or {}).get("commit") if head_commit_nodes else None
-        ) or {}
+            (head_commit_nodes[0] or {}).get("commit") if head_commit_nodes else None ) or {}
         # `.get(k) or default` (not `.get(k, default)`) throughout: an explicit
         # JSON null returns None from .get(k, default), and these values feed
         # security decisions.
@@ -1409,8 +1399,7 @@ class GitHubClient:
             not head_commit
             or not head_ref_oid
             or head_commit_oid != head_ref_oid
-            or assoc_nodes is None
-        ):
+            or assoc_nodes is None ):
             # Without the head OID the stacked-PR filter below can't tell
             # siblings from stacked PRs, so the whole list is unverifiable.
             same_sha_prs_incomplete = True
@@ -1421,8 +1410,7 @@ class GitHubClient:
             )
         else:
             same_sha_prs_incomplete = ((assoc or {}).get("pageInfo") or {}).get(
-                "hasNextPage", False
-            )
+                "hasNextPage", False )
             for node in assoc_nodes:
                 state = (node or {}).get("state")
                 number = (node or {}).get("number")
@@ -1433,8 +1421,7 @@ class GitHubClient:
                     or state is None
                     or not isinstance(number, int)
                     or not base_ref
-                    or not node_head_oid
-                ):
+                    or not node_head_oid ):
                     # Null element or null scalar leaf — we can't tell whether
                     # this entry is an open protected-base sibling. Coercing
                     # (e.g. base_ref -> "") would silently drop it from the
@@ -1568,8 +1555,7 @@ def process_pr(
     pr_data = client.fetch_pr_data(pr_number)
 
     if not is_protected_base(
-        pr_data.base_ref, config, client.repo, pr_data.default_branch
-    ):
+        pr_data.base_ref, config, client.repo, pr_data.default_branch ):
         # Refuse to post any status for a PR that doesn't target a protected
         # base — commit statuses are SHA-scoped, so a success here would also
         # satisfy the required check on a sibling PR from the same head SHA
@@ -1703,8 +1689,7 @@ def process_pr(
 
     # Collect reactions for valid /approve comments
     collect_approval_reactions(
-        batch, pr_data.comments, head_sha, config, client.has_write_permission
-    )
+        batch, pr_data.comments, head_sha, config, client.has_write_permission )
 
     # Prepare notification comment. The sibling blocker is threaded in so the
     # comment never claims "approved" while post_status holds the required
@@ -1817,8 +1802,7 @@ def main() -> None:
             return
 
     pr_number = select_pr_candidate(
-        pr_number, os.environ.get("GH_PR_CANDIDATES", ""), config, repo
-    )
+        pr_number, os.environ.get("GH_PR_CANDIDATES", ""), config, repo )
 
     client = GitHubClient(token, repo)
     process_pr(client, pr_number, config)

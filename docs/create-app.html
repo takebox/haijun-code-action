@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Claude Code GitHub App</title>
+    <title>Create Haijun Code GitHub App</title>
     <style>
       * {
         box-sizing: border-box;
@@ -12,7 +12,7 @@
       }
 
       :root {
-        /* Claude Brand Colors */
+        /* Haijun Brand Colors */
         --primary-dark: #0e0e0e;
         --primary-light: #d4a27f;
         --background-light: rgb(253, 253, 247);
@@ -417,7 +417,7 @@
       <header>
         <h1>Create Your Custom GitHub App</h1>
         <p class="subtitle">
-          Set up a custom GitHub App for Claude Code Action with all required
+          Set up a custom GitHub App for Haijun Code Action with all required
           permissions automatically configured.
         </p>
       </header>
@@ -430,7 +430,7 @@
         </div>
         <p class="card-description">
           Create your GitHub App with one click. All permissions will be
-          automatically configured for Claude Code Action.
+          automatically configured for Haijun Code Action.
         </p>
 
         <div class="button-group">
@@ -554,7 +554,7 @@
             <div class="step-content">
               <p>
                 <strong>Install the app:</strong> Click "Install App" and select
-                the repositories where you want to use Claude
+                the repositories where you want to use Haijun
               </p>
             </div>
           </div>
@@ -633,10 +633,10 @@
     <script>
       // Manifest configuration
       const manifest = {
-        name: "Claude Code Custom App",
+        name: "Haijun Code Custom App",
         description:
-          "Custom GitHub App for Claude Code Action - AI-powered coding assistant for GitHub workflows",
-        url: "https://github.com/anthropics/claude-code-action",
+          "Custom GitHub App for Haijun Code Action - AI-powered coding assistant for GitHub workflows",
+        url: "https://github.com/takebox/haijun-code-action",
         hook_attributes: {
           url: "https://example.com/github/webhook",
           active: false,
@@ -644,7 +644,7 @@
         redirect_url: "https://github.com/settings/apps/new",
         callback_urls: [],
         setup_url:
-          "https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md",
+          "https://github.com/takebox/haijun-code-action/blob/main/docs/setup.md",
         public: false,
         default_permissions: {
           contents: "write",

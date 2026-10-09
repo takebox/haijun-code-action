@@ -4,7 +4,7 @@
  * Tests the interaction between restoreConfigFromBase and the auto-commit in
  * checkAndCommitOrDeleteBranch.
  *
- * On pull requests the restore replaces .claude/, CLAUDE.md and friends with
+ * On pull requests the restore replaces .haijun/, HAIJUN.md and friends with
  * the base branch's versions and leaves them unstaged, so the revert does not
  * reach a commit. A bare `git add -A` re-staged them anyway and pushed a silent
  * revert of the PR author's own config onto their branch.
@@ -22,7 +22,7 @@ import { checkAndCommitOrDeleteBranch } from "../src/github/operations/branch-cl
 import { SENSITIVE_PATHS } from "../src/github/operations/restore-config";
 import type { Octokits } from "../src/github/api/client";
 
-const BRANCH = "claude/issue-1-20260101-0000";
+const BRANCH = "haijun/issue-1-20260101-0000";
 
 let workDir: string;
 let remoteDir: string;
@@ -65,8 +65,8 @@ beforeEach(() => {
   git("config", "user.name", "Test");
   git("remote", "add", "origin", remoteDir);
 
-  write(".claude/settings.json", '{"from":"base"}\n');
-  write("CLAUDE.md", "base docs\n");
+  write(".haijun/settings.json", '{"from":"base"}\n');
+  write("HAIJUN.md", "base docs\n");
   write("src/app.ts", "base code\n");
   git("add", "-A");
   git("commit", "-qm", "base");
@@ -100,13 +100,13 @@ function filesInHeadCommit(): string[] {
  * git reports it as a plain modification.
  */
 function simulateRestoredConfig() {
-  write(".claude/settings.json", '{"from":"base"}\n');
-  write("CLAUDE.md", "base docs\n");
+  write(".haijun/settings.json", '{"from":"base"}\n');
+  write("HAIJUN.md", "base docs\n");
 }
 
 function authorPrConfigEdits() {
-  write(".claude/settings.json", '{"from":"pr-author"}\n');
-  write("CLAUDE.md", "pr author docs\n");
+  write(".haijun/settings.json", '{"from":"pr-author"}\n');
+  write("HAIJUN.md", "pr author docs\n");
   git("commit", "-qam", "PR author edits config");
 }
 
@@ -114,7 +114,7 @@ describe("auto-commit with restored config paths", () => {
   test("does not commit the base-branch revert onto the PR branch", async () => {
     authorPrConfigEdits();
     simulateRestoredConfig(); // config now reverted + unstaged
-    write("src/app.ts", "claude's real change\n");
+    write("src/app.ts", "haijun's real change\n");
 
     const result = await checkAndCommitOrDeleteBranch(
       mockOctokit,
@@ -133,7 +133,7 @@ describe("auto-commit with restored config paths", () => {
   test("leaves the reverted config dirty in the working tree", async () => {
     authorPrConfigEdits();
     simulateRestoredConfig();
-    write("src/app.ts", "claude's real change\n");
+    write("src/app.ts", "haijun's real change\n");
 
     await checkAndCommitOrDeleteBranch(
       mockOctokit,
@@ -150,7 +150,7 @@ describe("auto-commit with restored config paths", () => {
       .split("\n")
       .filter(Boolean)
       .sort();
-    expect(stillDirty).toEqual([".claude/settings.json", "CLAUDE.md"]);
+    expect(stillDirty).toEqual([".haijun/settings.json", "HAIJUN.md"]);
   });
 
   test("treats a branch whose only change is the revert as empty", async () => {
@@ -175,7 +175,7 @@ describe("auto-commit with restored config paths", () => {
     expect(result.branchLink).toBe("");
   });
 
-  test("still commits Claude's own changes to non-config files", async () => {
+  test("still commits Haijun's own changes to non-config files", async () => {
     authorPrConfigEdits();
     simulateRestoredConfig();
     write("src/app.ts", "changed\n");
@@ -197,7 +197,7 @@ describe("auto-commit with restored config paths", () => {
   test("pushes the commit to the branch", async () => {
     authorPrConfigEdits();
     simulateRestoredConfig();
-    write("src/app.ts", "claude's real change\n");
+    write("src/app.ts", "haijun's real change\n");
 
     const result = await checkAndCommitOrDeleteBranch(
       mockOctokit,
@@ -221,10 +221,10 @@ describe("auto-commit with restored config paths", () => {
 
 describe("without restored config paths (the issue path)", () => {
   test("commits config changes normally, since no revert happened", async () => {
-    // Reached for issues, where restoreConfigFromBase never runs and Claude may
-    // have been asked to edit CLAUDE.md. Excluding it here would drop the work.
-    write("CLAUDE.md", "claude wrote these docs\n");
-    write(".claude/settings.json", '{"written":"by claude"}\n');
+    // Reached for issues, where restoreConfigFromBase never runs and Haijun may
+    // have been asked to edit HAIJUN.md. Excluding it here would drop the work.
+    write("HAIJUN.md", "haijun wrote these docs\n");
+    write(".haijun/settings.json", '{"written":"by haijun"}\n');
     write("src/app.ts", "and some code\n");
 
     await checkAndCommitOrDeleteBranch(
@@ -238,15 +238,15 @@ describe("without restored config paths (the issue path)", () => {
     );
 
     expect(filesInHeadCommit()).toEqual([
-      ".claude/settings.json",
-      "CLAUDE.md",
+      ".haijun/settings.json",
+      "HAIJUN.md",
       "src/app.ts",
     ]);
   });
 
   test("defaults to committing everything when the argument is omitted", async () => {
     // Backwards compatibility: the parameter is optional.
-    write("CLAUDE.md", "claude wrote these docs\n");
+    write("HAIJUN.md", "haijun wrote these docs\n");
 
     await checkAndCommitOrDeleteBranch(
       mockOctokit,
@@ -257,6 +257,6 @@ describe("without restored config paths (the issue path)", () => {
       false,
     );
 
-    expect(filesInHeadCommit()).toEqual(["CLAUDE.md"]);
+    expect(filesInHeadCommit()).toEqual(["HAIJUN.md"]);
   });
 });

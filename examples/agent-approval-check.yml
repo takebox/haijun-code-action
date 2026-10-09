@@ -28,11 +28,11 @@ jobs:
     if: github.event_name != 'issue_comment' || github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
-      - uses: anthropics/claude-code-action/agent-approval-check@main
+      - uses: takebox/haijun-code-action/agent-approval-check@main
         with:
           required_approvals: 2
-          agent_emails: noreply@anthropic.com
-          agent_logins: claude[bot],claude-code[bot]
+          agent_emails: noreply@haijun.my.id
+          agent_logins: haijun[bot],haijun-code[bot]
           # Uncomment to tune:
           # excluded_approvers: dependabot[bot]
           # exempt_path_prefixes: docs/

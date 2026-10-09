@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   workflow_call:
 
-# The Claude API is authenticated via workload identity federation: id-token
+# The Haijun API is authenticated via workload identity federation: id-token
 # lets the action mint the GitHub OIDC token it exchanges for a short-lived
 # access token. See docs/setup.md.
 permissions:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test-settings-inline-allow:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -26,9 +26,9 @@ jobs:
         with:
           prompt: |
             Use Bash to echo "Hello from settings test"
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
           settings: |
             {
               "permissions": {
@@ -67,7 +67,7 @@ jobs:
           fi
 
   test-settings-inline-deny:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -79,9 +79,9 @@ jobs:
         with:
           prompt: |
             Run the command `echo $HOME` to check the home directory path
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
           settings: |
             {
               "permissions": {
@@ -103,7 +103,7 @@ jobs:
           fi
 
   test-settings-file-allow:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -125,9 +125,9 @@ jobs:
         with:
           prompt: |
             Use Bash to echo "Hello from settings file test"
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
           settings: "test-settings.json"
 
       - name: Verify echo worked
@@ -161,7 +161,7 @@ jobs:
           fi
 
   test-settings-file-deny:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -183,9 +183,9 @@ jobs:
         with:
           prompt: |
             Run the command `echo $HOME` to check the home directory path
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
           settings: "test-settings.json"
 
       - name: Verify echo was denied

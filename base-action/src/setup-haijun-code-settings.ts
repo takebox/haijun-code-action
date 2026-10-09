@@ -2,17 +2,17 @@ import { $ } from "bun";
 import { homedir } from "os";
 import { readFile } from "fs/promises";
 
-export async function setupClaudeCodeSettings(
+export async function setupHaijunCodeSettings(
   settingsInput?: string,
   homeDir?: string,
 ) {
   const home = homeDir ?? homedir();
-  const settingsPath = `${home}/.claude/settings.json`;
-  console.log(`Setting up Claude settings at: ${settingsPath}`);
+  const settingsPath = `${home}/.haijun/settings.json`;
+  console.log(`Setting up Haijun settings at: ${settingsPath}`);
 
-  // Ensure .claude directory exists
-  console.log(`Creating .claude directory...`);
-  await $`mkdir -p ${home}/.claude`.quiet();
+  // Ensure .haijun directory exists
+  console.log(`Creating .haijun directory...`);
+  await $`mkdir -p ${home}/.haijun`.quiet();
 
   let settings: Record<string, unknown> = {};
   try {

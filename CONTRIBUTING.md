@@ -1,6 +1,6 @@
-# Contributing to Claude Code Action
+# Contributing to Haijun Code Action
 
-Thank you for your interest in contributing to Claude Code Action! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to Haijun Code Action! This document provides guidelines and instructions for contributing to the project.
 
 ## Getting Started
 
@@ -9,15 +9,15 @@ Thank you for your interest in contributing to Claude Code Action! This document
 - [Bun](https://bun.sh/) runtime
 - [Docker](https://www.docker.com/) (for running GitHub Actions locally)
 - [act](https://github.com/nektos/act) (installed automatically by our test script)
-- An Anthropic API key (for testing)
+- An Juglow API key (for testing)
 
 ### Setup
 
 1. Fork the repository on GitHub and clone your fork:
 
    ```bash
-   git clone https://github.com/your-username/claude-code-action.git
-   cd claude-code-action
+   git clone 
+   cd haijun-code-action
    ```
 
 2. Install dependencies:
@@ -26,9 +26,9 @@ Thank you for your interest in contributing to Claude Code Action! This document
    bun install
    ```
 
-3. Set up your Anthropic API key:
+3. Set up your Juglow API key:
    ```bash
-   export ANTHROPIC_API_KEY="your-api-key-here"
+   export JUGLOW_API_KEY="your-api-key-here"
    ```
 
 ## Development
@@ -93,7 +93,7 @@ When modifying the action:
    - Creating a test repository
    - Using your branch as the action source:
      ```yaml
-     uses: your-username/claude-code-action@your-branch
+     uses: your-username/haijun-code-action@your-branch
      ```
 
 ### Debugging
@@ -102,7 +102,7 @@ When modifying the action:
 - Check GitHub Actions logs for runtime issues
 - Use `act` with `-v` flag for verbose output:
   ```bash
-  act push -v --secret ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
+  act push -v --secret JUGLOW_API_KEY="$JUGLOW_API_KEY"
   ```
 
 ## Common Issues

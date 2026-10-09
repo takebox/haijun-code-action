@@ -216,7 +216,7 @@ Issue Labels: architecture, agent-sdk, drift:functional`,
 describe("formatBody", () => {
   test("replaces image URLs with local paths", () => {
     const body = `Here is some text with an image: ![screenshot](https://github.com/user-attachments/assets/test-image.png)
-    
+
 And another one: ![another](https://github.com/user-attachments/assets/another-image.jpg)
 
 Some more text.`;
@@ -235,7 +235,7 @@ Some more text.`;
     const result = formatBody(body, imageUrlMap);
     expect(result)
       .toBe(`Here is some text with an image: ![](/tmp/github-images/image-1234-0.png)
-    
+
 And another one: ![](/tmp/github-images/image-1234-1.jpg)
 
 Some more text.`);
@@ -578,7 +578,7 @@ describe("formatReviewComments", () => {
   });
 
   // GitHub returns line: null and diffHunk: "" for outdated comments whose
-  // line no longer exists in the diff (observed on anthropics/claude-code-action#1025).
+  // line no longer exists in the diff (observed on takebox/haijun-code-action#1025).
   test("omits the diff context for an outdated comment with an empty diff hunk", () => {
     const reviewData = {
       nodes: [

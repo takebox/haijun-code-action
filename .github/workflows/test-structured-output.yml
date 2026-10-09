@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   workflow_call:
 
-# The Claude API is authenticated via workload identity federation: id-token
+# The Haijun API is authenticated via workload identity federation: id-token
 # lets the action mint the GitHub OIDC token it exchanges for a short-lived
 # access token. See docs/setup.md.
 permissions:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   test-basic-types:
     name: Test Basic Type Conversions
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -34,10 +34,10 @@ jobs:
             - number_field: 42
             - boolean_true: true
             - boolean_false: false
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: |
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: |
             --allowedTools Bash
             --json-schema '{"type":"object","properties":{"text_field":{"type":"string"},"number_field":{"type":"number"},"boolean_true":{"type":"boolean"},"boolean_false":{"type":"boolean"}},"required":["text_field","number_field","boolean_true","boolean_false"]}'
 
@@ -78,7 +78,7 @@ jobs:
 
   test-complex-types:
     name: Test Arrays and Objects
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -96,10 +96,10 @@ jobs:
             - items: ["apple", "banana", "cherry"]
             - config: {"key": "value", "count": 3}
             - empty_array: []
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: |
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: |
             --allowedTools Bash
             --json-schema '{"type":"object","properties":{"items":{"type":"array","items":{"type":"string"}},"config":{"type":"object"},"empty_array":{"type":"array"}},"required":["items","config","empty_array"]}'
 
@@ -133,7 +133,7 @@ jobs:
 
   test-edge-cases:
     name: Test Edge Cases
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -152,10 +152,10 @@ jobs:
             - empty_string: ""
             - negative: -5
             - decimal: 3.14
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: |
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: |
             --allowedTools Bash
             --json-schema '{"type":"object","properties":{"zero":{"type":"number"},"empty_string":{"type":"string"},"negative":{"type":"number"},"decimal":{"type":"number"}},"required":["zero","empty_string","negative","decimal"]}'
 
@@ -196,7 +196,7 @@ jobs:
 
   test-name-sanitization:
     name: Test Output Name Sanitization
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -210,10 +210,10 @@ jobs:
           prompt: |
             Run: echo "test"
             Return EXACTLY: {test-result: "passed", item_count: 10}
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: |
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: |
             --allowedTools Bash
             --json-schema '{"type":"object","properties":{"test-result":{"type":"string"},"item_count":{"type":"number"}},"required":["test-result","item_count"]}'
 
@@ -240,7 +240,7 @@ jobs:
 
   test-execution-file-structure:
     name: Test Execution File Format
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -252,10 +252,10 @@ jobs:
         uses: ./base-action
         with:
           prompt: "Run: echo 'complete'. Return: {done: true}"
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          claude_args: |
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          haijun_args: |
             --allowedTools Bash
             --json-schema '{"type":"object","properties":{"done":{"type":"boolean"}},"required":["done"]}'
 

@@ -63,7 +63,7 @@ describe("installPlugins", () => {
     // Only call: install plugin (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -77,33 +77,33 @@ describe("installPlugins", () => {
     // Install plugins (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin1"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin2"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       3,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin3"],
       { stdio: "inherit" },
     );
   });
 
-  test("should use custom claude executable path when provided", async () => {
+  test("should use custom haijun executable path when provided", async () => {
     const spy = createMockSpawn();
-    await installPlugins(undefined, "test-plugin", "/custom/path/to/claude");
+    await installPlugins(undefined, "test-plugin", "/custom/path/to/haijun");
 
     expect(spy).toHaveBeenCalledTimes(1);
     // Only call: install plugin (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "/custom/path/to/claude",
+      "/custom/path/to/haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -117,13 +117,13 @@ describe("installPlugins", () => {
     // Install plugins (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin1"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin2"],
       { stdio: "inherit" },
     );
@@ -137,13 +137,13 @@ describe("installPlugins", () => {
     // Install plugins (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin1"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin2"],
       { stdio: "inherit" },
     );
@@ -186,13 +186,13 @@ describe("installPlugins", () => {
     // Install plugins (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "org/plugin-name"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "@scope/plugin"],
       { stdio: "inherit" },
     );
@@ -211,20 +211,20 @@ describe("installPlugins", () => {
     await installPlugins(
       undefined,
       "plugin-a\nplugin-b",
-      "/usr/local/bin/claude-custom",
+      "/usr/local/bin/haijun-custom",
     );
 
     expect(spy).toHaveBeenCalledTimes(2);
     // Install plugins (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "/usr/local/bin/claude-custom",
+      "/usr/local/bin/haijun-custom",
       ["plugin", "install", "plugin-a"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "/usr/local/bin/claude-custom",
+      "/usr/local/bin/haijun-custom",
       ["plugin", "install", "plugin-b"],
       { stdio: "inherit" },
     );
@@ -290,7 +290,7 @@ describe("installPlugins", () => {
     // Only call: install plugin (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin-v1.0.2"],
       { stdio: "inherit" },
     );
@@ -304,7 +304,7 @@ describe("installPlugins", () => {
     // Only call: install plugin (no marketplace without explicit marketplace input)
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "@scope/plugin-v1.0.0-beta.1"],
       { stdio: "inherit" },
     );
@@ -363,7 +363,7 @@ describe("installPlugins", () => {
     // First call: add marketplace
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       [
         "plugin",
         "marketplace",
@@ -375,7 +375,7 @@ describe("installPlugins", () => {
     // Second call: install plugin
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -392,20 +392,20 @@ describe("installPlugins", () => {
     // First two calls: add marketplaces
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "https://github.com/user/m1.git"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "https://github.com/user/m2.git"],
       { stdio: "inherit" },
     );
     // Third call: install plugin
     expect(spy).toHaveBeenNthCalledWith(
       3,
-      "claude",
+      "haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -422,7 +422,7 @@ describe("installPlugins", () => {
     // First call: add marketplace
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       [
         "plugin",
         "marketplace",
@@ -434,13 +434,13 @@ describe("installPlugins", () => {
     // Next calls: install plugins
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin1"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       3,
-      "claude",
+      "haijun",
       ["plugin", "install", "plugin2"],
       { stdio: "inherit" },
     );
@@ -453,7 +453,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       [
         "plugin",
         "marketplace",
@@ -484,7 +484,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(3);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       [
         "plugin",
         "marketplace",
@@ -495,7 +495,7 @@ describe("installPlugins", () => {
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "https://github.com/user/m2.git"],
       { stdio: "inherit" },
     );
@@ -539,7 +539,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -574,13 +574,13 @@ describe("installPlugins", () => {
     await installPlugins(
       "https://github.com/user/marketplace.git",
       "test-plugin",
-      "/custom/path/to/claude",
+      "/custom/path/to/haijun",
     );
 
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "/custom/path/to/claude",
+      "/custom/path/to/haijun",
       [
         "plugin",
         "marketplace",
@@ -591,7 +591,7 @@ describe("installPlugins", () => {
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "/custom/path/to/claude",
+      "/custom/path/to/haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -605,13 +605,13 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "./my-local-marketplace"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "install", "test-plugin"],
       { stdio: "inherit" },
     );
@@ -624,7 +624,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "/home/user/my-marketplace"],
       { stdio: "inherit" },
     );
@@ -637,7 +637,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "C:\\Users\\user\\marketplace"],
       { stdio: "inherit" },
     );
@@ -653,13 +653,13 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(3);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "./local-marketplace"],
       { stdio: "inherit" },
     );
     expect(spy).toHaveBeenNthCalledWith(
       2,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "https://github.com/user/remote.git"],
       { stdio: "inherit" },
     );
@@ -672,7 +672,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "../shared-plugins/marketplace"],
       { stdio: "inherit" },
     );
@@ -685,7 +685,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "./plugins/my-org/my-marketplace"],
       { stdio: "inherit" },
     );
@@ -698,7 +698,7 @@ describe("installPlugins", () => {
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenNthCalledWith(
       1,
-      "claude",
+      "haijun",
       ["plugin", "marketplace", "add", "./my.plugin.marketplace"],
       { stdio: "inherit" },
     );

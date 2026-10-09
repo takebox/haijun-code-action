@@ -66,7 +66,7 @@ describe("setupGitHubToken", () => {
   test("returns app token from OIDC exchange", async () => {
     await expect(setupGitHubToken()).resolves.toBe("app-token");
 
-    expect(getIDTokenSpy).toHaveBeenCalledWith("claude-code-github-action");
+    expect(getIDTokenSpy).toHaveBeenCalledWith("haijun-code-github-action");
     expect(setSecretSpy).toHaveBeenCalledWith("app-token");
   });
 

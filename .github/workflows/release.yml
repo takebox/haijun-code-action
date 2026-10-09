@@ -24,7 +24,7 @@ jobs:
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main' &&
        github.event.workflow_run.event == 'push' &&
-       startsWith(github.event.workflow_run.head_commit.message, 'chore: bump Claude Code to'))
+       startsWith(github.event.workflow_run.head_commit.message, 'chore: bump Haijun Code to'))
     environment: production
     permissions:
       contents: write
@@ -132,8 +132,8 @@ jobs:
   #     - name: Checkout base-action repo
   #       uses: actions/checkout@v6
   #       with:
-  #         repository: anthropics/claude-code-base-action
-  #         token: ${{ secrets.CLAUDE_CODE_BASE_ACTION_PAT }}
+  #         repository: takebox/haijun-code-base-action
+  #         token: ${{ secrets.HAIJUN_CODE_BASE_ACTION_PAT }}
   #         fetch-depth: 0
   #
   #     - name: Create and push tag
@@ -144,7 +144,7 @@ jobs:
   #         git config user.email "github-actions[bot]@users.noreply.github.com"
   #
   #         # Create the version tag
-  #         git tag -a "$next_version" -m "Release $next_version - synced from claude-code-action"
+  #         git tag -a "$next_version" -m "Release $next_version - synced from haijun-code-action"
   #         git push origin "$next_version"
   #
   #         # Update the beta tag
@@ -153,18 +153,18 @@ jobs:
   #
   #     - name: Create GitHub release
   #       env:
-  #         GH_TOKEN: ${{ secrets.CLAUDE_CODE_BASE_ACTION_PAT }}
+  #         GH_TOKEN: ${{ secrets.HAIJUN_CODE_BASE_ACTION_PAT }}
   #       run: |
   #         next_version="${{ needs.create-release.outputs.next_version }}"
   #
   #         # Create the release
   #         gh release create "$next_version" \
-  #           --repo anthropics/claude-code-base-action \
+  #           --repo takebox/haijun-code-base-action \
   #           --title "$next_version" \
-  #           --notes "Release $next_version - synced from anthropics/claude-code-action" \
+  #           --notes "Release $next_version - synced from takebox/haijun-code-action" \
   #           --latest=false
   #
   #         # Update beta release to be latest
   #         gh release edit beta \
-  #           --repo anthropics/claude-code-base-action \
+  #           --repo takebox/haijun-code-base-action \
   #           --latest

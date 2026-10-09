@@ -1,4 +1,4 @@
-import { checkHumanActor } from "../../github/validation/actor";
+﻿import { checkHumanActor } from "../../github/validation/actor";
 import { createInitialComment } from "../../github/operations/comments/create-initial";
 import { setupBranch } from "../../github/operations/branch";
 import {
@@ -22,7 +22,7 @@ import { parseAllowedTools } from "../agent/parse-tools";
 /**
  * Prepares the tag mode execution context.
  *
- * Tag mode responds to @claude mentions, issue assignments, or labels.
+ * Tag mode responds to @haijun mentions, issue assignments, or labels.
  * Creates tracking comments showing progress and has full implementation capabilities.
  */
 export async function prepareTagMode({
@@ -115,19 +115,19 @@ export async function prepareTagMode({
   await createPrompt(
     commentId,
     branchInfo.baseBranch,
-    branchInfo.claudeBranch,
+    branchInfo.haijunBranch,
     githubData,
     context,
   );
 
-  const userClaudeArgs = process.env.CLAUDE_ARGS || "";
-  const userAllowedMCPTools = parseAllowedTools(userClaudeArgs).filter((tool) =>
+  const userHaijunArgs = process.env.HAIJUN_args || "";
+  const userAllowedMCPTools = parseAllowedTools(userHaijunArgs).filter((tool) =>
     tool.startsWith("mcp__github_"),
   );
 
   const gitPushWrapper = `${process.env.GITHUB_ACTION_PATH}/scripts/git-push.sh`;
 
-  // Build claude_args for tag mode with required tools.
+  // Build HAIJUN_args for tag mode with required tools.
   // Edit/MultiEdit/Write are intentionally omitted: acceptEdits permission mode (set below)
   // auto-allows file edits inside $GITHUB_WORKSPACE and denies writes outside (e.g. ~/.bashrc).
   // Listing them here would grant blanket write access to the whole runner (Asana 1213310082312048).
@@ -136,7 +136,7 @@ export async function prepareTagMode({
     "Grep",
     "LS",
     "Read",
-    "mcp__github_comment__update_claude_comment",
+    "mcp__github_comment__update_haijunaude_comment",
     "mcp__github_ci__get_ci_status",
     "mcp__github_ci__get_workflow_run_details",
     "mcp__github_ci__download_job_log",
@@ -165,35 +165,35 @@ export async function prepareTagMode({
     githubToken,
     owner: context.repository.owner,
     repo: context.repository.repo,
-    branch: branchInfo.claudeBranch || branchInfo.currentBranch,
+    branch: branchInfo.haijunBranch || branchInfo.currentBranch,
     baseBranch: branchInfo.baseBranch,
-    claudeCommentId: commentId.toString(),
+    haijunCommentId: commentId.toString(),
     allowedTools: Array.from(new Set(tagModeTools)),
     mode: "tag",
     context,
   });
 
-  // Build complete claude_args with multiple --mcp-config flags
-  let claudeArgs = "";
+  // Build complete HAIJUN_args with multiple --mcp-config flags
+  let HaijunArgs = "";
 
   // Add our GitHub servers config
   const escapedOurConfig = ourMcpConfig.replace(/'/g, "'\\''");
-  claudeArgs = `--mcp-config '${escapedOurConfig}'`;
+  HaijunArgs = `--mcp-config '${escapedOurConfig}'`;
 
   // Add required tools for tag mode.
   // acceptEdits: file edits auto-allowed inside cwd ($GITHUB_WORKSPACE), denied outside.
   // Headless SDK has no prompt handler, so anything that falls through to "ask" is denied.
-  claudeArgs += ` --permission-mode acceptEdits --allowedTools "${tagModeTools.join(",")}"`;
+  HaijunArgs += ` --permission-mode acceptEdits --allowedTools "${tagModeTools.join(",")}"`;
 
-  // Append user's claude_args (which may have more --mcp-config flags)
-  if (userClaudeArgs) {
-    claudeArgs += ` ${userClaudeArgs}`;
+  // Append user's HAIJUN_args (which may have more --mcp-config flags)
+  if (userHaijunArgs) {
+    HaijunArgs += ` ${userHaijunArgs}`;
   }
 
   return {
     commentId,
     branchInfo,
     mcpConfig: ourMcpConfig,
-    claudeArgs: claudeArgs.trim(),
+    HaijunArgs: HaijunArgs.trim(),
   };
 }

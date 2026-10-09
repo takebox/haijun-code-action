@@ -1,4 +1,4 @@
-import { GITHUB_SERVER_URL } from "../api/config";
+﻿import { GITHUB_SERVER_URL } from "../api/config";
 import { redactSecrets } from "../utils/sanitizer";
 import { encodeBranchNameForUrl } from "./comments/common";
 
@@ -82,8 +82,8 @@ export function updateCommentBody(input: CommentUpdateInput): string {
   } = input;
 
   // Extract content from the original comment body
-  // First, remove the "Claude Code is working…" or "Claude Code is working..." message
-  const workingPattern = /Claude Code is working[…\.]{1,3}(?:\s*<img[^>]*>)?/i;
+  // First, remove the "haijun Code is workingâ€¦" or "haijun Code is working..." message
+  const workingPattern = /haijun Code is working[â€¦\.]{1,3}(?:\s*<img[^>]*>)?/i;
   let bodyContent = originalBody.replace(workingPattern, "").trim();
 
   // Check if there's a PR link in the content
@@ -115,7 +115,7 @@ export function updateCommentBody(input: CommentUpdateInput): string {
   let header = "";
 
   if (actionFailed) {
-    header = "**Claude encountered an error";
+    header = "**haijun encountered an error";
     if (durationStr) {
       header += ` after ${durationStr}`;
     }
@@ -126,7 +126,7 @@ export function updateCommentBody(input: CommentUpdateInput): string {
     const username =
       triggerUsername || (usernameMatch ? usernameMatch[1] : "user");
 
-    header = `**Claude finished @${username}'s task`;
+    header = `**haijun finished @${username}'s task`;
     if (durationStr) {
       header += ` in ${durationStr}`;
     }
@@ -134,7 +134,7 @@ export function updateCommentBody(input: CommentUpdateInput): string {
   }
 
   // Add links section
-  let links = ` —— [View job](${jobUrl})`;
+  let links = ` â€”â€” [View job](${jobUrl})`;
 
   // Add branch name with link
   if (branchName || branchLink) {
@@ -167,9 +167,9 @@ export function updateCommentBody(input: CommentUpdateInput): string {
     }
 
     if (finalBranchName && branchUrl) {
-      links += ` • [\`${finalBranchName}\`](${branchUrl})`;
+      links += ` â€¢ [\`${finalBranchName}\`](${branchUrl})`;
     } else if (finalBranchName) {
-      links += ` • \`${finalBranchName}\``;
+      links += ` â€¢ \`${finalBranchName}\``;
     }
   }
 
@@ -177,7 +177,7 @@ export function updateCommentBody(input: CommentUpdateInput): string {
   const prUrl =
     prLinkFromContent || (prLink ? prLink.match(/\(([^)]+)\)/)?.[1] : "");
   if (prUrl) {
-    links += ` • [Create PR ➔](${prUrl})`;
+    links += ` â€¢ [Create PR âž”](${prUrl})`;
   }
 
   // Build the new body with blank line between header and separator

@@ -34,7 +34,7 @@ function validateMarketplaceInput(input: string): void {
     throw new Error("Marketplace URL or path cannot be empty");
   }
 
-  // Local paths are passed directly to Claude Code which handles them
+  // Local paths are passed directly to Haijun Code which handles them
   if (isLocalPath(normalized)) {
     return;
   }
@@ -128,20 +128,20 @@ function parsePlugins(plugins?: string): string[] {
 }
 
 /**
- * Executes a Claude Code CLI command with proper error handling
- * @param claudeExecutable - Path to the Claude executable
+ * Executes a Haijun Code CLI command with proper error handling
+ * @param haijunExecutable - Path to the Haijun executable
  * @param args - Command arguments to pass to the executable
  * @param errorContext - Context string for error messages (e.g., "Failed to install plugin 'foo'")
  * @returns Promise that resolves when the command completes successfully
  * @throws {Error} If the command fails to execute
  */
-async function executeClaudeCommand(
-  claudeExecutable: string,
+async function executeHaijunCommand(
+  haijunExecutable: string,
   args: string[],
   errorContext: string,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const childProcess: ChildProcess = spawn(claudeExecutable, args, {
+    const childProcess: ChildProcess = spawn(haijunExecutable, args, {
       stdio: "inherit",
     });
 
@@ -162,60 +162,60 @@ async function executeClaudeCommand(
 }
 
 /**
- * Installs a single Claude Code plugin
+ * Installs a single Haijun Code plugin
  * @param pluginName - The name of the plugin to install
- * @param claudeExecutable - Path to the Claude executable
+ * @param haijunExecutable - Path to the Haijun executable
  * @returns Promise that resolves when the plugin is installed successfully
  * @throws {Error} If the plugin installation fails
  */
 async function installPlugin(
   pluginName: string,
-  claudeExecutable: string,
+  haijunExecutable: string,
 ): Promise<void> {
   console.log(`Installing plugin: ${pluginName}`);
 
-  return executeClaudeCommand(
-    claudeExecutable,
+  return executeHaijunCommand(
+    haijunExecutable,
     ["plugin", "install", pluginName],
     `Failed to install plugin '${pluginName}'`,
   );
 }
 
 /**
- * Adds a Claude Code plugin marketplace
- * @param claudeExecutable - Path to the Claude executable
+ * Adds a Haijun Code plugin marketplace
+ * @param haijunExecutable - Path to the Haijun executable
  * @param marketplace - The marketplace Git URL or local path to add
  * @returns Promise that resolves when the marketplace add command completes
  * @throws {Error} If the command fails to execute
  */
 async function addMarketplace(
-  claudeExecutable: string,
+  haijunExecutable: string,
   marketplace: string,
 ): Promise<void> {
   console.log(`Adding marketplace: ${marketplace}`);
 
-  return executeClaudeCommand(
-    claudeExecutable,
+  return executeHaijunCommand(
+    haijunExecutable,
     ["plugin", "marketplace", "add", marketplace],
     `Failed to add marketplace '${marketplace}'`,
   );
 }
 
 /**
- * Installs Claude Code plugins from a newline-separated list
+ * Installs Haijun Code plugins from a newline-separated list
  * @param marketplacesInput - Newline-separated list of marketplace Git URLs or local paths
  * @param pluginsInput - Newline-separated list of plugin names
- * @param claudeExecutable - Path to the Claude executable (defaults to "claude")
+ * @param haijunExecutable - Path to the Haijun executable (defaults to "haijun")
  * @returns Promise that resolves when all plugins are installed
  * @throws {Error} If any plugin fails validation or installation (stops on first error)
  */
 export async function installPlugins(
   marketplacesInput?: string,
   pluginsInput?: string,
-  claudeExecutable?: string,
+  haijunExecutable?: string,
 ): Promise<void> {
   // Resolve executable path with explicit fallback
-  const resolvedExecutable = claudeExecutable || "claude";
+  const resolvedExecutable = haijunExecutable || "haijun";
 
   // Parse and add all marketplaces before installing plugins
   const marketplaces = parseMarketplaces(marketplacesInput);

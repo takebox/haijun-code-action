@@ -5,7 +5,7 @@ import { mkdtemp, readFile, rm, writeFile } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 
-describe("runClaudeWithSdk", () => {
+describe("runHaijunWithSdk", () => {
   const originalRunnerTemp = process.env.RUNNER_TEMP;
   let tempDir: string | undefined;
 
@@ -23,7 +23,7 @@ describe("runClaudeWithSdk", () => {
     );
     const consoleLogSpy = spyOn(console, "log").mockImplementation(() => {});
 
-    tempDir = await mkdtemp(join(tmpdir(), "claude-sdk-"));
+    tempDir = await mkdtemp(join(tmpdir(), "haijun-sdk-"));
     process.env.RUNNER_TEMP = tempDir;
 
     const promptPath = join(tempDir, "prompt.txt");
@@ -33,28 +33,28 @@ describe("runClaudeWithSdk", () => {
       type: "system",
       subtype: "init",
       session_id: "session-123",
-      model: "claude-sonnet-4-6",
+      model: "haijun-sonnet-4-6",
     };
 
-    mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+    mock.module("@takebox-ai/haijun-agent-sdk", () => ({
       query: async function* () {
         yield initMessage;
-        throw new Error("Claude Code returned error_max_turns");
+        throw new Error("Haijun Code returned error_max_turns");
       },
     }));
 
     try {
-      const { runClaudeWithSdk } = await import("../src/run-claude-sdk");
+      const { runHaijunWithSdk } = await import("../src/run-haijun-sdk");
 
       await expect(
-        runClaudeWithSdk(promptPath, {
+        runHaijunWithSdk(promptPath, {
           sdkOptions: {},
           showFullOutput: false,
           hasJsonSchema: false,
         }),
       ).rejects.toThrow("SDK execution error");
 
-      const executionFile = join(tempDir, "claude-execution-output.json");
+      const executionFile = join(tempDir, "haijun-execution-output.json");
       await expect(readFile(executionFile, "utf-8")).resolves.toBe(
         JSON.stringify([initMessage], null, 2),
       );
@@ -67,7 +67,7 @@ describe("runClaudeWithSdk", () => {
   test("logs resolved model limits without exposing token usage", async () => {
     const consoleLogSpy = spyOn(console, "log").mockImplementation(() => {});
 
-    tempDir = await mkdtemp(join(tmpdir(), "claude-sdk-"));
+    tempDir = await mkdtemp(join(tmpdir(), "haijun-sdk-"));
     process.env.RUNNER_TEMP = tempDir;
 
     const promptPath = join(tempDir, "prompt.txt");
@@ -77,7 +77,7 @@ describe("runClaudeWithSdk", () => {
       type: "system",
       subtype: "init",
       session_id: "session-123",
-      model: "claude-opus-5",
+      model: "haijun-opus-5",
     };
 
     const resultMessage = {
@@ -89,7 +89,7 @@ describe("runClaudeWithSdk", () => {
       total_cost_usd: 1.23,
       permission_denials: [],
       modelUsage: {
-        "claude-opus-5": {
+        "haijun-opus-5": {
           inputTokens: 96209,
           outputTokens: 55324,
           cacheReadInputTokens: 1135701,
@@ -102,7 +102,7 @@ describe("runClaudeWithSdk", () => {
       },
     };
 
-    mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+    mock.module("@takebox-ai/haijun-agent-sdk", () => ({
       query: async function* () {
         yield initMessage;
         yield resultMessage;
@@ -110,10 +110,10 @@ describe("runClaudeWithSdk", () => {
     }));
 
     try {
-      const { runClaudeWithSdk } = await import("../src/run-claude-sdk");
+      const { runHaijunWithSdk } = await import("../src/run-haijun-sdk");
 
       await expect(
-        runClaudeWithSdk(promptPath, {
+        runHaijunWithSdk(promptPath, {
           sdkOptions: {},
           showFullOutput: false,
           hasJsonSchema: false,
@@ -140,7 +140,7 @@ describe("runClaudeWithSdk", () => {
         total_cost_usd: 1.23,
         permission_denials_count: 0,
         modelUsage: {
-          "claude-opus-5": {
+          "haijun-opus-5": {
             contextWindow: 200000,
             maxOutputTokens: 64000,
           },
@@ -163,7 +163,7 @@ describe("runClaudeWithSdk", () => {
       "error",
     ).mockImplementation(() => {});
 
-    tempDir = await mkdtemp(join(tmpdir(), "claude-sdk-"));
+    tempDir = await mkdtemp(join(tmpdir(), "haijun-sdk-"));
     process.env.RUNNER_TEMP = tempDir;
 
     const promptPath = join(tempDir, "prompt.txt");
@@ -173,7 +173,7 @@ describe("runClaudeWithSdk", () => {
       type: "system",
       subtype: "init",
       session_id: "session-123",
-      model: "claude-sonnet-5",
+      model: "haijun-sonnet-5",
     };
 
     const errorResultMessage = {
@@ -186,7 +186,7 @@ describe("runClaudeWithSdk", () => {
       permission_denials: [],
     };
 
-    mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+    mock.module("@takebox-ai/haijun-agent-sdk", () => ({
       query: async function* () {
         yield initMessage;
         yield errorResultMessage;
@@ -194,22 +194,22 @@ describe("runClaudeWithSdk", () => {
     }));
 
     try {
-      const { runClaudeWithSdk } = await import("../src/run-claude-sdk");
+      const { runHaijunWithSdk } = await import("../src/run-haijun-sdk");
 
       await expect(
-        runClaudeWithSdk(promptPath, {
+        runHaijunWithSdk(promptPath, {
           sdkOptions: {},
           showFullOutput: false,
           hasJsonSchema: false,
         }),
       ).rejects.toThrow("result is_error:true");
 
-      const executionFile = join(tempDir, "claude-execution-output.json");
+      const executionFile = join(tempDir, "haijun-execution-output.json");
       await expect(readFile(executionFile, "utf-8")).resolves.toBe(
         JSON.stringify([initMessage, errorResultMessage], null, 2),
       );
       expect(coreErrorSpy).toHaveBeenCalledWith(
-        "Claude result reported subtype success with is_error:true (run did not complete successfully)",
+        "Haijun result reported subtype success with is_error:true (run did not complete successfully)",
       );
     } finally {
       consoleErrorSpy.mockRestore();
@@ -228,7 +228,7 @@ describe("runClaudeWithSdk", () => {
       "error",
     ).mockImplementation(() => {});
 
-    tempDir = await mkdtemp(join(tmpdir(), "claude-sdk-"));
+    tempDir = await mkdtemp(join(tmpdir(), "haijun-sdk-"));
     process.env.RUNNER_TEMP = tempDir;
 
     const promptPath = join(tempDir, "prompt.txt");
@@ -238,7 +238,7 @@ describe("runClaudeWithSdk", () => {
       type: "system",
       subtype: "init",
       session_id: "session-123",
-      model: "claude-opus-4-7",
+      model: "haijun-opus-4-7",
     };
 
     const successResultMessage = {
@@ -251,7 +251,7 @@ describe("runClaudeWithSdk", () => {
       permission_denials: [],
     };
 
-    mock.module("@anthropic-ai/claude-agent-sdk", () => ({
+    mock.module("@takebox-ai/haijun-agent-sdk", () => ({
       query: async function* () {
         yield initMessage;
         yield successResultMessage;
@@ -259,24 +259,24 @@ describe("runClaudeWithSdk", () => {
     }));
 
     try {
-      const { runClaudeWithSdk } = await import("../src/run-claude-sdk");
+      const { runHaijunWithSdk } = await import("../src/run-haijun-sdk");
 
       await expect(
-        runClaudeWithSdk(promptPath, {
+        runHaijunWithSdk(promptPath, {
           sdkOptions: { maxTurns: 60 },
           showFullOutput: false,
           hasJsonSchema: false,
         }),
       ).rejects.toThrow(
-        "Claude reported a successful result after 73 turns, exceeding the configured maximum of 60",
+        "Haijun reported a successful result after 73 turns, exceeding the configured maximum of 60",
       );
 
-      const executionFile = join(tempDir, "claude-execution-output.json");
+      const executionFile = join(tempDir, "haijun-execution-output.json");
       await expect(readFile(executionFile, "utf-8")).resolves.toBe(
         JSON.stringify([initMessage, successResultMessage], null, 2),
       );
       expect(coreErrorSpy).toHaveBeenCalledWith(
-        "Claude reported a successful result after 73 turns, exceeding the configured maximum of 60",
+        "Haijun reported a successful result after 73 turns, exceeding the configured maximum of 60",
       );
     } finally {
       consoleErrorSpy.mockRestore();

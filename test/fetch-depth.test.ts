@@ -67,7 +67,7 @@ describe("setupBranch fetch depth", () => {
       const context = createMockContext({
         isPR: false,
         entityNumber: 7,
-        inputs: { useCommitSigning, branchPrefix: "claude/" },
+        inputs: { useCommitSigning, branchPrefix: "haijun/" },
       });
 
       await setupBranch(octokits, githubData, context);

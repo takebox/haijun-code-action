@@ -103,8 +103,7 @@ export function formatReviewComments(
     if (
       review.comments &&
       review.comments.nodes &&
-      review.comments.nodes.length > 0
-    ) {
+      review.comments.nodes.length > 0 ) {
       const comments = review.comments.nodes
         .filter((comment) => !comment.isMinimized)
         .map((comment) => {

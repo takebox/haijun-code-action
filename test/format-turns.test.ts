@@ -323,7 +323,7 @@ describe("formatGroupedContent", () => {
 
     const result = formatGroupedContent(groupedContent);
 
-    expect(result).toContain("## Claude Code Report");
+    expect(result).toContain("## Haijun Code Report");
     expect(result).toContain("## 🚀 System Initialization");
     expect(result).toContain("**Available Tools:** 3 tools loaded");
   });
@@ -397,7 +397,7 @@ describe("formatGroupedContent", () => {
 describe("formatTurnsFromData", () => {
   test("handles empty data", () => {
     const result = formatTurnsFromData([]);
-    expect(result).toBe("## Claude Code Report\n\n");
+    expect(result).toBe("## Haijun Code Report\n\n");
   });
 
   test("formats complete conversation", () => {
@@ -444,7 +444,7 @@ describe("formatTurnsFromData", () => {
 
     const result = formatTurnsFromData(data);
 
-    expect(result).toContain("## Claude Code Report");
+    expect(result).toContain("## Haijun Code Report");
     expect(result).toContain("## 🚀 System Initialization");
     expect(result).toContain("I'll help you");
     expect(result).toContain("### 🔧 `read_file`");
@@ -659,7 +659,7 @@ describe("credential redaction", () => {
 
     const result = formatTurnsFromData(data);
 
-    expect(result).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(result).toContain("[REDACTED_JUGLOW_KEY]");
     expect(result).not.toContain(key);
   });
 });

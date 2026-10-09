@@ -1,4 +1,4 @@
-import { parse as parseShellArgs } from "shell-quote";
+﻿import { parse as parseShellArgs } from "shell-quote";
 
 // Flags whose values make up the allowed-tools list.
 // Include both camelCase and hyphenated variants for CLI compatibility.
@@ -17,14 +17,14 @@ function stripShellComments(input: string): string {
 }
 
 /**
- * Tokenize a claude_args string the same way base-action/src/parse-sdk-options.ts
+ * Tokenize a HAIJUN_args string the same way base-action/src/parse-sdk-options.ts
  * does: strip full comment lines, then run shell-quote. shell-quote returns
  * unquoted glob patterns (e.g. `mcp__github__*`) as `{ op: "glob", pattern }`
  * objects rather than strings, so recover their literal text; drop operator
  * tokens (`|`, `>`, `;`, ...) which carry no value.
  */
-function tokenize(claudeArgs: string): string[] {
-  return parseShellArgs(stripShellComments(claudeArgs))
+function tokenize(HaijunArgs: string): string[] {
+  return parseShellArgs(stripShellComments(HaijunArgs))
     .map((token) => {
       if (typeof token === "string") return token;
       if (token && typeof token === "object" && "pattern" in token) {
@@ -36,12 +36,12 @@ function tokenize(claudeArgs: string): string[] {
 }
 
 /**
- * Parse the list of allowed tool names from a user-provided claude_args string.
+ * Parse the list of allowed tool names from a user-provided HAIJUN_args string.
  *
  * This is used to decide which GitHub MCP servers to install. It MUST stay in
  * agreement with how the actual tool list is built for the SDK in
- * base-action/src/parse-sdk-options.ts (parseClaudeArgsToExtraArgs): otherwise a
- * tool can be granted to Claude without its MCP server being installed, or a
+ * base-action/src/parse-sdk-options.ts (parseHaijunArgsToExtraArgs): otherwise a
+ * tool can be granted to haijun without its MCP server being installed, or a
  * server can be installed for a tool that was never granted (#1357).
  *
  * To stay in agreement it uses the same shell-quote tokenizer and the same
@@ -49,10 +49,10 @@ function tokenize(claudeArgs: string): string[] {
  * so `--allowedTools "Read" "Grep" "mcp__github__get_commit"` captures all
  * three values, and commented-out lines are ignored.
  */
-export function parseAllowedTools(claudeArgs: string): string[] {
-  if (!claudeArgs?.trim()) return [];
+export function parseAllowedTools(HaijunArgs: string): string[] {
+  if (!HaijunArgs?.trim()) return [];
 
-  const args = tokenize(claudeArgs);
+  const args = tokenize(HaijunArgs);
   const tools: string[] = [];
   const seen = new Set<string>();
 

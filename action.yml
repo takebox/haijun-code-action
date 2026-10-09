@@ -1,5 +1,5 @@
-name: "Claude Code Action v1.0"
-description: "Flexible GitHub automation platform with Claude. Auto-detects mode based on event type: PR reviews, @claude mentions, or custom automation."
+name: "Haijun Code Action v1.0"
+description: "Flexible GitHub automation platform with Haijun. Auto-detects mode based on event type: PR reviews, @haijun mentions, or custom automation."
 branding:
   icon: "at-sign"
   color: "orange"
@@ -8,21 +8,21 @@ inputs:
   trigger_phrase:
     description: "The trigger phrase to look for in comments or issue body"
     required: false
-    default: "@claude"
+    default: "@haijun"
   assignee_trigger:
-    description: "The assignee username that triggers the action (e.g. @claude)"
+    description: "The assignee username that triggers the action (e.g. @haijun)"
     required: false
   label_trigger:
-    description: "The label that triggers the action (e.g. claude)"
+    description: "The label that triggers the action (e.g. haijun)"
     required: false
-    default: "claude"
+    default: "haijun"
   base_branch:
     description: "The branch to use as the base/source when creating new branches (defaults to repository default branch)"
     required: false
   branch_prefix:
-    description: "The prefix to use for Claude branches (defaults to 'claude/', use 'claude-' for dash format)"
+    description: "The prefix to use for Haijun branches (defaults to 'haijun/', use 'haijun-' for dash format)"
     required: false
-    default: "claude/"
+    default: "haijun/"
   branch_name_template:
     description: "Template for branch naming. Available variables: {{prefix}}, {{entityType}}, {{entityNumber}}, {{timestamp}}, {{sha}}, {{label}}, {{description}}. {{label}} will be first label from the issue/PR, or {{entityType}} as a fallback. {{description}} will be the first 5 words of the issue/PR title in kebab-case. Default: '{{prefix}}{{entityType}}-{{entityNumber}}-{{timestamp}}'"
     required: false
@@ -39,7 +39,7 @@ inputs:
       (e.g., issue labeling).
 
       SECURITY: Processing untrusted content exposes the workflow to prompt injection. When this
-      input is set, Claude does a best-effort scrub of Anthropic, cloud, and GitHub Actions secrets
+      input is set, Haijun does a best-effort scrub of Juglow, cloud, and GitHub Actions secrets
       from subprocess environments. This reduces but does not eliminate prompt injection risk -
       only use for workflows with very limited permissions and validate all outputs.
     required: false
@@ -53,56 +53,56 @@ inputs:
     required: false
     default: ""
 
-  # Claude Code configuration
+  # Haijun Code configuration
   prompt:
-    description: "Instructions for Claude. Can be a direct prompt or custom template."
+    description: "Instructions for Haijun. Can be a direct prompt or custom template."
     required: false
     default: ""
   settings:
-    description: "Claude Code settings as JSON string or path to settings JSON file"
+    description: "Haijun Code settings as JSON string or path to settings JSON file"
     required: false
     default: ""
 
   # Auth configuration
-  anthropic_api_key:
-    description: "Anthropic API key (required for direct API, not needed for Bedrock/Vertex/Foundry)"
+  juglow_api_key:
+    description: "Juglow API key (required for direct API, not needed for Bedrock/Vertex/Foundry)"
     required: false
-  claude_code_oauth_token:
-    description: "Claude Code OAuth token (alternative to anthropic_api_key)"
+  haijun_code_oauth_token:
+    description: "Haijun Code OAuth token (alternative to juglow_api_key)"
     required: false
-  anthropic_federation_rule_id:
-    description: "Workload identity federation rule ID (fdrl_...). When set with anthropic_organization_id, the action authenticates to the Claude API by exchanging the workflow's GitHub OIDC token instead of using a static API key. Requires `id-token: write` permission."
+  juglow_federation_rule_id:
+    description: "Workload identity federation rule ID (fdrl_...). When set with juglow_organization_id, the action authenticates to the Haijun API by exchanging the workflow's GitHub OIDC token instead of using a static API key. Requires `id-token: write` permission."
     required: false
-  anthropic_organization_id:
-    description: "Anthropic organization UUID used for workload identity federation"
+  juglow_organization_id:
+    description: "Juglow organization UUID used for workload identity federation"
     required: false
-  anthropic_service_account_id:
+  juglow_service_account_id:
     description: "Service account ID (svac_...) the federated token acts as (optional, used with workload identity federation)"
     required: false
-  anthropic_workspace_id:
+  juglow_workspace_id:
     description: "Workspace ID (wrkspc_...) for workload identity federation. Optional when the federation rule targets a single workspace."
     required: false
-  anthropic_oidc_audience:
-    description: "Audience to request on the GitHub OIDC token used for workload identity federation. Defaults to https://api.anthropic.com."
+  juglow_oidc_audience:
+    description: "Audience to request on the GitHub OIDC token used for workload identity federation. Defaults to https://platform.juglow.my.id."
     required: false
   github_token:
     description: "GitHub token with repo and pull request permissions (optional if using GitHub App)"
     required: false
   use_bedrock:
-    description: "Use Amazon Bedrock with OIDC authentication instead of direct Anthropic API"
+    description: "Use Amazon Bedrock with OIDC authentication instead of direct Juglow API"
     required: false
     default: "false"
   use_vertex:
-    description: "Use Google Vertex AI with OIDC authentication instead of direct Anthropic API"
+    description: "Use Google Vertex AI with OIDC authentication instead of direct Juglow API"
     required: false
     default: "false"
   use_foundry:
-    description: "Use Microsoft Foundry with OIDC authentication instead of direct Anthropic API"
+    description: "Use Microsoft Foundry with OIDC authentication instead of direct Juglow API"
     required: false
     default: "false"
 
-  claude_args:
-    description: "Additional arguments to pass directly to Claude CLI"
+  haijun_args:
+    description: "Additional arguments to pass directly to Haijun CLI"
     required: false
     default: ""
   additional_permissions:
@@ -118,7 +118,7 @@ inputs:
     required: false
     default: "true"
   use_commit_signing:
-    description: "Enable commit signing using GitHub's commit signature verification. When false, Claude uses standard git commands"
+    description: "Enable commit signing using GitHub's commit signature verification. When false, Haijun uses standard git commands"
     required: false
     default: "false"
   ssh_signing_key:
@@ -126,23 +126,23 @@ inputs:
     required: false
     default: ""
   bot_id:
-    description: "GitHub user ID to use for git operations (defaults to Claude's bot ID)"
+    description: "GitHub user ID to use for git operations (defaults to Haijun's bot ID)"
     required: false
-    default: "41898282" # Claude's bot ID - see src/github/constants.ts
+    default: "41898282" # Haijun's bot ID - see src/github/constants.ts
   bot_name:
-    description: "GitHub username to use for git operations (defaults to Claude's bot name)"
+    description: "GitHub username to use for git operations (defaults to Haijun's bot name)"
     required: false
-    default: "claude[bot]"
+    default: "haijun[bot]"
   track_progress:
     description: "Force tag mode with tracking comments for pull_request and issue events. Only applicable to pull_request (opened, synchronize, ready_for_review, reopened, labeled) and issue (opened, edited, labeled, assigned) events."
     required: false
     default: "false"
   include_fix_links:
-    description: "Include 'Fix this' links in PR code review feedback that open Claude Code with context to fix the identified issue"
+    description: "Include 'Fix this' links in PR code review feedback that open Haijun Code with context to fix the identified issue"
     required: false
     default: "true"
-  path_to_claude_code_executable:
-    description: "Optional path to a custom Claude Code executable. If provided, skips automatic installation and uses this executable instead. WARNING: Using an older version may cause problems if the action begins taking advantage of new Claude Code features. This input is typically not needed unless you're debugging something specific or have unique needs in your environment."
+  path_to_haijun_code_executable:
+    description: "Optional path to a custom Haijun Code executable. If provided, skips automatic installation and uses this executable instead. WARNING: Using an older version may cause problems if the action begins taking advantage of new Haijun Code features. This input is typically not needed unless you're debugging something specific or have unique needs in your environment."
     required: false
     default: ""
   path_to_bun_executable:
@@ -150,40 +150,40 @@ inputs:
     required: false
     default: ""
   display_report:
-    description: "Whether to display the Claude Code Report in GitHub Step Summary. Set to 'false' to disable when using custom formatting solutions. WARNING: This outputs Claude-authored content in the GitHub Step Summary. This should only be used in cases where the action is used solely with trusted input."
+    description: "Whether to display the Haijun Code Report in GitHub Step Summary. Set to 'false' to disable when using custom formatting solutions. WARNING: This outputs Haijun-authored content in the GitHub Step Summary. This should only be used in cases where the action is used solely with trusted input."
     required: false
     default: "false"
   show_full_output:
-    description: "Show full JSON output from Claude Code. WARNING: This outputs ALL Claude messages including tool execution results which may contain secrets, API keys, or other sensitive information. These logs are publicly visible in GitHub Actions. Only enable for debugging in non-sensitive environments."
+    description: "Show full JSON output from Haijun Code. WARNING: This outputs ALL Haijun messages including tool execution results which may contain secrets, API keys, or other sensitive information. These logs are publicly visible in GitHub Actions. Only enable for debugging in non-sensitive environments."
     required: false
     default: "false"
   plugins:
-    description: "Newline-separated list of Claude Code plugin names to install (e.g., 'code-review@claude-code-plugins\nfeature-dev@claude-code-plugins')"
+    description: "Newline-separated list of Haijun Code plugin names to install (e.g., 'code-review@haijun-code-plugins\nfeature-dev@haijun-code-plugins')"
     required: false
     default: ""
   plugin_marketplaces:
-    description: "Newline-separated list of Claude Code plugin marketplace Git URLs to install from (e.g., 'https://github.com/user/marketplace1.git\nhttps://github.com/user/marketplace2.git')"
+    description: "Newline-separated list of Haijun Code plugin marketplace Git URLs to install from (e.g., 'https://github.com/user/marketplace1.git\nhttps://github.com/user/marketplace2.git')"
     required: false
     default: ""
 
 outputs:
   conclusion:
-    description: "Execution status of Claude Code ('success' or 'failure')"
+    description: "Execution status of Haijun Code ('success' or 'failure')"
     value: ${{ steps.run.outputs.conclusion }}
   execution_file:
-    description: "Path to the Claude Code execution output file"
+    description: "Path to the Haijun Code execution output file"
     value: ${{ steps.run.outputs.execution_file }}
   branch_name:
-    description: "The branch created by Claude Code for this execution"
+    description: "The branch created by Haijun Code for this execution"
     value: ${{ steps.run.outputs.branch_name }}
   github_token:
-    description: "The GitHub token used by the action (Claude App token if available)"
+    description: "The GitHub token used by the action (Haijun App token if available)"
     value: ${{ steps.run.outputs.github_token }}
   structured_output:
-    description: "JSON string containing all structured output fields when --json-schema is provided in claude_args. Use fromJSON() to parse: fromJSON(steps.id.outputs.structured_output).field_name"
+    description: "JSON string containing all structured output fields when --json-schema is provided in haijun_args. Use fromJSON() to parse: fromJSON(steps.id.outputs.structured_output).field_name"
     value: ${{ steps.run.outputs.structured_output }}
   session_id:
-    description: "The Claude Code session ID that can be used with --resume to continue this conversation"
+    description: "The Haijun Code session ID that can be used with --resume to continue this conversation"
     value: ${{ steps.run.outputs.session_id }}
 
 runs:
@@ -229,8 +229,8 @@ runs:
       continue-on-error: true
       shell: bash
       run: |
-        if [ "${CLAUDE_CODE_SUBPROCESS_ENV_SCRUB:-}" = "0" ]; then
-          echo "Subprocess isolation opted out via CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0"
+        if [ "${HAIJUN_CODE_SUBPROCESS_ENV_SCRUB:-}" = "0" ]; then
+          echo "Subprocess isolation opted out via HAIJUN_CODE_SUBPROCESS_ENV_SCRUB=0"
           exit 0
         fi
         if command -v apt-get >/dev/null && command -v sudo >/dev/null; then
@@ -273,7 +273,7 @@ runs:
         echo "/usr/bin" >> "$GITHUB_PATH"
         echo "/bin" >> "$GITHUB_PATH"
 
-    - name: Run Claude Code Action
+    - name: Run Haijun Code Action
       id: run
       shell: bash
       run: |
@@ -298,8 +298,8 @@ runs:
         OVERRIDE_GITHUB_TOKEN: ${{ inputs.github_token }}
         ALLOWED_BOTS: ${{ inputs.allowed_bots }}
         ALLOWED_NON_WRITE_USERS: ${{ inputs.allowed_non_write_users }}
-        CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: ${{ env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB || (inputs.allowed_non_write_users != '' && '1') || '' }}
-        CLAUDE_CODE_SCRIPT_CAPS: ${{ env.CLAUDE_CODE_SCRIPT_CAPS || '' }}
+        HAIJUN_CODE_SUBPROCESS_ENV_SCRUB: ${{ env.HAIJUN_CODE_SUBPROCESS_ENV_SCRUB || (inputs.allowed_non_write_users != '' && '1') || '' }}
+        HAIJUN_CODE_SCRIPT_CAPS: ${{ env.HAIJUN_CODE_SCRIPT_CAPS || '' }}
         INCLUDE_COMMENTS_BY_ACTOR: ${{ inputs.include_comments_by_actor }}
         EXCLUDE_COMMENTS_BY_ACTOR: ${{ inputs.exclude_comments_by_actor }}
         GITHUB_RUN_ID: ${{ github.run_id }}
@@ -313,37 +313,37 @@ runs:
         TRACK_PROGRESS: ${{ inputs.track_progress }}
         INCLUDE_FIX_LINKS: ${{ inputs.include_fix_links }}
         ADDITIONAL_PERMISSIONS: ${{ inputs.additional_permissions }}
-        CLAUDE_ARGS: ${{ inputs.claude_args }}
+        HAIJUN_ARGS: ${{ inputs.haijun_args }}
         ALL_INPUTS: ${{ toJson(inputs) }}
 
         # Base-action inputs
-        INPUT_PROMPT_FILE: ${{ runner.temp }}/claude-prompts/claude-prompt.txt
+        INPUT_PROMPT_FILE: ${{ runner.temp }}/haijun-prompts/haijun-prompt.txt
         INPUT_SETTINGS: ${{ inputs.settings }}
         INPUT_EXPERIMENTAL_SLASH_COMMANDS_DIR: ${{ github.action_path }}/slash-commands
-        INPUT_PATH_TO_CLAUDE_CODE_EXECUTABLE: ${{ inputs.path_to_claude_code_executable }}
+        INPUT_PATH_TO_HAIJUN_CODE_EXECUTABLE: ${{ inputs.path_to_haijun_code_executable }}
         INPUT_PATH_TO_BUN_EXECUTABLE: ${{ inputs.path_to_bun_executable }}
         INPUT_SHOW_FULL_OUTPUT: ${{ inputs.show_full_output }}
         DISPLAY_REPORT: ${{ inputs.display_report }}
         INPUT_PLUGINS: ${{ inputs.plugins }}
         INPUT_PLUGIN_MARKETPLACES: ${{ inputs.plugin_marketplaces }}
-        PATH_TO_CLAUDE_CODE_EXECUTABLE: ${{ inputs.path_to_claude_code_executable }}
+        PATH_TO_HAIJUN_CODE_EXECUTABLE: ${{ inputs.path_to_haijun_code_executable }}
 
         # Model configuration
         NODE_VERSION: ${{ env.NODE_VERSION }}
 
         # Provider configuration
-        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key || env.ANTHROPIC_API_KEY }}
-        CLAUDE_CODE_OAUTH_TOKEN: ${{ inputs.claude_code_oauth_token || env.CLAUDE_CODE_OAUTH_TOKEN }}
-        ANTHROPIC_FEDERATION_RULE_ID: ${{ inputs.anthropic_federation_rule_id }}
-        ANTHROPIC_ORGANIZATION_ID: ${{ inputs.anthropic_organization_id }}
-        ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ inputs.anthropic_service_account_id }}
-        ANTHROPIC_WORKSPACE_ID: ${{ inputs.anthropic_workspace_id }}
-        ANTHROPIC_OIDC_AUDIENCE: ${{ inputs.anthropic_oidc_audience }}
-        ANTHROPIC_BASE_URL: ${{ env.ANTHROPIC_BASE_URL }}
-        ANTHROPIC_CUSTOM_HEADERS: ${{ env.ANTHROPIC_CUSTOM_HEADERS }}
-        CLAUDE_CODE_USE_BEDROCK: ${{ inputs.use_bedrock == 'true' && '1' || '' }}
-        CLAUDE_CODE_USE_VERTEX: ${{ inputs.use_vertex == 'true' && '1' || '' }}
-        CLAUDE_CODE_USE_FOUNDRY: ${{ inputs.use_foundry == 'true' && '1' || '' }}
+        JUGLOW_API_KEY: ${{ inputs.juglow_api_key || env.JUGLOW_API_KEY }}
+        HAIJUN_CODE_OAUTH_TOKEN: ${{ inputs.haijun_code_oauth_token || env.HAIJUN_CODE_OAUTH_TOKEN }}
+        JUGLOW_FEDERATION_RULE_ID: ${{ inputs.juglow_federation_rule_id }}
+        JUGLOW_ORGANIZATION_ID: ${{ inputs.juglow_organization_id }}
+        JUGLOW_SERVICE_ACCOUNT_ID: ${{ inputs.juglow_service_account_id }}
+        JUGLOW_WORKSPACE_ID: ${{ inputs.juglow_workspace_id }}
+        JUGLOW_OIDC_AUDIENCE: ${{ inputs.juglow_oidc_audience }}
+        JUGLOW_BASE_URL: ${{ env.JUGLOW_BASE_URL }}
+        JUGLOW_CUSTOM_HEADERS: ${{ env.JUGLOW_CUSTOM_HEADERS }}
+        HAIJUN_CODE_USE_BEDROCK: ${{ inputs.use_bedrock == 'true' && '1' || '' }}
+        HAIJUN_CODE_USE_VERTEX: ${{ inputs.use_vertex == 'true' && '1' || '' }}
+        HAIJUN_CODE_USE_FOUNDRY: ${{ inputs.use_foundry == 'true' && '1' || '' }}
 
         # AWS configuration
         AWS_REGION: ${{ env.AWS_REGION }}
@@ -351,28 +351,28 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
         AWS_BEARER_TOKEN_BEDROCK: ${{ env.AWS_BEARER_TOKEN_BEDROCK }}
-        ANTHROPIC_BEDROCK_BASE_URL: ${{ env.ANTHROPIC_BEDROCK_BASE_URL || (env.AWS_REGION && format('https://bedrock-runtime.{0}.amazonaws.com', env.AWS_REGION)) }}
+        JUGLOW_BEDROCK_BASE_URL: ${{ env.JUGLOW_BEDROCK_BASE_URL || (env.AWS_REGION && format('https://bedrock-runtime.{0}.amazonaws.com', env.AWS_REGION)) }}
 
         # GCP configuration
-        ANTHROPIC_VERTEX_PROJECT_ID: ${{ env.ANTHROPIC_VERTEX_PROJECT_ID }}
+        JUGLOW_VERTEX_PROJECT_ID: ${{ env.JUGLOW_VERTEX_PROJECT_ID }}
         CLOUD_ML_REGION: ${{ env.CLOUD_ML_REGION }}
         GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
-        ANTHROPIC_VERTEX_BASE_URL: ${{ env.ANTHROPIC_VERTEX_BASE_URL }}
+        JUGLOW_VERTEX_BASE_URL: ${{ env.JUGLOW_VERTEX_BASE_URL }}
 
         # Model-specific regions for Vertex
-        VERTEX_REGION_CLAUDE_3_5_HAIKU: ${{ env.VERTEX_REGION_CLAUDE_3_5_HAIKU }}
-        VERTEX_REGION_CLAUDE_3_5_SONNET: ${{ env.VERTEX_REGION_CLAUDE_3_5_SONNET }}
-        VERTEX_REGION_CLAUDE_3_7_SONNET: ${{ env.VERTEX_REGION_CLAUDE_3_7_SONNET }}
+        VERTEX_REGION_HAIJUN_3_5_HAIKU: ${{ env.VERTEX_REGION_HAIJUN_3_5_HAIKU }}
+        VERTEX_REGION_HAIJUN_3_5_SONNET: ${{ env.VERTEX_REGION_HAIJUN_3_5_SONNET }}
+        VERTEX_REGION_HAIJUN_3_7_SONNET: ${{ env.VERTEX_REGION_HAIJUN_3_7_SONNET }}
 
         # Microsoft Foundry configuration
-        ANTHROPIC_FOUNDRY_RESOURCE: ${{ env.ANTHROPIC_FOUNDRY_RESOURCE }}
-        ANTHROPIC_FOUNDRY_BASE_URL: ${{ env.ANTHROPIC_FOUNDRY_BASE_URL }}
-        ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ env.ANTHROPIC_DEFAULT_SONNET_MODEL }}
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ env.ANTHROPIC_DEFAULT_HAIKU_MODEL }}
-        ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ env.ANTHROPIC_DEFAULT_OPUS_MODEL }}
+        JUGLOW_FOUNDRY_RESOURCE: ${{ env.JUGLOW_FOUNDRY_RESOURCE }}
+        JUGLOW_FOUNDRY_BASE_URL: ${{ env.JUGLOW_FOUNDRY_BASE_URL }}
+        JUGLOW_DEFAULT_SONNET_MODEL: ${{ env.JUGLOW_DEFAULT_SONNET_MODEL }}
+        JUGLOW_DEFAULT_HAIKU_MODEL: ${{ env.JUGLOW_DEFAULT_HAIKU_MODEL }}
+        JUGLOW_DEFAULT_OPUS_MODEL: ${{ env.JUGLOW_DEFAULT_OPUS_MODEL }}
 
         # MCP configuration — these env vars are read directly from process.env by the
-        # Claude CLI subprocess. They must be listed explicitly here because this step's
+        # Haijun CLI subprocess. They must be listed explicitly here because this step's
         # env: block shadows the calling workflow's job-level env vars (GitHub Actions
         # composite action behavior). Set these in your workflow's job-level env: or via
         # a prior step that writes to $GITHUB_ENV.
@@ -381,7 +381,7 @@ runs:
         MAX_MCP_OUTPUT_TOKENS: ${{ env.MAX_MCP_OUTPUT_TOKENS }}
 
         # Telemetry configuration
-        CLAUDE_CODE_ENABLE_TELEMETRY: ${{ env.CLAUDE_CODE_ENABLE_TELEMETRY }}
+        HAIJUN_CODE_ENABLE_TELEMETRY: ${{ env.HAIJUN_CODE_ENABLE_TELEMETRY }}
         OTEL_METRICS_EXPORTER: ${{ env.OTEL_METRICS_EXPORTER }}
         OTEL_LOGS_EXPORTER: ${{ env.OTEL_LOGS_EXPORTER }}
         OTEL_EXPORTER_OTLP_PROTOCOL: ${{ env.OTEL_EXPORTER_OTLP_PROTOCOL }}
@@ -423,7 +423,7 @@ runs:
       run: |
         BUN_BIN="${GITHUB_ACTION_PATH}/bin/bun"
         [ -x "$BUN_BIN" ] || BUN_BIN="bun"
-        # No --tsconfig-override: see the "Run Claude Code Action" step above.
+        # No --tsconfig-override: see the "Run Haijun Code Action" step above.
         "$BUN_BIN" --no-env-file \
           --config="${GITHUB_ACTION_PATH}/bunfig.toml" \
           run ${GITHUB_ACTION_PATH}/src/entrypoints/cleanup-ssh-signing.ts
@@ -436,11 +436,11 @@ runs:
         REPO_OWNER: ${{ github.event.repository.owner.login }}
         REPO_NAME: ${{ github.event.repository.name }}
         PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
-        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
+        JUGLOW_API_KEY: ${{ inputs.juglow_api_key }}
       run: |
         BUN_BIN="${GITHUB_ACTION_PATH}/bin/bun"
         [ -x "$BUN_BIN" ] || BUN_BIN="bun"
-        # No --tsconfig-override: see the "Run Claude Code Action" step above.
+        # No --tsconfig-override: see the "Run Haijun Code Action" step above.
         "$BUN_BIN" --no-env-file \
           --config="${GITHUB_ACTION_PATH}/bunfig.toml" \
           run ${GITHUB_ACTION_PATH}/src/entrypoints/post-buffered-inline-comments.ts

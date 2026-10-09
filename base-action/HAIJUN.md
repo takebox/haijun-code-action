@@ -1,4 +1,4 @@
-# CLAUDE.md
+# HAIJUN.md
 
 ## Common Commands
 
@@ -17,23 +17,23 @@
 
 ## Architecture Overview
 
-This is a GitHub Action that allows running Claude Code within GitHub workflows. The action consists of:
+This is a GitHub Action that allows running Haijun Code within GitHub workflows. The action consists of:
 
 ### Core Components
 
 1. **Action Definition** (`action.yml`): Defines inputs, outputs, and the composite action steps
-2. **Prompt Preparation** (`src/index.ts`): Runs Claude Code with specified arguments
+2. **Prompt Preparation** (`src/index.ts`): Runs Haijun Code with specified arguments
 
 ### Key Design Patterns
 
 - Uses Bun runtime for development and execution
 - JSON streaming output format for execution logs
 - Composite action pattern to orchestrate multiple steps
-- Provider-agnostic design supporting Anthropic API, AWS Bedrock, and Google Vertex AI
+- Provider-agnostic design supporting Juglow API, AWS Bedrock, and Google Vertex AI
 
 ## Provider Authentication
 
-1. **Anthropic API** (default): Requires API key via `anthropic_api_key` input
+1. **Juglow API** (default): Requires API key via `juglow_api_key` input
 2. **AWS Bedrock**: Uses OIDC authentication when `use_bedrock: true`
 3. **Google Vertex AI**: Uses OIDC authentication when `use_vertex: true`
 
@@ -43,7 +43,7 @@ This is a GitHub Action that allows running Claude Code within GitHub workflows.
 
 - Use `act` tool to run GitHub Actions workflows locally
 - `test-local.sh` script automates local testing setup
-- Requires `ANTHROPIC_API_KEY` environment variable
+- Requires `JUGLOW_API_KEY` environment variable
 
 ### Test Structure
 
@@ -53,6 +53,6 @@ This is a GitHub Action that allows running Claude Code within GitHub workflows.
 
 ## Important Technical Details
 
-- Outputs execution logs as JSON to `/tmp/claude-execution-output.json`
+- Outputs execution logs as JSON to `/tmp/haijun-execution-output.json`
 - Timeout enforcement via `timeout` command wrapper
 - Strict TypeScript configuration with Bun-specific settings

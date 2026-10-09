@@ -1,4 +1,4 @@
-import type { GitHubContext } from "../github/context";
+﻿import type { GitHubContext } from "../github/context";
 import {
   isEntityContext,
   isIssueCommentEvent,
@@ -41,7 +41,7 @@ export function detectMode(context: GitHubContext): AutoDetectedMode {
       if (context.inputs.prompt) {
         return "agent";
       }
-      // Default to tag mode if @claude mention found
+      // Default to tag mode if @haijun mention found
       if (checkContainsTrigger(context)) {
         return "tag";
       }
@@ -54,7 +54,7 @@ export function detectMode(context: GitHubContext): AutoDetectedMode {
     if (context.inputs.prompt) {
       return "agent";
     }
-    // Check for @claude mentions or labels/assignees
+    // Check for @haijun mentions or labels/assignees
     if (checkContainsTrigger(context)) {
       return "tag";
     }

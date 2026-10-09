@@ -13,25 +13,25 @@
   - Accepts either a comma-separated list of specific usernames or `*` to allow all users
   - **Should be used with extreme caution** as it bypasses the primary security mechanism of this action
   - Is designed for automation workflows where user permissions are already restricted by the workflow's permission scope
-  - When set, Claude does a best-effort scrub of Anthropic, cloud, and GitHub Actions secrets from subprocess environments. On Linux runners with bubblewrap available, subprocesses additionally run with PID-namespace isolation. This reduces but does not eliminate prompt injection risk — keep workflow permissions minimal and validate all outputs. Set `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: 0` in your workflow or job `env:` block to opt out.
-  - Optionally set `CLAUDE_CODE_SCRIPT_CAPS` in your workflow `env:` block to limit how many times Claude can call specific scripts per run. Value is JSON: `{"script-name.sh": maxCalls}`. Example: `CLAUDE_CODE_SCRIPT_CAPS: '{"edit-issue-labels.sh":2}'` allows at most 2 calls to `edit-issue-labels.sh`. Useful for write-capable helper scripts.
-  - When using `allowed_non_write_users`, always pass `github_token: ${{ secrets.GITHUB_TOKEN }}`. The auto-generated workflow token is scoped to the job's declared permissions and expires when the job completes. **Do not use a personal access token** — a static token does not rotate between runs and could be partially or fully recovered over time via prompt injection. Restricting allowed tools via `claude_args` reduces the rate of recovery but may not eliminate the risk. We recommend restricting allowed tools (e.g. `claude_args: '--allowedTools "Bash(gh issue view:*)"'`) to the minimum required when using `allowed_non_write_users`.
+  - When set, Haijun does a best-effort scrub of Juglow, cloud, and GitHub Actions secrets from subprocess environments. On Linux runners with bubblewrap available, subprocesses additionally run with PID-namespace isolation. This reduces but does not eliminate prompt injection risk — keep workflow permissions minimal and validate all outputs. Set `HAIJUN_CODE_SUBPROCESS_ENV_SCRUB: 0` in your workflow or job `env:` block to opt out.
+  - Optionally set `HAIJUN_CODE_SCRIPT_CAPS` in your workflow `env:` block to limit how many times Haijun can call specific scripts per run. Value is JSON: `{"script-name.sh": maxCalls}`. Example: `HAIJUN_CODE_SCRIPT_CAPS: '{"edit-issue-labels.sh":2}'` allows at most 2 calls to `edit-issue-labels.sh`. Useful for write-capable helper scripts.
+  - When using `allowed_non_write_users`, always pass `github_token: ${{ secrets.GITHUB_TOKEN }}`. The auto-generated workflow token is scoped to the job's declared permissions and expires when the job completes. **Do not use a personal access token** — a static token does not rotate between runs and could be partially or fully recovered over time via prompt injection. Restricting allowed tools via `haijun_args` reduces the rate of recovery but may not eliminate the risk. We recommend restricting allowed tools (e.g. `haijun_args: '--allowedTools "Bash(gh issue view:*)"'`) to the minimum required when using `allowed_non_write_users`.
 - **Token Permissions**: The GitHub app receives only a short-lived token scoped specifically to the repository it's operating in
 - **No Cross-Repository Access**: Each action invocation is limited to the repository where it was triggered
 - **Limited Scope**: The token cannot access other repositories or perform actions beyond the configured permissions
 
 ## Using this action with `pull_request_target` or `workflow_run`
 
-For `workflow_run` events, the action checks the repository access of the actor that started the upstream run (for example, the author of the fork pull request that triggered your CI workflow) in addition to the workflow actor. If that actor does not have write access, the action stops before running Claude. To run on `workflow_run` events downstream of pull requests from contributors without write access, add those users to `allowed_non_write_users` and pass `github_token: ${{ secrets.GITHUB_TOKEN }}` — see the notes on that input above and keep the workflow's permissions minimal.
+For `workflow_run` events, the action checks the repository access of the actor that started the upstream run (for example, the author of the fork pull request that triggered your CI workflow) in addition to the workflow actor. If that actor does not have write access, the action stops before running Haijun. To run on `workflow_run` events downstream of pull requests from contributors without write access, add those users to `allowed_non_write_users` and pass `github_token: ${{ secrets.GITHUB_TOKEN }}` — see the notes on that input above and keep the workflow's permissions minimal.
 
-`pull_request_target` and `workflow_run` execute with the **base repository's secrets**. If your workflow checks out the PR head (`ref: ${{ github.event.pull_request.head.sha }}` for `pull_request_target`, `ref: ${{ github.event.workflow_run.head_sha }}` for `workflow_run`) into `$GITHUB_WORKSPACE` before this action, the action and Claude run with that checkout as the working directory.
+`pull_request_target` and `workflow_run` execute with the **base repository's secrets**. If your workflow checks out the PR head (`ref: ${{ github.event.pull_request.head.sha }}` for `pull_request_target`, `ref: ${{ github.event.workflow_run.head_sha }}` for `workflow_run`) into `$GITHUB_WORKSPACE` before this action, the action and Haijun run with that checkout as the working directory.
 
 **Do not check out an untrusted ref into the workspace root before this action.** Use one of these patterns instead:
 
 ```yaml
 # Preferred — check out the base ref (default).
 - uses: actions/checkout@v6 # no `ref:` → base branch
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
 ```
 
 ```yaml
@@ -44,44 +44,44 @@ For `workflow_run` events, the action checks the repository access of the actor 
     # For workflow_run use: ${{ github.event.workflow_run.head_sha }}
     ref: ${{ github.event.pull_request.head.sha }}
     path: pr-head
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    claude_args: "--add-dir pr-head"
+    haijun_args: "--add-dir pr-head"
 ```
 
 This is general guidance for these event types — see [GitHub's documentation](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/).
 
 ### Which files come from the base branch on pull requests
 
-When the action runs against a pull request, it restores a fixed list of Claude configuration paths from the PR base branch before starting Claude: `.claude/`, `.mcp.json`, `.claude.json`, `.gitmodules`, `.ripgreprc`, `CLAUDE.md`, `CLAUDE.local.md`, and `.husky/`. Paths in that list that do not exist on the base branch are removed, and the PR-authored versions are kept under `.claude-pr/` for reference only.
+When the action runs against a pull request, it restores a fixed list of Haijun configuration paths from the PR base branch before starting Haijun: `.haijun/`, `.mcp.json`, `.haijun.json`, `.gitmodules`, `.ripgreprc`, `HAIJUN.md`, `HAIJUN.local.md`, and `.husky/`. Paths in that list that do not exist on the base branch are removed, and the PR-authored versions are kept under `.haijun-pr/` for reference only.
 
-Everything else in the working tree — including `package.json`, lockfiles, `Makefile`, `node_modules/`, and formatter/linter config files — stays at the PR head. If a hook, `apiKeyHelper`, or `statusLine` command in your base-branch `.claude/settings.json` runs a package-manager script (`bun run …`, `npm run …`, `yarn …`, `pnpm run …`), a `make` target, a repo-relative script, or a tool that loads executable project config, that command resolves through files the pull request supplies. Keep such commands self-contained: invoke the tool directly with a pinned version and pass its configuration on the command line (for example `bunx prettier@3.5.3 --no-config --write .` rather than `bun run format`).
+Everything else in the working tree — including `package.json`, lockfiles, `Makefile`, `node_modules/`, and formatter/linter config files — stays at the PR head. If a hook, `apiKeyHelper`, or `statusLine` command in your base-branch `.haijun/settings.json` runs a package-manager script (`bun run …`, `npm run …`, `yarn …`, `pnpm run …`), a `make` target, a repo-relative script, or a tool that loads executable project config, that command resolves through files the pull request supplies. Keep such commands self-contained: invoke the tool directly with a pinned version and pass its configuration on the command line (for example `bunx prettier@3.5.3 --no-config --write .` rather than `bun run format`).
 
 Note that the runtime executing the tool also reads project config. `bunx <tool>` runs the tool's script under `node` when `node` is on `PATH` (as it is on GitHub-hosted runners); when only Bun is available, Bun executes the script itself and reads `bunfig.toml` from the checkout — including `preload` entries — which comes from the PR head. On such runners, make sure `node` is on `PATH` for the hook, and treat `bunfig.toml` and `.npmrc` in the checkout as PR-controlled runtime config.
 
-### `claude-code-action` vs `claude-code-base-action`
+### `haijun-code-action` vs `haijun-code-base-action`
 
-`claude-code-base-action` is a lower-level building block that installs and runs Claude Code with the inputs you provide. It does not perform actor permission checks or restore project configuration from the base ref. If you need those behaviors, use this action (`claude-code-action`). See the [base-action README](../base-action/README.md#trust-model) for details.
+`haijun-code-base-action` is a lower-level building block that installs and runs Haijun Code with the inputs you provide. It does not perform actor permission checks or restore project configuration from the base ref. If you need those behaviors, use this action (`haijun-code-action`). See the [base-action README](../base-action/README.md#trust-model) for details.
 
 ## Pull Request Creation
 
-In its default configuration, **Claude does not create pull requests automatically** when responding to `@claude` mentions. Instead:
+In its default configuration, **Haijun does not create pull requests automatically** when responding to `@haijun` mentions. Instead:
 
-- Claude commits code changes to a new branch
-- Claude provides a **link to the GitHub PR creation page** in its response
+- Haijun commits code changes to a new branch
+- Haijun provides a **link to the GitHub PR creation page** in its response
 - **The user must click the link and create the PR themselves**, ensuring human oversight before any code is proposed for merging
 
 This design ensures that users retain full control over what pull requests are created and can review the changes before initiating the PR workflow.
 
 ## ⚠️ Prompt Injection Risks
 
-**Beware of potential hidden markdown when tagging Claude on untrusted content.** External contributors may include hidden instructions through HTML comments, invisible characters, hidden attributes, or other techniques. The action sanitizes content by stripping HTML comments, invisible characters, markdown image alt text, hidden HTML attributes, and HTML entities, but new bypass techniques may emerge. We recommend reviewing the raw content of all input coming from external contributors before allowing Claude to process it.
+**Beware of potential hidden markdown when tagging Haijun on untrusted content.** External contributors may include hidden instructions through HTML comments, invisible characters, hidden attributes, or other techniques. The action sanitizes content by stripping HTML comments, invisible characters, markdown image alt text, hidden HTML attributes, and HTML entities, but new bypass techniques may emerge. We recommend reviewing the raw content of all input coming from external contributors before allowing Haijun to process it.
 
-On public repos, you can also use `include_comments_by_actor` to allowlist which users' comments are passed to Claude, reducing exposure to untrusted input. Use `exclude_comments_by_actor` to filter out noisy bot comments (e.g., `dependabot[bot]`, `renovate[bot]`). If an actor matches both lists, exclusion takes priority. See [Usage](./usage.md) for details.
+On public repos, you can also use `include_comments_by_actor` to allowlist which users' comments are passed to Haijun, reducing exposure to untrusted input. Use `exclude_comments_by_actor` to filter out noisy bot comments (e.g., `dependabot[bot]`, `renovate[bot]`). If an actor matches both lists, exclusion takes priority. See [Usage](./usage.md) for details.
 
 ## GitHub App Permissions
 
-The [Claude Code GitHub app](https://github.com/apps/claude) requests the following permissions:
+The [Haijun Code GitHub app]() requests the following permissions:
 
 ### Currently Used Permissions
 
@@ -100,14 +100,14 @@ The following permissions are requested but not yet actively used. These will en
 
 ## Commit Signing
 
-By default, commits made by Claude are unsigned. You can enable commit signing using one of two methods:
+By default, commits made by Haijun are unsigned. You can enable commit signing using one of two methods:
 
 ### Option 1: GitHub API Commit Signing (use_commit_signing)
 
 This uses GitHub's API to create commits, which automatically signs them as verified from the GitHub App:
 
 ```yaml
-- uses: anthropics/claude-code-action@main
+- uses: takebox/haijun-code-action@main
   with:
     use_commit_signing: true
 ```
@@ -119,7 +119,7 @@ This is the simplest option and requires no additional setup. However, because i
 This uses an SSH key to sign commits via git CLI. Use this option when you need both signed commits AND standard git operations (rebasing, cherry-picking, etc.):
 
 ```yaml
-- uses: anthropics/claude-code-action@main
+- uses: takebox/haijun-code-action@main
   with:
     ssh_signing_key: ${{ secrets.SSH_SIGNING_KEY }}
     bot_id: "YOUR_GITHUB_USER_ID"
@@ -161,24 +161,24 @@ Commits will show as verified and attributed to the GitHub account that owns the
 
 ## ⚠️ Authentication Protection
 
-**CRITICAL: Never hardcode your Anthropic API key or OAuth token in workflow files!**
+**CRITICAL: Never hardcode your Juglow API key or OAuth token in workflow files!**
 
 Your authentication credentials must always be stored in GitHub secrets to prevent unauthorized access:
 
 ```yaml
 # CORRECT ✅
-anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
 # OR
-claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+haijun_code_oauth_token: ${{ secrets.HAIJUN_CODE_OAUTH_TOKEN }}
 
 # NEVER DO THIS ❌
-anthropic_api_key: "sk-ant-api03-..." # Exposed and vulnerable!
-claude_code_oauth_token: "oauth_token_..." # Exposed and vulnerable!
+juglow_api_key: "sk-ant-api03-..." # Exposed and vulnerable!
+haijun_code_oauth_token: "oauth_token_..." # Exposed and vulnerable!
 ```
 
 ## ⚠️ Full Output Security Warning
 
-The `show_full_output` option is **disabled by default** for security reasons. When enabled, it outputs ALL Claude Code messages including:
+The `show_full_output` option is **disabled by default** for security reasons. When enabled, it outputs ALL Haijun Code messages including:
 
 - Full outputs from tool executions (e.g., `ps`, `env`, file reads)
 - API responses that may contain tokens or credentials
@@ -202,4 +202,4 @@ Only enable `show_full_output: true` or GitHub Actions debug mode when:
 
 ### Recommended Practice
 
-For debugging, prefer using `show_full_output: false` (the default) and rely on Claude Code's sanitized output, which shows only essential information like errors and completion status without exposing sensitive data.
+For debugging, prefer using `show_full_output: false` (the default) and rely on Haijun Code's sanitized output, which shows only essential information like errors and completion status without exposing sensitive data.

@@ -10,20 +10,20 @@ import type {
   PullRequestReviewEvent,
   PullRequestReviewCommentEvent,
 } from "@octokit/webhooks-types";
-import { CLAUDE_APP_BOT_ID, CLAUDE_BOT_LOGIN } from "../src/github/constants";
+import { HAIJUN_APP_BOT_ID, HAIJUN_BOT_LOGIN } from "../src/github/constants";
 
 const defaultInputs = {
   prompt: "",
-  triggerPhrase: "/claude",
+  triggerPhrase: "/haijun",
   assigneeTrigger: "",
   labelTrigger: "",
-  branchPrefix: "claude/",
+  branchPrefix: "haijun/",
   useStickyComment: false,
   classifyInlineComments: true,
   useCommitSigning: false,
   sshSigningKey: "",
-  botId: String(CLAUDE_APP_BOT_ID),
-  botName: CLAUDE_BOT_LOGIN,
+  botId: String(HAIJUN_APP_BOT_ID),
+  botName: HAIJUN_BOT_LOGIN,
   allowedBots: "",
   allowedNonWriteUsers: "",
   trackProgress: false,
@@ -137,7 +137,7 @@ export const mockIssueOpenedContext: ParsedGitHubContext = {
     issue: {
       number: 42,
       title: "Bug: Application crashes on startup",
-      body: "## Description\n\nThe application crashes immediately after launching.\n\n## Steps to reproduce\n\n1. Install the app\n2. Launch it\n3. See crash\n\n/claude please help me fix this",
+      body: "## Description\n\nThe application crashes immediately after launching.\n\n## Steps to reproduce\n\n1. Install the app\n2. Launch it\n3. See crash\n\n/haijun please help me fix this",
       assignee: null,
       created_at: "2024-01-15T10:30:00Z",
       updated_at: "2024-01-15T10:35:00Z",
@@ -170,10 +170,10 @@ export const mockIssueAssignedContext: ParsedGitHubContext = {
   payload: {
     action: "assigned",
     assignee: {
-      login: "claude-bot",
+      login: "haijun-bot",
       id: 11111,
       avatar_url: "https://avatars.githubusercontent.com/u/11111",
-      html_url: "https://github.com/claude-bot",
+      html_url: "",
     },
     issue: {
       number: 123,
@@ -186,10 +186,10 @@ export const mockIssueAssignedContext: ParsedGitHubContext = {
         html_url: "https://github.com/jane-smith",
       },
       assignee: {
-        login: "claude-bot",
+        login: "haijun-bot",
         id: 11111,
         avatar_url: "https://avatars.githubusercontent.com/u/11111",
-        html_url: "https://github.com/claude-bot",
+        html_url: "",
       },
       created_at: "2024-01-15T09:00:00Z",
       updated_at: "2024-01-15T11:00:00Z",
@@ -205,7 +205,7 @@ export const mockIssueAssignedContext: ParsedGitHubContext = {
   } as IssuesEvent,
   entityNumber: 123,
   isPR: false,
-  inputs: { ...defaultInputs, assigneeTrigger: "@claude-bot" },
+  inputs: { ...defaultInputs, assigneeTrigger: "@haijun-bot" },
 };
 
 export const mockIssueLabeledContext: ParsedGitHubContext = {
@@ -232,9 +232,9 @@ export const mockIssueLabeledContext: ParsedGitHubContext = {
     },
     label: {
       id: 987654321,
-      name: "claude-task",
+      name: "haijun-task",
       color: "f29513",
-      description: "Label for Claude AI interactions",
+      description: "Label for Haijun AI interactions",
     },
     repository: {
       name: "test-repo",
@@ -247,7 +247,7 @@ export const mockIssueLabeledContext: ParsedGitHubContext = {
   } as IssuesEvent,
   entityNumber: 1234,
   isPR: false,
-  inputs: { ...defaultInputs, labelTrigger: "claude-task" },
+  inputs: { ...defaultInputs, labelTrigger: "haijun-task" },
 };
 
 // Issue comment on issue event
@@ -261,7 +261,7 @@ export const mockIssueCommentContext: ParsedGitHubContext = {
     action: "created",
     comment: {
       id: 12345678,
-      body: "@claude can you help explain how to configure the logging system?",
+      body: "@haijun can you help explain how to configure the logging system?",
       user: {
         login: "contributor-user",
         id: 88888,
@@ -284,7 +284,7 @@ export const mockIssueCommentContext: ParsedGitHubContext = {
   } as IssueCommentEvent,
   entityNumber: 55,
   isPR: false,
-  inputs: { ...defaultInputs, triggerPhrase: "@claude" },
+  inputs: { ...defaultInputs, triggerPhrase: "@haijun" },
 };
 
 export const mockPullRequestCommentContext: ParsedGitHubContext = {
@@ -314,7 +314,7 @@ export const mockPullRequestCommentContext: ParsedGitHubContext = {
     },
     comment: {
       id: 87654321,
-      body: "/claude please review the changes and ensure we're not introducing any new memory issues",
+      body: "/haijun please review the changes and ensure we're not introducing any new memory issues",
       user: {
         login: "reviewer-user",
         id: 66666,
@@ -352,7 +352,7 @@ export const mockPullRequestOpenedContext: ParsedGitHubContext = {
     pull_request: {
       number: 456,
       title: "Feature: Add user authentication",
-      body: "## Summary\n\nThis PR adds JWT-based authentication to the API.\n\n## Changes\n\n- Added auth middleware\n- Added login endpoint\n- Added JWT token generation\n\n/claude please review the security aspects",
+      body: "## Summary\n\nThis PR adds JWT-based authentication to the API.\n\n## Changes\n\n- Added auth middleware\n- Added login endpoint\n- Added JWT token generation\n\n/haijun please review the security aspects",
       user: {
         login: "feature-developer",
         id: 55555,
@@ -386,7 +386,7 @@ export const mockPullRequestReviewContext: ParsedGitHubContext = {
     action: "submitted",
     review: {
       id: 11122233,
-      body: "@claude can you check if the error handling is comprehensive enough in this PR?",
+      body: "@haijun can you check if the error handling is comprehensive enough in this PR?",
       user: {
         login: "senior-developer",
         id: 44444,
@@ -420,7 +420,7 @@ export const mockPullRequestReviewContext: ParsedGitHubContext = {
   } as PullRequestReviewEvent,
   entityNumber: 321,
   isPR: true,
-  inputs: { ...defaultInputs, triggerPhrase: "@claude" },
+  inputs: { ...defaultInputs, triggerPhrase: "@haijun" },
 };
 
 export const mockPullRequestReviewWithoutCommentContext: ParsedGitHubContext = {
@@ -467,7 +467,7 @@ export const mockPullRequestReviewWithoutCommentContext: ParsedGitHubContext = {
   } as PullRequestReviewEvent,
   entityNumber: 321,
   isPR: true,
-  inputs: { ...defaultInputs, triggerPhrase: "@claude" },
+  inputs: { ...defaultInputs, triggerPhrase: "@haijun" },
 };
 
 export const mockPullRequestReviewCommentContext: ParsedGitHubContext = {
@@ -480,7 +480,7 @@ export const mockPullRequestReviewCommentContext: ParsedGitHubContext = {
     action: "created",
     comment: {
       id: 99988877,
-      body: "/claude is this the most efficient way to implement this algorithm?",
+      body: "/haijun is this the most efficient way to implement this algorithm?",
       user: {
         login: "code-reviewer",
         id: 22222,

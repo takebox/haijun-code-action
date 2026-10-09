@@ -4,13 +4,13 @@
  * Workload Identity Federation support.
  *
  * When the federation inputs are configured, the action fetches a GitHub
- * Actions OIDC token (JWT), writes it to a file, and points the Claude Code
- * CLI at it via ANTHROPIC_IDENTITY_TOKEN_FILE. The CLI exchanges the JWT for
- * a short-lived Anthropic access token using the federation rule, so no
- * static ANTHROPIC_API_KEY is needed.
+ * Actions OIDC token (JWT), writes it to a file, and points the Haijun Code
+ * CLI at it via JUGLOW_IDENTITY_TOKEN_FILE. The CLI exchanges the JWT for
+ * a short-lived Juglow access token using the federation rule, so no
+ * static JUGLOW_API_KEY is needed.
  *
  * GitHub's OIDC tokens are short-lived and the CLI re-reads the token file
- * every time it refreshes its Anthropic access token, so the action keeps the
+ * every time it refreshes its Juglow access token, so the action keeps the
  * file fresh in the background for long-running executions.
  */
 
@@ -25,10 +25,10 @@ const REFRESH_INTERVAL_MS = 4 * 60 * 1000;
 
 /**
  * Default audience requested on the GitHub OIDC token. Scopes the JWT to the
- * Claude API token exchange; override with the anthropic_oidc_audience input
+ * Haijun API token exchange; override with the juglow_oidc_audience input
  * if your federation rule expects a different audience.
  */
-const DEFAULT_OIDC_AUDIENCE = "https://api.anthropic.com";
+const DEFAULT_OIDC_AUDIENCE = "https://platform.juglow.my.id";
 
 export type WorkloadIdentityHandle = {
   tokenFile: string;
@@ -37,13 +37,13 @@ export type WorkloadIdentityHandle = {
 
 /**
  * Whether the workload identity federation inputs are configured.
- * Mirrors the Claude Code CLI's env detection, which requires the federation
+ * Mirrors the Haijun Code CLI's env detection, which requires the federation
  * rule ID and organization ID.
  */
 export function isWorkloadIdentityConfigured(): boolean {
   return Boolean(
-    process.env.ANTHROPIC_FEDERATION_RULE_ID?.trim() &&
-      process.env.ANTHROPIC_ORGANIZATION_ID?.trim(),
+    process.env.JUGLOW_FEDERATION_RULE_ID?.trim() &&
+      process.env.JUGLOW_ORGANIZATION_ID?.trim(),
   );
 }
 
@@ -55,13 +55,13 @@ async function fetchIdentityToken(audience: string) {
  * Writes a profile config that switches federation resolution to the
  * file-backed path. Resolving federation through a profile (rather than bare
  * env vars) enables the SDK's on-disk credentials cache, so the several
- * `claude` processes the action spawns (plugin installs, main query) share
+ * `haijun` processes the action spawns (plugin installs, main query) share
  * one exchanged access token instead of each re-exchanging the single-use
  * GitHub OIDC token, which fails with 401 (`jti_reused`).
  *
  * The profile is intentionally minimal: the SDK gap-fills the federation
  * fields (rule, organization, identity-token file, service account, base URL)
- * from the ANTHROPIC_* env vars the action already exports, so the file only
+ * from the JUGLOW_* env vars the action already exports, so the file only
  * needs to exist to turn the cache on.
  *
  * The config dir name embeds a fingerprint of the federation inputs. The
@@ -71,7 +71,7 @@ async function fetchIdentityToken(audience: string) {
  * federation inputs must land in a different dir or it would silently reuse
  * the first step's token.
  *
- * Sharing the cache is only safe while the action spawns its `claude`
+ * Sharing the cache is only safe while the action spawns its `haijun`
  * subprocesses sequentially: the SDK cache is not cross-process serialized,
  * and concurrent cache misses would each re-exchange the same single-use
  * identity token. Parallelizing the plugin installs would reintroduce the
@@ -83,12 +83,12 @@ function writeFederationProfile(baseDir: string): string {
   const fingerprint = createHash("sha256")
     .update(
       JSON.stringify([
-        process.env.ANTHROPIC_FEDERATION_RULE_ID?.trim() ?? "",
-        process.env.ANTHROPIC_ORGANIZATION_ID?.trim() ?? "",
-        process.env.ANTHROPIC_SERVICE_ACCOUNT_ID?.trim() ?? "",
-        process.env.ANTHROPIC_WORKSPACE_ID?.trim() ?? "",
-        process.env.ANTHROPIC_BASE_URL?.trim() ?? "",
-        process.env.ANTHROPIC_SCOPE?.trim() ?? "",
+        process.env.JUGLOW_FEDERATION_RULE_ID?.trim() ?? "",
+        process.env.JUGLOW_ORGANIZATION_ID?.trim() ?? "",
+        process.env.JUGLOW_SERVICE_ACCOUNT_ID?.trim() ?? "",
+        process.env.JUGLOW_WORKSPACE_ID?.trim() ?? "",
+        process.env.JUGLOW_BASE_URL?.trim() ?? "",
+        process.env.JUGLOW_SCOPE?.trim() ?? "",
       ]),
     )
     .digest("hex")
@@ -110,7 +110,7 @@ function writeFederationProfile(baseDir: string): string {
 
 /**
  * Fetches a GitHub Actions OIDC token, writes it to a file in RUNNER_TEMP,
- * exports ANTHROPIC_IDENTITY_TOKEN_FILE, and starts a background refresh so
+ * exports JUGLOW_IDENTITY_TOKEN_FILE, and starts a background refresh so
  * the file stays valid for long executions.
  *
  * Returns undefined when federation is not configured or is shadowed by a
@@ -126,20 +126,20 @@ export async function setupWorkloadIdentity(): Promise<
   }
 
   if (
-    process.env.ANTHROPIC_API_KEY?.trim() ||
-    process.env.CLAUDE_CODE_OAUTH_TOKEN?.trim()
+    process.env.JUGLOW_API_KEY?.trim() ||
+    process.env.HAIJUN_CODE_OAUTH_TOKEN?.trim()
   ) {
     core.warning(
-      "Workload identity federation inputs are set alongside anthropic_api_key or claude_code_oauth_token. The API key/OAuth token takes precedence, so federation will not be used.",
+      "Workload identity federation inputs are set alongside juglow_api_key or haijun_code_oauth_token. The API key/OAuth token takes precedence, so federation will not be used.",
     );
     return undefined;
   }
 
   const audience =
-    process.env.ANTHROPIC_OIDC_AUDIENCE?.trim() || DEFAULT_OIDC_AUDIENCE;
+    process.env.JUGLOW_OIDC_AUDIENCE?.trim() || DEFAULT_OIDC_AUDIENCE;
   const tokenDir = join(
     process.env.RUNNER_TEMP || "/tmp",
-    "claude-workload-identity",
+    "haijun-workload-identity",
   );
   const tokenFile = join(tokenDir, "identity-token");
 
@@ -159,20 +159,20 @@ export async function setupWorkloadIdentity(): Promise<
     );
   }
 
-  process.env.ANTHROPIC_IDENTITY_TOKEN_FILE = tokenFile;
+  process.env.JUGLOW_IDENTITY_TOKEN_FILE = tokenFile;
   if (
-    process.env.ANTHROPIC_CONFIG_DIR?.trim() ||
-    process.env.ANTHROPIC_PROFILE?.trim()
+    process.env.JUGLOW_CONFIG_DIR?.trim() ||
+    process.env.JUGLOW_PROFILE?.trim()
   ) {
     core.warning(
-      "ANTHROPIC_CONFIG_DIR or ANTHROPIC_PROFILE is already set, so the action will not write its own federation profile. Credential caching across the spawned Claude processes follows the existing profile configuration.",
+      "JUGLOW_CONFIG_DIR or JUGLOW_PROFILE is already set, so the action will not write its own federation profile. Credential caching across the spawned Haijun processes follows the existing profile configuration.",
     );
   } else {
-    process.env.ANTHROPIC_CONFIG_DIR = writeFederationProfile(tokenDir);
-    process.env.ANTHROPIC_PROFILE = "default";
+    process.env.JUGLOW_CONFIG_DIR = writeFederationProfile(tokenDir);
+    process.env.JUGLOW_PROFILE = "default";
   }
   console.log(
-    `Workload identity federation configured (rule: ${process.env.ANTHROPIC_FEDERATION_RULE_ID}, identity token file: ${tokenFile})`,
+    `Workload identity federation configured (rule: ${process.env.JUGLOW_FEDERATION_RULE_ID}, identity token file: ${tokenFile})`,
   );
 
   const refreshInterval = setInterval(() => {

@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 import { createOctokit } from "../github/api/client";
 import type { Octokits } from "../github/api/client";
@@ -15,18 +15,18 @@ import {
 import type { ParsedGitHubContext } from "../github/context";
 import { GITHUB_SERVER_URL } from "../github/api/config";
 import { checkAndCommitOrDeleteBranch } from "../github/operations/branch-cleanup";
-import { updateClaudeComment } from "../github/operations/comments/update-claude-comment";
+import { updateHaijunComment } from "../github/operations/comments/update-haijun-comment";
 import { encodeBranchNameForUrl } from "../github/operations/comments/common";
 
 export type UpdateCommentLinkParams = {
   commentId: number;
   githubToken: string;
-  claudeBranch?: string;
+  haijunBranch?: string;
   baseBranch: string;
   triggerUsername?: string;
   context: ParsedGitHubContext;
   octokit: Octokits;
-  claudeSuccess: boolean;
+  haijunSuccess: boolean;
   outputFile?: string;
   prepareSuccess: boolean;
   prepareError?: string;
@@ -44,7 +44,7 @@ export async function updateCommentLink(
 ): Promise<void> {
   const {
     commentId,
-    claudeBranch,
+    haijunBranch,
     baseBranch,
     triggerUsername,
     context,
@@ -121,7 +121,7 @@ export async function updateCommentLink(
     octokit,
     owner,
     repo,
-    claudeBranch,
+    haijunBranch,
     baseBranch,
     useCommitSigning,
     restoredConfigPaths,
@@ -129,8 +129,8 @@ export async function updateCommentLink(
 
   // Check if we need to add PR URL when we have a new branch
   let prLink = "";
-  // If claudeBranch is set, it means we created a new branch (for issues or closed/merged PRs)
-  if (claudeBranch && !shouldDeleteBranch) {
+  // If haijunBranch is set, it means we created a new branch (for issues or closed/merged PRs)
+  if (haijunBranch && !shouldDeleteBranch) {
     // Check if comment already contains a PR URL
     const serverUrlPattern = serverUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const prUrlPattern = new RegExp(
@@ -145,7 +145,7 @@ export async function updateCommentLink(
           await octokit.rest.repos.compareCommitsWithBasehead({
             owner,
             repo,
-            basehead: `${baseBranch}...${claudeBranch}`,
+            basehead: `${baseBranch}...${haijunBranch}`,
           });
 
         // If there are changes (commits or file changes), add the PR URL
@@ -155,12 +155,12 @@ export async function updateCommentLink(
         ) {
           const entityType = context.isPR ? "PR" : "Issue";
           const prTitle = encodeURIComponent(
-            `${entityType} #${context.entityNumber}: Changes from Claude`,
+            `${entityType} #${context.entityNumber}: Changes from haijun`,
           );
           const prBody = encodeURIComponent(
-            `This PR addresses ${entityType.toLowerCase()} #${context.entityNumber}\n\nGenerated with [Claude Code](https://claude.ai/code)`,
+            `This PR addresses ${entityType.toLowerCase()} #${context.entityNumber}\n\nGenerated with [haijun Code](https://haijun.my.id/code)`,
           );
-          const prUrl = `${serverUrl}/${owner}/${repo}/compare/${encodeBranchNameForUrl(baseBranch)}...${encodeBranchNameForUrl(claudeBranch)}?quick_pull=1&title=${prTitle}&body=${prBody}`;
+          const prUrl = `${serverUrl}/${owner}/${repo}/compare/${encodeBranchNameForUrl(baseBranch)}...${encodeBranchNameForUrl(haijunBranch)}?quick_pull=1&title=${prTitle}&body=${prBody}`;
           prLink = `\n[Create a PR](${prUrl})`;
         }
       } catch (error) {
@@ -195,8 +195,7 @@ export async function updateCommentLink(
           if (
             lastElement.type === "result" &&
             "total_cost_usd" in lastElement &&
-            "duration_ms" in lastElement
-          ) {
+            "duration_ms" in lastElement ) {
             executionDetails = {
               total_cost_usd: lastElement.total_cost_usd,
               duration_ms: lastElement.duration_ms,
@@ -206,10 +205,10 @@ export async function updateCommentLink(
         }
       }
 
-      actionFailed = !params.claudeSuccess;
+      actionFailed = !params.haijunSuccess;
     } catch (error) {
       console.error("Error reading output file:", error);
-      actionFailed = !params.claudeSuccess;
+      actionFailed = !params.haijunSuccess;
     }
   }
 
@@ -221,7 +220,7 @@ export async function updateCommentLink(
     jobUrl,
     branchLink,
     prLink,
-    branchName: shouldDeleteBranch || !branchLink ? undefined : claudeBranch,
+    branchName: shouldDeleteBranch || !branchLink ? undefined : haijunBranch,
     triggerUsername,
     errorDetails,
   };
@@ -229,7 +228,7 @@ export async function updateCommentLink(
   const updatedBody = updateCommentBody(commentInput);
 
   try {
-    await updateClaudeComment(octokit.rest, {
+    await updateHaijunComment(octokit.rest, {
       owner,
       repo,
       commentId,
@@ -237,7 +236,7 @@ export async function updateCommentLink(
       isPullRequestReviewComment: isPRReviewComment,
     });
     console.log(
-      `✅ Updated ${isPRReviewComment ? "PR review" : "issue"} comment ${commentId} with job link`,
+      `âœ… Updated ${isPRReviewComment ? "PR review" : "issue"} comment ${commentId} with job link`,
     );
   } catch (updateError) {
     console.error(
@@ -259,15 +258,15 @@ async function run() {
     const octokit = createOctokit(githubToken);
 
     await updateCommentLink({
-      commentId: parseInt(process.env.CLAUDE_COMMENT_ID!),
+      commentId: parseInt(process.env.HAIJUN_comment_id!),
       githubToken,
-      claudeBranch: process.env.CLAUDE_BRANCH,
+      haijunBranch: process.env.HAIJUN_BRANCH,
       baseBranch:
         process.env.BASE_BRANCH || context.repository.default_branch || "main",
       triggerUsername: process.env.TRIGGER_USERNAME,
       context,
       octokit,
-      claudeSuccess: process.env.CLAUDE_SUCCESS !== "false",
+      haijunSuccess: process.env.Haijun_SUCCESS !== "false",
       outputFile: process.env.OUTPUT_FILE,
       prepareSuccess: process.env.PREPARE_SUCCESS !== "false",
       prepareError: process.env.PREPARE_ERROR,

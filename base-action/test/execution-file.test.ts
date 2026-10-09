@@ -21,9 +21,9 @@ describe("execution file output", () => {
 
   test("sets execution_file output when the default execution file exists", async () => {
     const setOutputSpy = spyOn(core, "setOutput").mockImplementation(() => {});
-    tempDir = await mkdtemp(join(tmpdir(), "claude-execution-file-"));
+    tempDir = await mkdtemp(join(tmpdir(), "haijun-execution-file-"));
     process.env.RUNNER_TEMP = tempDir;
-    const executionFile = join(tempDir, "claude-execution-output.json");
+    const executionFile = join(tempDir, "haijun-execution-output.json");
     await writeFile(executionFile, "[]");
 
     try {

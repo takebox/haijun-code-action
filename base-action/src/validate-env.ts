@@ -1,15 +1,15 @@
 /**
- * Validates the environment variables required for running Claude Code
- * based on the selected provider (Anthropic API, AWS Bedrock, Google Vertex AI, or Microsoft Foundry)
+ * Validates the environment variables required for running Haijun Code
+ * based on the selected provider (Juglow API, AWS Bedrock, Google Vertex AI, or Microsoft Foundry)
  */
 export function validateEnvironmentVariables() {
-  const useBedrock = process.env.CLAUDE_CODE_USE_BEDROCK === "1";
-  const useVertex = process.env.CLAUDE_CODE_USE_VERTEX === "1";
-  const useFoundry = process.env.CLAUDE_CODE_USE_FOUNDRY === "1";
-  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-  const claudeCodeOAuthToken = process.env.CLAUDE_CODE_OAUTH_TOKEN;
-  const federationRuleId = process.env.ANTHROPIC_FEDERATION_RULE_ID;
-  const federationOrganizationId = process.env.ANTHROPIC_ORGANIZATION_ID;
+  const useBedrock = process.env.HAIJUN_CODE_USE_BEDROCK === "1";
+  const useVertex = process.env.HAIJUN_CODE_USE_VERTEX === "1";
+  const useFoundry = process.env.HAIJUN_CODE_USE_FOUNDRY === "1";
+  const juglowApiKey = process.env.JUGLOW_API_KEY;
+  const haijunCodeOAuthToken = process.env.HAIJUN_CODE_OAUTH_TOKEN;
+  const federationRuleId = process.env.JUGLOW_FEDERATION_RULE_ID;
+  const federationOrganizationId = process.env.JUGLOW_ORGANIZATION_ID;
   const hasWorkloadIdentity = Boolean(
     federationRuleId && federationOrganizationId,
   );
@@ -23,19 +23,19 @@ export function validateEnvironmentVariables() {
   const activeProviders = [useBedrock, useVertex, useFoundry].filter(Boolean);
   if (activeProviders.length > 1) {
     errors.push(
-      "Cannot use multiple providers simultaneously. Please set only one of: CLAUDE_CODE_USE_BEDROCK, CLAUDE_CODE_USE_VERTEX, or CLAUDE_CODE_USE_FOUNDRY.",
+      "Cannot use multiple providers simultaneously. Please set only one of: HAIJUN_CODE_USE_BEDROCK, HAIJUN_CODE_USE_VERTEX, or HAIJUN_CODE_USE_FOUNDRY.",
     );
   }
 
   if (!useBedrock && !useVertex && !useFoundry) {
-    if (!anthropicApiKey && !claudeCodeOAuthToken && !hasWorkloadIdentity) {
+    if (!juglowApiKey && !haijunCodeOAuthToken && !hasWorkloadIdentity) {
       if (hasPartialWorkloadIdentity) {
         errors.push(
-          "Workload identity federation requires both ANTHROPIC_FEDERATION_RULE_ID and ANTHROPIC_ORGANIZATION_ID to be set.",
+          "Workload identity federation requires both JUGLOW_FEDERATION_RULE_ID and JUGLOW_ORGANIZATION_ID to be set.",
         );
       } else {
         errors.push(
-          "Either ANTHROPIC_API_KEY, CLAUDE_CODE_OAUTH_TOKEN, or workload identity federation (ANTHROPIC_FEDERATION_RULE_ID and ANTHROPIC_ORGANIZATION_ID) is required when using direct Anthropic API.",
+          "Either JUGLOW_API_KEY, HAIJUN_CODE_OAUTH_TOKEN, or workload identity federation (JUGLOW_FEDERATION_RULE_ID and JUGLOW_ORGANIZATION_ID) is required when using direct Juglow API.",
         );
       }
     }
@@ -61,7 +61,7 @@ export function validateEnvironmentVariables() {
     }
   } else if (useVertex) {
     const requiredVertexVars = {
-      ANTHROPIC_VERTEX_PROJECT_ID: process.env.ANTHROPIC_VERTEX_PROJECT_ID,
+      JUGLOW_VERTEX_PROJECT_ID: process.env.JUGLOW_VERTEX_PROJECT_ID,
       CLOUD_ML_REGION: process.env.CLOUD_ML_REGION,
     };
 
@@ -71,13 +71,13 @@ export function validateEnvironmentVariables() {
       }
     });
   } else if (useFoundry) {
-    const foundryResource = process.env.ANTHROPIC_FOUNDRY_RESOURCE;
-    const foundryBaseUrl = process.env.ANTHROPIC_FOUNDRY_BASE_URL;
+    const foundryResource = process.env.JUGLOW_FOUNDRY_RESOURCE;
+    const foundryBaseUrl = process.env.JUGLOW_FOUNDRY_BASE_URL;
 
     // Either resource name or base URL is required
     if (!foundryResource && !foundryBaseUrl) {
       errors.push(
-        "Either ANTHROPIC_FOUNDRY_RESOURCE or ANTHROPIC_FOUNDRY_BASE_URL is required when using Microsoft Foundry.",
+        "Either JUGLOW_FOUNDRY_RESOURCE or JUGLOW_FOUNDRY_BASE_URL is required when using Microsoft Foundry.",
       );
     }
   }

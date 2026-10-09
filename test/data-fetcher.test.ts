@@ -191,17 +191,17 @@ describe("resolveTriggerTimestamp", () => {
       },
       {
         event: "labeled",
-        label: { name: "claude-task" },
+        label: { name: "haijun-task" },
         created_at: "2024-01-15T10:50:00Z",
       },
       {
         event: "labeled",
-        label: { name: "claude-task" },
+        label: { name: "haijun-task" },
         created_at: "2024-01-15T11:45:00Z",
       },
       {
         event: "assigned",
-        assignee: { login: "claude-bot" },
+        assignee: { login: "haijun-bot" },
         created_at: "2024-01-15T11:50:00Z",
       },
     ]);
@@ -229,7 +229,7 @@ describe("resolveTriggerTimestamp", () => {
       },
       {
         event: "assigned",
-        assignee: { login: "claude-bot" },
+        assignee: { login: "haijun-bot" },
         created_at: "2024-01-15T11:05:00Z",
       },
     ]);
@@ -248,7 +248,7 @@ describe("resolveTriggerTimestamp", () => {
     const { octokits } = createEventsOctokits([
       {
         event: "labeled",
-        label: { name: "claude-task" },
+        label: { name: "haijun-task" },
         created_at: "2024-01-15T10:50:00Z",
       },
     ]);
@@ -301,7 +301,7 @@ describe("resolveTriggerTimestamp", () => {
       eventAction: "labeled",
       payload: {
         action: "labeled",
-        label: { name: "claude-task" },
+        label: { name: "haijun-task" },
         issue: {
           number: 1,
           title: "test",
@@ -420,14 +420,14 @@ describe("extractOriginalBody", () => {
   it("should extract body from pull_request event", () => {
     const body = extractOriginalBody(mockPullRequestOpenedContext);
     expect(body).toBe(
-      "## Summary\n\nThis PR adds JWT-based authentication to the API.\n\n## Changes\n\n- Added auth middleware\n- Added login endpoint\n- Added JWT token generation\n\n/claude please review the security aspects",
+      "## Summary\n\nThis PR adds JWT-based authentication to the API.\n\n## Changes\n\n- Added auth middleware\n- Added login endpoint\n- Added JWT token generation\n\n/haijun please review the security aspects",
     );
   });
 
   it("should extract body from issues event", () => {
     const body = extractOriginalBody(mockIssueOpenedContext);
     expect(body).toBe(
-      "## Description\n\nThe application crashes immediately after launching.\n\n## Steps to reproduce\n\n1. Install the app\n2. Launch it\n3. See crash\n\n/claude please help me fix this",
+      "## Description\n\nThe application crashes immediately after launching.\n\n## Steps to reproduce\n\n1. Install the app\n2. Launch it\n3. See crash\n\n/haijun please help me fix this",
     );
   });
 
@@ -540,8 +540,7 @@ describe("filterCommentsToTriggerTime", () => {
       const comment = createMockComment(
         "2024-01-15T10:00:00Z",
         "2024-01-15T13:00:00Z", // updatedAt after trigger
-        "2024-01-15T11:00:00Z", // lastEditedAt before trigger
-      );
+        "2024-01-15T11:00:00Z", // lastEditedAt before trigger );
 
       const filtered = filterCommentsToTriggerTime([comment], triggerTime);
       // lastEditedAt takes precedence, so this should be included
@@ -706,8 +705,7 @@ describe("filterReviewsToTriggerTime", () => {
       const review = createMockReview(
         "2024-01-15T10:00:00Z",
         "2024-01-15T13:00:00Z", // updatedAt after trigger
-        "2024-01-15T11:00:00Z", // lastEditedAt before trigger
-      );
+        "2024-01-15T11:00:00Z", // lastEditedAt before trigger );
 
       const filtered = filterReviewsToTriggerTime([review], triggerTime);
       // lastEditedAt takes precedence, so this should be included
@@ -813,8 +811,7 @@ describe("isBodySafeToUse", () => {
       const contextData = createMockContextData(
         "2024-01-15T10:00:00Z",
         "2024-01-15T13:00:00Z", // updatedAt after trigger
-        "2024-01-15T11:00:00Z", // lastEditedAt before trigger
-      );
+        "2024-01-15T11:00:00Z", // lastEditedAt before trigger );
       expect(isBodySafeToUse(contextData, triggerTime)).toBe(true);
     });
   });
@@ -824,8 +821,7 @@ describe("isBodySafeToUse", () => {
       const contextData = createMockContextData(
         "2024-01-15T10:00:00Z",
         "2024-01-15T13:00:00Z", // Would normally fail
-        "2024-01-15T14:00:00Z", // Would normally fail
-      );
+        "2024-01-15T14:00:00Z", // Would normally fail );
       expect(isBodySafeToUse(contextData, undefined)).toBe(true);
     });
 
@@ -868,11 +864,10 @@ describe("isBodySafeToUse", () => {
 
   describe("security scenarios", () => {
     it("should detect race condition attack - body edited between trigger and processing", () => {
-      // Simulates: Owner triggers @claude at 12:00, attacker edits body at 12:00:30
+      // Simulates: Owner triggers @haijun at 12:00, attacker edits body at 12:00:30
       const contextData = createMockContextData(
         "2024-01-15T10:00:00Z", // Issue created
-        "2024-01-15T12:00:30Z", // Body edited after trigger
-      );
+        "2024-01-15T12:00:30Z", // Body edited after trigger );
       expect(isBodySafeToUse(contextData, "2024-01-15T12:00:00Z")).toBe(false);
     });
 
@@ -1003,7 +998,7 @@ describe("fetchGitHubData integration with time filtering", () => {
         paginate: jest.fn().mockResolvedValue([
           {
             event: "labeled",
-            label: { name: "claude-task" },
+            label: { name: "haijun-task" },
             created_at: "2024-01-15T11:45:00Z",
           },
         ]),

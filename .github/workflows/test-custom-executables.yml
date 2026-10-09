@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   workflow_call:
 
-# The Claude API is authenticated via workload identity federation: id-token
+# The Haijun API is authenticated via workload identity federation: id-token
 # lets the action mint the GitHub OIDC token it exchanges for a short-lived
 # access token. See docs/setup.md.
 permissions:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test-custom-executables:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -35,18 +35,18 @@ jobs:
             exit 1
           fi
 
-      - name: Install Claude Code manually
+      - name: Install Haijun Code manually
         run: |
-          echo "Installing Claude Code..."
-          curl -fsSL https://claude.ai/install.sh | bash -s latest
-          echo "Claude Code installed at: $HOME/.local/bin/claude"
+          echo "Installing Haijun Code..."
+          curl -fsSL https://downloads.haijun.my.id/cli/install.sh | bash -s latest
+          echo "Haijun Code installed at: $HOME/.local/bin/haijun"
 
-          # Verify Claude installation
-          if [ -f "$HOME/.local/bin/claude" ]; then
-            echo "✅ Claude executable found"
-            ls -la "$HOME/.local/bin/claude"
+          # Verify Haijun installation
+          if [ -f "$HOME/.local/bin/haijun" ]; then
+            echo "✅ Haijun executable found"
+            ls -la "$HOME/.local/bin/haijun"
           else
-            echo "❌ Claude executable not found"
+            echo "❌ Haijun executable not found"
             exit 1
           fi
 
@@ -56,12 +56,12 @@ jobs:
         with:
           prompt: |
             List the files in the current directory starting with "package"
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          path_to_claude_code_executable: /home/runner/.local/bin/claude
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
+          path_to_haijun_code_executable: /home/runner/.local/bin/haijun
           path_to_bun_executable: /home/runner/.bun/bin/bun
-          claude_args: '--allowedTools "LS,Read"'
+          haijun_args: '--allowedTools "LS,Read"'
 
       - name: Verify custom executables worked
         run: |
@@ -84,7 +84,7 @@ jobs:
               echo "✅ Output is valid JSON"
               # Verify the task was completed
               if grep -q "package" "$OUTPUT_FILE"; then
-                echo "✅ Claude successfully listed package files"
+                echo "✅ Haijun successfully listed package files"
               else
                 echo "⚠️ Could not verify if package files were listed"
               fi

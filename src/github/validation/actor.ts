@@ -1,8 +1,8 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 /**
  * Check if the action trigger is from a human actor
- * Prevents automated tools or bots from triggering Claude
+ * Prevents automated tools or bots from triggering haijun
  */
 
 import type { Octokit } from "@octokit/rest";
@@ -37,7 +37,7 @@ export async function checkHumanActor(
   // Resolve the actor's account type before consulting allowed_bots so the
   // allow-list only ever applies to non-User accounts. Some app actors
   // (e.g. GitHub Copilot with GITHUB_ACTOR="Copilot") are not resolvable
-  // via the Users API and 404 — that path is handled in the catch below.
+  // via the Users API and 404 â€” that path is handled in the catch below.
   let actorType: string;
   try {
     const { data: userData } = await octokit.users.getByUsername({

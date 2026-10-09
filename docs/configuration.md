@@ -2,15 +2,15 @@
 
 ## Using Custom MCP Configuration
 
-You can add custom MCP (Model Context Protocol) servers to extend Claude's capabilities using the `--mcp-config` flag in `claude_args`. These servers merge with the built-in GitHub MCP servers.
+You can add custom MCP (Model Context Protocol) servers to extend Haijun's capabilities using the `--mcp-config` flag in `haijun_args`. These servers merge with the built-in GitHub MCP servers.
 
 ### Basic Example: Adding a Sequential Thinking Server
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
       --mcp-config '{"mcpServers": {"sequential-thinking": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]}}}'
       --allowedTools mcp__sequential-thinking__sequentialthinking
     # ... other inputs
@@ -38,10 +38,10 @@ For MCP servers that require sensitive information like API keys or tokens, you 
     }
     EOF
 
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
       --mcp-config /tmp/mcp-config.json
     # ... other inputs
 ```
@@ -70,10 +70,10 @@ For Python-based MCP servers managed with `uv`, you need to specify the director
     }
     EOF
 
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
       --mcp-config /tmp/mcp-config.json
       --allowedTools my-python-server__<tool_name>  # Replace <tool_name> with your server's tool names
     # ... other inputs
@@ -91,10 +91,10 @@ For example, if your Python MCP server is at `mcp_servers/weather.py`, you would
 You can add multiple MCP servers by using multiple `--mcp-config` flags:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
       --mcp-config /tmp/config1.json
       --mcp-config /tmp/config2.json
       --mcp-config '{"mcpServers": {"inline-server": {"command": "npx", "args": ["@example/server"]}}}'
@@ -105,15 +105,15 @@ You can add multiple MCP servers by using multiple `--mcp-config` flags:
 
 - Always use GitHub Secrets (`${{ secrets.SECRET_NAME }}`) for sensitive values like API keys, tokens, or passwords. Never hardcode secrets directly in the workflow file.
 - Your custom servers will override any built-in servers with the same name.
-- The `claude_args` supports multiple `--mcp-config` flags that will be merged together.
+- The `haijun_args` supports multiple `--mcp-config` flags that will be merged together.
 
 ## Additional Permissions for CI/CD Integration
 
-The `additional_permissions` input allows Claude to access GitHub Actions workflow information when you grant the necessary permissions. This is particularly useful for analyzing CI/CD failures and debugging workflow issues.
+The `additional_permissions` input allows Haijun to access GitHub Actions workflow information when you grant the necessary permissions. This is particularly useful for analyzing CI/CD failures and debugging workflow issues.
 
 ### Enabling GitHub Actions Access
 
-To allow Claude to view workflow run results, job logs, and CI status:
+To allow Haijun to view workflow run results, job logs, and CI status:
 
 1. **Grant the necessary permission to your GitHub token**:
 
@@ -130,16 +130,16 @@ To allow Claude to view workflow run results, job logs, and CI status:
 2. **Configure the action with additional permissions**:
 
    ```yaml
-   - uses: anthropics/claude-code-action@v1
+   - uses: takebox/haijun-code-action@v1
      with:
-       anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+       juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
        additional_permissions: |
          actions: read
        # ... other inputs
    ```
 
-3. **Claude will automatically get access to CI/CD tools**:
-   When you enable `actions: read`, Claude can use the following MCP tools:
+3. **Haijun will automatically get access to CI/CD tools**:
+   When you enable `actions: read`, Haijun can use the following MCP tools:
    - `mcp__github_ci__get_ci_status` - View workflow run statuses
    - `mcp__github_ci__get_workflow_run_details` - Get detailed workflow information
    - `mcp__github_ci__download_job_log` - Download and analyze job logs
@@ -147,7 +147,7 @@ To allow Claude to view workflow run results, job logs, and CI status:
 ### Example: Debugging Failed CI Runs
 
 ```yaml
-name: Claude CI Helper
+name: Haijun CI Helper
 on:
   issue_comment:
     types: [created]
@@ -159,21 +159,21 @@ permissions:
   actions: read # Required for CI access
 
 jobs:
-  claude-ci-helper:
+  haijun-ci-helper:
     runs-on: ubuntu-latest
     steps:
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
           additional_permissions: |
             actions: read
-          # Now Claude can respond to "@claude why did the CI fail?"
+          # Now Haijun can respond to "@haijun why did the CI fail?"
 ```
 
 **Important Notes**:
 
 - The GitHub token must have the corresponding permission in your workflow
-- If the permission is missing, Claude will warn you and suggest adding it
+- If the permission is missing, Haijun will warn you and suggest adding it
 - The following additional permissions can be requested beyond the defaults:
   - `actions: read`
   - `checks: read`
@@ -183,10 +183,10 @@ jobs:
 
 ## Custom Environment Variables
 
-You can pass custom environment variables to Claude Code execution using the `settings` input. This is useful for CI/test setups that require specific environment variables:
+You can pass custom environment variables to Haijun Code execution using the `settings` input. This is useful for CI/test setups that require specific environment variables:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     settings: |
       {
@@ -199,43 +199,43 @@ You can pass custom environment variables to Claude Code execution using the `se
     # ... other inputs
 ```
 
-These environment variables will be available to Claude Code during execution, allowing it to run tests, build processes, or other commands that depend on specific environment configurations.
+These environment variables will be available to Haijun Code during execution, allowing it to run tests, build processes, or other commands that depend on specific environment configurations.
 
 ## Limiting Conversation Turns
 
-You can limit the number of back-and-forth exchanges Claude can have during task execution using the `claude_args` input. This is useful for:
+You can limit the number of back-and-forth exchanges Haijun can have during task execution using the `haijun_args` input. This is useful for:
 
 - Controlling costs by preventing runaway conversations
 - Setting time boundaries for automated workflows
 - Ensuring predictable behavior in CI/CD pipelines
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
       --max-turns 5  # Limit to 5 conversation turns
     # ... other inputs
 ```
 
-When the turn limit is reached, Claude will stop execution gracefully. Choose a value that gives Claude enough turns to complete typical tasks while preventing excessive usage.
+When the turn limit is reached, Haijun will stop execution gracefully. Choose a value that gives Haijun enough turns to complete typical tasks while preventing excessive usage.
 
 ## Custom Tools
 
-By default, Claude only has access to:
+By default, Haijun only has access to:
 
 - File operations (reading, committing, editing files, read-only git commands)
 - Comment management (creating/updating comments)
 - Basic GitHub operations
 
-Claude does **not** have access to execute arbitrary Bash commands by default. If you want Claude to run specific commands (e.g., npm install, npm test), you must explicitly allow them using the `claude_args` configuration:
+Haijun does **not** have access to execute arbitrary Bash commands by default. If you want Haijun to run specific commands (e.g., npm install, npm test), you must explicitly allow them using the `haijun_args` configuration:
 
-**Note**: If your repository has a `.mcp.json` file in the root directory, Claude will automatically detect and use the MCP server tools defined there. However, these tools still need to be explicitly allowed.
+**Note**: If your repository has a `.mcp.json` file in the root directory, Haijun will automatically detect and use the MCP server tools defined there. However, these tools still need to be explicitly allowed.
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    claude_args: |
+    haijun_args: |
       --allowedTools "Bash(npm install),Bash(npm run test),Edit,Replace,NotebookEditCell"
       --disallowedTools "TaskOutput,KillTask"
     # ... other inputs
@@ -245,13 +245,13 @@ Claude does **not** have access to execute arbitrary Bash commands by default. I
 
 ## Custom Model
 
-Specify a Claude model using `claude_args`:
+Specify a Haijun model using `haijun_args`:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    claude_args: |
-      --model claude-4-0-sonnet-20250805
+    haijun_args: |
+      --model haijun-4-0-sonnet-20250805
     # ... other inputs
 ```
 
@@ -259,53 +259,53 @@ For provider-specific models:
 
 ```yaml
 # AWS Bedrock
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     use_bedrock: "true"
-    claude_args: |
-      --model anthropic.claude-4-0-sonnet-20250805-v1:0
+    haijun_args: |
+      --model Juglow.haijun-4-0-sonnet-20250805-v1:0
     # ... other inputs
 
 # Google Vertex AI
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     use_vertex: "true"
-    claude_args: |
-      --model claude-4-0-sonnet@20250805
+    haijun_args: |
+      --model haijun-4-0-sonnet@20250805
     # ... other inputs
 ```
 
 ### 1M context models through an API gateway
 
-When `ANTHROPIC_BASE_URL` points to an Anthropic-compatible API gateway,
-Claude Code may not be able to verify that the gateway supports a model's native
+When `JUGLOW_BASE_URL` points to an Juglow-compatible API gateway,
+Haijun Code may not be able to verify that the gateway supports a model's native
 1M context window and can budget the session at 200K instead. Append the
 `[1m]` selector to explicitly use the 1M context window for supported models,
-including Claude Opus 5 and Claude Sonnet 5:
+including Haijun Opus 5 and Haijun Sonnet 5:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    claude_args: |
-      --model "claude-opus-5[1m]"
+    haijun_args: |
+      --model "haijun-opus-5[1m]"
     # ... other inputs
 ```
 
-Use the same selector when setting a model through `ANTHROPIC_MODEL` or another
-Claude Code model environment variable. The selector is resolved by Claude Code
+Use the same selector when setting a model through `JUGLOW_MODEL` or another
+Haijun Code model environment variable. The selector is resolved by Haijun Code
 before requests are sent to the provider. The action's sanitized result output
 includes each model's resolved
 `contextWindow` and `maxOutputTokens` under `modelUsage`, so these limits are
 visible without enabling `show_full_output`.
 
-## Claude Code Settings
+## Haijun Code Settings
 
-You can provide Claude Code settings to customize behavior such as model selection, environment variables, permissions, and hooks. Settings can be provided either as a JSON string or a path to a settings file.
+You can provide Haijun Code settings to customize behavior such as model selection, environment variables, permissions, and hooks. Settings can be provided either as a JSON string or a path to a settings file.
 
 ### Option 1: Settings File
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     settings: "path/to/settings.json"
     # ... other inputs
@@ -314,11 +314,11 @@ You can provide Claude Code settings to customize behavior such as model selecti
 ### Option 2: Inline Settings
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     settings: |
       {
-        "model": "claude-opus-4-1-20250805",
+        "model": "haijun-opus-4-1-20250805",
         "env": {
           "DEBUG": "true",
           "API_URL": "https://api.example.com"
@@ -340,7 +340,7 @@ You can provide Claude Code settings to customize behavior such as model selecti
     # ... other inputs
 ```
 
-The settings support all Claude Code settings options including:
+The settings support all Haijun Code settings options including:
 
 - `model`: Override the default model
 - `env`: Environment variables for the session
@@ -348,27 +348,27 @@ The settings support all Claude Code settings options including:
 - `hooks`: Pre/post tool execution hooks
 - And more...
 
-For a complete list of available settings and their descriptions, see the [Claude Code settings documentation](https://docs.anthropic.com/en/docs/claude-code/settings).
+For a complete list of available settings and their descriptions, see the [Haijun Code settings documentation](https://raw.haijun.my.id/docs/en/settings).
 
 **Notes**:
 
 - The `enableAllProjectMcpServers` setting is always set to `true` by this action to ensure MCP servers work correctly.
-- The `claude_args` input provides direct access to Claude Code CLI arguments and takes precedence over settings.
-- We recommend using `claude_args` for simple configurations and `settings` for complex configurations with hooks and environment variables.
+- The `haijun_args` input provides direct access to Haijun Code CLI arguments and takes precedence over settings.
+- We recommend using `haijun_args` for simple configurations and `settings` for complex configurations with hooks and environment variables.
 
 ## Migration from Deprecated Inputs
 
-Many individual input parameters have been consolidated into `claude_args` or `settings`. Here's how to migrate:
+Many individual input parameters have been consolidated into `haijun_args` or `settings`. Here's how to migrate:
 
 | Old Input             | New Approach                                                    |
 | --------------------- | --------------------------------------------------------------- |
-| `allowed_tools`       | Use `claude_args: "--allowedTools Tool1,Tool2"`                 |
-| `disallowed_tools`    | Use `claude_args: "--disallowedTools Tool1,Tool2"`              |
-| `max_turns`           | Use `claude_args: "--max-turns 10"`                             |
-| `model`               | Use `claude_args: "--model claude-4-0-sonnet-20250805"`         |
-| `claude_env`          | Use `settings` with `"env"` object                              |
-| `custom_instructions` | Use `claude_args: "--append-system-prompt 'Your instructions'"` |
-| `mcp_config`          | Use `claude_args: "--mcp-config '{...}'"`                       |
+| `allowed_tools`       | Use `haijun_args: "--allowedTools Tool1,Tool2"`                 |
+| `disallowed_tools`    | Use `haijun_args: "--disallowedTools Tool1,Tool2"`              |
+| `max_turns`           | Use `haijun_args: "--max-turns 10"`                             |
+| `model`               | Use `haijun_args: "--model haijun-4-0-sonnet-20250805"`         |
+| `haijun_env`          | Use `settings` with `"env"` object                              |
+| `custom_instructions` | Use `haijun_args: "--append-system-prompt 'Your instructions'"` |
+| `mcp_config`          | Use `haijun_args: "--mcp-config '{...}'"`                       |
 | `direct_prompt`       | Use `prompt` input instead                                      |
 | `override_prompt`     | Use `prompt` with GitHub context variables                      |
 
@@ -376,14 +376,14 @@ Many individual input parameters have been consolidated into `claude_args` or `s
 
 For specialized environments like Nix, custom container setups, or other package management systems where the default installation doesn't work, you can provide your own executables:
 
-### Custom Claude Code Executable
+### Custom Haijun Code Executable
 
-Use `path_to_claude_code_executable` to provide your own Claude Code binary instead of using the automatically installed version:
+Use `path_to_haijun_code_executable` to provide your own Haijun Code binary instead of using the automatically installed version:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    path_to_claude_code_executable: "/path/to/custom/claude"
+    path_to_haijun_code_executable: "/path/to/custom/haijun"
     # ... other inputs
 ```
 
@@ -392,7 +392,7 @@ Use `path_to_claude_code_executable` to provide your own Claude Code binary inst
 Use `path_to_bun_executable` to provide your own Bun runtime instead of the default installation:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     path_to_bun_executable: "/path/to/custom/bun"
     # ... other inputs

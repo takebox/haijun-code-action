@@ -1,4 +1,4 @@
-import fetch, { type RequestInit, type Response } from "node-fetch";
+﻿import fetch, { type RequestInit, type Response } from "node-fetch";
 import { GITHUB_API_URL } from "../github/api/config";
 import { retryWithBackoff, type RetryOptions } from "../utils/retry";
 
@@ -68,7 +68,7 @@ export async function updateGitReference({
         throw new GitReferenceUpdateError(
           response.status,
           `Permission denied: Unable to push commits to branch '${branch}'. ` +
-            `Please rebase your branch from the main/master branch to allow Claude to commit.\n\n` +
+            `Please rebase your branch from the main/master branch to allow haijun to commit.\n\n` +
             `Original error: ${errorText}`,
         );
       }

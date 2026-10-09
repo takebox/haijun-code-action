@@ -1,7 +1,7 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 /**
- * Unified entrypoint for the Claude Code Action.
+ * Unified entrypoint for the haijun Code Action.
  * Merges all previously separate action.yml steps (prepare, install, run, cleanup)
  * into a single TypeScript orchestrator.
  */
@@ -39,46 +39,46 @@ import { redactSecrets } from "../github/utils/sanitizer";
 import { setupWorkloadIdentity } from "../../base-action/src/workload-identity";
 import type { WorkloadIdentityHandle } from "../../base-action/src/workload-identity";
 import { validateEnvironmentVariables } from "../../base-action/src/validate-env";
-import { setupClaudeCodeSettings } from "../../base-action/src/setup-claude-code-settings";
+import { setupHAIJUNCodeSettings } from "../../base-action/src/setup-haijun-code-settings";
 import { installPlugins } from "../../base-action/src/install-plugins";
 import { preparePrompt } from "../../base-action/src/prepare-prompt";
-import { runClaude } from "../../base-action/src/run-claude";
-import type { ClaudeRunResult } from "../../base-action/src/run-claude-sdk";
+import { runHaijun } from "../../base-action/src/run-haijun";
+import type { HaijunRunResult } from "../../base-action/src/run-haijun-sdk";
 import { setExecutionFileOutputIfPresent } from "../../base-action/src/execution-file";
 
 // Exported for unit testing. `set -o pipefail` makes curl's non-zero exit
 // propagate through the pipe so the install retry logic actually triggers
 // on 429/403 instead of silently succeeding (see #1136).
 export function buildInstallCommand(version: string): string {
-  return `set -o pipefail; curl -fsSL https://claude.ai/install.sh | bash -s -- ${version}`;
+  return `set -o pipefail; curl -fsSL https://haijun.my.id/install.sh | bash -s -- ${version}`;
 }
 
 /**
- * Install Claude Code CLI, handling retry logic and custom executable paths.
- * Returns the absolute path to the claude executable.
+ * Install haijun Code CLI, handling retry logic and custom executable paths.
+ * Returns the absolute path to the haijun executable.
  */
-async function installClaudeCode(): Promise<string> {
-  const customExecutable = process.env.PATH_TO_CLAUDE_CODE_EXECUTABLE;
+async function installHaijunCode(): Promise<string> {
+  const customExecutable = process.env.PATH_TO_Haijun_CODE_EXECUTABLE;
   if (customExecutable) {
     if (/[\x00-\x1f\x7f]/.test(customExecutable)) {
       throw new Error(
-        "PATH_TO_CLAUDE_CODE_EXECUTABLE contains control characters (e.g. newlines), which is not allowed",
+        "PATH_TO_Haijun_CODE_EXECUTABLE contains control characters (e.g. newlines), which is not allowed",
       );
     }
-    console.log(`Using custom Claude Code executable: ${customExecutable}`);
-    const claudeDir = dirname(customExecutable);
+    console.log(`Using custom haijun Code executable: ${customExecutable}`);
+    const HaijunDir = dirname(customExecutable);
     // Add to PATH by appending to GITHUB_PATH
     const githubPath = process.env.GITHUB_PATH;
     if (githubPath) {
-      await appendFile(githubPath, `${claudeDir}\n`);
+      await appendFile(githubPath, `${HaijunDir}\n`);
     }
     // Also add to current process PATH
-    process.env.PATH = `${claudeDir}:${process.env.PATH}`;
+    process.env.PATH = `${HaijunDir}:${process.env.PATH}`;
     return customExecutable;
   }
 
-  const claudeCodeVersion = "2.1.267";
-  console.log(`Installing Claude Code v${claudeCodeVersion}...`);
+  const HaijunCodeVersion = "2.1.267";
+  console.log(`Installing haijun Code v${HaijunCodeVersion}...`);
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     console.log(`Installation attempt ${attempt}...`);
@@ -86,7 +86,7 @@ async function installClaudeCode(): Promise<string> {
       await new Promise<void>((resolve, reject) => {
         const child = spawn(
           "bash",
-          ["-c", buildInstallCommand(claudeCodeVersion)],
+          ["-c", buildInstallCommand(HaijunCodeVersion)],
           { stdio: "inherit" },
         );
         child.on("close", (code) => {
@@ -95,7 +95,7 @@ async function installClaudeCode(): Promise<string> {
         });
         child.on("error", reject);
       });
-      console.log("Claude Code installed successfully");
+      console.log("haijun Code installed successfully");
       // Add to PATH
       const homeBin = `${process.env.HOME}/.local/bin`;
       const githubPath = process.env.GITHUB_PATH;
@@ -103,11 +103,11 @@ async function installClaudeCode(): Promise<string> {
         await appendFile(githubPath, `${homeBin}\n`);
       }
       process.env.PATH = `${homeBin}:${process.env.PATH}`;
-      return `${homeBin}/claude`;
+      return `${homeBin}/haijun`;
     } catch (error) {
       if (attempt === 3) {
         throw new Error(
-          `Failed to install Claude Code after 3 attempts: ${error}`,
+          `Failed to install haijun Code after 3 attempts: ${error}`,
         );
       }
       console.log("Installation failed, retrying...");
@@ -118,7 +118,7 @@ async function installClaudeCode(): Promise<string> {
 }
 
 /**
- * Write the step summary from Claude's execution output file.
+ * Write the step summary from haijun's execution output file.
  */
 async function writeStepSummary(executionFile: string): Promise<void> {
   const summaryFile = process.env.GITHUB_STEP_SUMMARY;
@@ -129,12 +129,12 @@ async function writeStepSummary(executionFile: string): Promise<void> {
     const data: Turn[] = JSON.parse(fileContent);
     const markdown = formatTurnsFromData(data);
     await appendFile(summaryFile, markdown);
-    console.log("Successfully formatted Claude Code report");
+    console.log("Successfully formatted haijun Code report");
   } catch (error) {
     console.error(`Failed to format output: ${error}`);
     // Fall back to raw JSON
     try {
-      let fallback = "## Claude Code Report (Raw Output)\n\n";
+      let fallback = "## haijun Code Report (Raw Output)\n\n";
       fallback +=
         "Failed to format output (please report). Here's the raw JSON:\n\n";
       fallback += "```json\n";
@@ -150,10 +150,10 @@ async function writeStepSummary(executionFile: string): Promise<void> {
 async function run() {
   let githubToken: string | undefined;
   let commentId: number | undefined;
-  let claudeBranch: string | undefined;
+  let haijunBranch: string | undefined;
   let baseBranch: string | undefined;
   let executionFile: string | undefined;
-  let claudeSuccess = false;
+  let haijunSuccess = false;
   let prepareSuccess = true;
   let prepareError: string | undefined;
   let context: GitHubContext | undefined;
@@ -232,17 +232,17 @@ async function run() {
         : await prepareAgentMode({ context, octokit, githubToken });
 
     commentId = prepareResult.commentId;
-    claudeBranch = prepareResult.branchInfo.claudeBranch;
+    haijunBranch = prepareResult.branchInfo.haijunBranch;
     baseBranch = prepareResult.branchInfo.baseBranch;
     prepareCompleted = true;
 
-    // Phase 2: Install Claude Code CLI
-    const claudeExecutable = await installClaudeCode();
+    // Phase 2: Install haijun Code CLI
+    const haijunExecutable = await installHaijunCode();
 
-    // Phase 3: Run Claude (import base-action directly)
+    // Phase 3: Run haijun (import base-action directly)
     // Set env vars needed by the base-action code
     process.env.INPUT_ACTION_INPUTS_PRESENT = actionInputsPresent;
-    process.env.CLAUDE_CODE_ACTION = "1";
+    process.env.haijun_CODE_ACTION = "1";
     process.env.DETAILED_PERMISSION_MESSAGES = "1";
 
     // When workload identity federation is configured, fetch the GitHub OIDC
@@ -251,13 +251,13 @@ async function run() {
 
     validateEnvironmentVariables();
 
-    // On PRs, .claude/ and .mcp.json in the checkout are attacker-controlled.
+    // On PRs, .haijun/ and .mcp.json in the checkout are attacker-controlled.
     // Restore them from the base branch before the CLI reads them.
     //
     // We read pull_request.base.ref from the payload directly because agent
     // mode's branchInfo.baseBranch defaults to the repo's default branch rather
     // than the PR's actual target (agent/index.ts). For issue_comment on a PR the payload
-    // lacks base.ref, so we fall back to the mode-provided value — tag mode
+    // lacks base.ref, so we fall back to the mode-provided value â€” tag mode
     // fetches it from GraphQL; agent mode on issue_comment is an edge case
     // that at worst restores from the wrong trusted branch (still secure).
     if (isEntityContext(context) && context.isPR) {
@@ -275,44 +275,44 @@ async function run() {
       }
     }
 
-    await setupClaudeCodeSettings(process.env.INPUT_SETTINGS);
+    await setupHAIJUNCodeSettings(process.env.INPUT_SETTINGS);
 
     await installPlugins(
       process.env.INPUT_PLUGIN_MARKETPLACES,
       process.env.INPUT_PLUGINS,
-      claudeExecutable,
+      haijunExecutable,
     );
 
     const promptFile =
       process.env.INPUT_PROMPT_FILE ||
-      `${process.env.RUNNER_TEMP}/claude-prompts/claude-prompt.txt`;
+      `${process.env.RUNNER_TEMP}/haijun-prompts/haijun-prompt.txt`;
     const promptConfig = await preparePrompt({
       prompt: "",
       promptFile,
     });
 
-    const claudeResult: ClaudeRunResult = await runClaude(promptConfig.path, {
-      claudeArgs: prepareResult.claudeArgs,
+    const haijunResult: HaijunRunResult = await runHaijun(promptConfig.path, {
+      HaijunArgs: prepareResult.HaijunArgs,
       appendSystemPrompt: process.env.APPEND_SYSTEM_PROMPT,
-      model: process.env.ANTHROPIC_MODEL,
-      pathToClaudeCodeExecutable: claudeExecutable,
+      model: process.env.Juglow_MODEL,
+      pathTohaijunCodeExecutable: haijunExecutable,
       showFullOutput: process.env.INPUT_SHOW_FULL_OUTPUT,
     });
 
-    claudeSuccess = claudeResult.conclusion === "success";
-    executionFile = claudeResult.executionFile;
+    haijunSuccess = haijunResult.conclusion === "success";
+    executionFile = haijunResult.executionFile;
 
     // Set action-level outputs
-    if (claudeResult.executionFile) {
-      core.setOutput("execution_file", claudeResult.executionFile);
+    if (haijunResult.executionFile) {
+      core.setOutput("execution_file", haijunResult.executionFile);
     }
-    if (claudeResult.sessionId) {
-      core.setOutput("session_id", claudeResult.sessionId);
+    if (haijunResult.sessionId) {
+      core.setOutput("session_id", haijunResult.sessionId);
     }
-    if (claudeResult.structuredOutput) {
-      core.setOutput("structured_output", claudeResult.structuredOutput);
+    if (haijunResult.structuredOutput) {
+      core.setOutput("structured_output", haijunResult.structuredOutput);
     }
-    core.setOutput("conclusion", claudeResult.conclusion);
+    core.setOutput("conclusion", haijunResult.conclusion);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     executionFile ??= setExecutionFileOutputIfPresent();
@@ -335,18 +335,17 @@ async function run() {
       context &&
       isEntityContext(context) &&
       githubToken &&
-      octokit
-    ) {
+      octokit ) {
       try {
         await updateCommentLink({
           commentId,
           githubToken,
-          claudeBranch,
+          haijunBranch,
           baseBranch: baseBranch || context.repository.default_branch || "main",
           triggerUsername: context.actor,
           context,
           octokit,
-          claudeSuccess,
+          haijunSuccess,
           outputFile: executionFile,
           prepareSuccess,
           prepareError,
@@ -368,7 +367,7 @@ async function run() {
     }
 
     // Set remaining action-level outputs
-    core.setOutput("branch_name", claudeBranch);
+    core.setOutput("branch_name", haijunBranch);
     core.setOutput("github_token", githubToken);
   }
 }

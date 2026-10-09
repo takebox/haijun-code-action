@@ -15,7 +15,7 @@ export GH_HOST=github.com
 
 REPO="${GH_REPO:-${GITHUB_REPOSITORY:-}}"
 if [[ -z "$REPO" || "$REPO" == */*/* || "$REPO" != */* ]]; then
-  echo "Error: GH_REPO or GITHUB_REPOSITORY must be set to owner/repo format (e.g., GITHUB_REPOSITORY=anthropics/claude-code)" >&2
+  echo "Error: GH_REPO or GITHUB_REPOSITORY must be set to owner/repo format (e.g., GITHUB_REPOSITORY=takebox/haijun-code)" >&2
   exit 1
 fi
 export GH_REPO="$REPO"
@@ -31,8 +31,7 @@ case "$CMD" in
     ;;
   *)
     echo "Error: only 'issue view', 'issue list', 'search issues', 'label list' are allowed (e.g., ./scripts/gh.sh issue view 123)" >&2
-    exit 1
-    ;;
+    exit 1 ;;
 esac
 
 shift 2

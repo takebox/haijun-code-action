@@ -14,7 +14,7 @@ import {
 import { dirname, isAbsolute, join } from "path";
 import { restoreConfigFromBase } from "../src/github/operations/restore-config";
 
-const CLAUDE_PR_EXCLUDE_PATTERN = "/.claude-pr/";
+const HAIJUN_PR_EXCLUDE_PATTERN = "/.haijun-pr/";
 
 describe("restoreConfigFromBase", () => {
   let originalCwd: string;
@@ -34,25 +34,25 @@ describe("restoreConfigFromBase", () => {
     git(["config", "user.email", "test@example.com"]);
     git(["config", "user.name", "Test User"]);
 
-    writeRepoFile("CLAUDE.md", "base claude instructions\n");
+    writeRepoFile("HAIJUN.md", "base haijun instructions\n");
     writeRepoFile(
-      ".claude/settings.json",
+      ".haijun/settings.json",
       `${JSON.stringify({ source: "base" })}\n`,
     );
     writeRepoFile("src/index.ts", "export const base = true;\n");
 
-    git(["add", "CLAUDE.md", ".claude/settings.json", "src/index.ts"]);
+    git(["add", "HAIJUN.md", ".haijun/settings.json", "src/index.ts"]);
     git(["commit", "-m", "base config"]);
     git(["remote", "add", "origin", remoteDir]);
     git(["push", "-u", "origin", "main"]);
 
     git(["checkout", "-b", "pr"]);
-    writeRepoFile("CLAUDE.md", "pr claude instructions\n");
+    writeRepoFile("HAIJUN.md", "pr haijun instructions\n");
     writeRepoFile(
-      ".claude/settings.json",
+      ".haijun/settings.json",
       `${JSON.stringify({ source: "pr" })}\n`,
     );
-    git(["add", "CLAUDE.md", ".claude/settings.json"]);
+    git(["add", "HAIJUN.md", ".haijun/settings.json"]);
     git(["commit", "-m", "pr config"]);
 
     process.chdir(repoDir);
@@ -65,7 +65,7 @@ describe("restoreConfigFromBase", () => {
     }
   });
 
-  test("preserves PR sensitive files while excluding .claude-pr from broad staging", () => {
+  test("preserves PR sensitive files while excluding .haijun-pr from broad staging", () => {
     const gitignoreExistedBefore = existsRepoFile(".gitignore");
     const gitignoreContentsBefore = gitignoreExistedBefore
       ? readRepoFile(".gitignore")
@@ -73,24 +73,24 @@ describe("restoreConfigFromBase", () => {
 
     restoreConfigFromBase("main");
 
-    expect(readRepoFile(".claude-pr/CLAUDE.md")).toBe(
-      "pr claude instructions\n",
+    expect(readRepoFile(".haijun-pr/HAIJUN.md")).toBe(
+      "pr haijun instructions\n",
     );
-    expect(readRepoFile(".claude-pr/.claude/settings.json")).toBe(
+    expect(readRepoFile(".haijun-pr/.haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "pr" })}\n`,
     );
-    expect(readRepoFile("CLAUDE.md")).toBe("base claude instructions\n");
-    expect(readRepoFile(".claude/settings.json")).toBe(
+    expect(readRepoFile("HAIJUN.md")).toBe("base haijun instructions\n");
+    expect(readRepoFile(".haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "base" })}\n`,
     );
-    expect(git(["check-ignore", ".claude-pr/CLAUDE.md"]).trim()).toBe(
-      ".claude-pr/CLAUDE.md",
+    expect(git(["check-ignore", ".haijun-pr/HAIJUN.md"]).trim()).toBe(
+      ".haijun-pr/HAIJUN.md",
     );
-    expect(countClaudePrExcludeEntries()).toBe(1);
+    expect(countHaijunPrExcludeEntries()).toBe(1);
 
     restoreConfigFromBase("main");
 
-    expect(countClaudePrExcludeEntries()).toBe(1);
+    expect(countHaijunPrExcludeEntries()).toBe(1);
     expect(existsRepoFile(".gitignore")).toBe(gitignoreExistedBefore);
     if (gitignoreExistedBefore) {
       expect(readRepoFile(".gitignore")).toBe(gitignoreContentsBefore);
@@ -104,7 +104,7 @@ describe("restoreConfigFromBase", () => {
       .split(/\r?\n/)
       .filter(Boolean);
     expect(stagedFiles).toContain("src/fix.ts");
-    expect(stagedFiles.some((file) => file.startsWith(".claude-pr/"))).toBe(
+    expect(stagedFiles.some((file) => file.startsWith(".haijun-pr/"))).toBe(
       false,
     );
 
@@ -115,7 +115,7 @@ describe("restoreConfigFromBase", () => {
       .split(/\r?\n/)
       .filter(Boolean);
     expect(committedFiles).toContain("src/fix.ts");
-    expect(committedFiles.some((file) => file.startsWith(".claude-pr/"))).toBe(
+    expect(committedFiles.some((file) => file.startsWith(".haijun-pr/"))).toBe(
       false,
     );
     expect(existsRepoFile(".gitignore")).toBe(gitignoreExistedBefore);
@@ -124,26 +124,26 @@ describe("restoreConfigFromBase", () => {
     }
   });
 
-  test("restores symlinked CLAUDE.md paths from the PR base branch", () => {
+  test("restores symlinked HAIJUN.md paths from the PR base branch", () => {
     setupSymlinkedMainBranch();
 
     git(["checkout", "pr"]);
     writeRepoFile(
-      ".claude/settings.json",
+      ".haijun/settings.json",
       `${JSON.stringify({ source: "pr-with-symlinks" })}\n`,
     );
-    git(["add", ".claude/settings.json"]);
+    git(["add", ".haijun/settings.json"]);
     git(["commit", "-m", "pr updates settings"]);
 
     restoreConfigFromBase("main");
 
-    expect(lstatRepoFile("CLAUDE.md").isSymbolicLink()).toBe(true);
-    expect(lstatRepoFile(".claude/CLAUDE.md").isSymbolicLink()).toBe(true);
-    expect(readRepoFile("CLAUDE.md").trim()).toBe("shared agent instructions");
-    expect(readRepoFile(".claude/CLAUDE.md").trim()).toBe(
+    expect(lstatRepoFile("HAIJUN.md").isSymbolicLink()).toBe(true);
+    expect(lstatRepoFile(".haijun/HAIJUN.md").isSymbolicLink()).toBe(true);
+    expect(readRepoFile("HAIJUN.md").trim()).toBe("shared agent instructions");
+    expect(readRepoFile(".haijun/HAIJUN.md").trim()).toBe(
       "shared agent instructions",
     );
-    expect(readRepoFile(".claude/settings.json")).toBe(
+    expect(readRepoFile(".haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "base" })}\n`,
     );
   });
@@ -158,10 +158,10 @@ describe("restoreConfigFromBase", () => {
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/CLAUDE.md");
-    expectPlaceholder(".claude-pr/.claude/CLAUDE.md");
+    expectPlaceholder(".haijun-pr/HAIJUN.md");
+    expectPlaceholder(".haijun-pr/.haijun/HAIJUN.md");
     expectNoLinksInSnapshot();
-    expect(readRepoFile(".claude/settings.json")).toBe(
+    expect(readRepoFile(".haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "base" })}\n`,
     );
   });
@@ -173,32 +173,32 @@ describe("restoreConfigFromBase", () => {
 
     restoreConfigFromBase("main");
 
-    expect(lstatRepoFile(".claude-pr/CLAUDE.md").isFile()).toBe(true);
-    expect(lstatRepoFile(".claude-pr/.claude/CLAUDE.md").isFile()).toBe(true);
-    expect(readRepoFile(".claude-pr/CLAUDE.md")).toBe(
+    expect(lstatRepoFile(".haijun-pr/HAIJUN.md").isFile()).toBe(true);
+    expect(lstatRepoFile(".haijun-pr/.haijun/HAIJUN.md").isFile()).toBe(true);
+    expect(readRepoFile(".haijun-pr/HAIJUN.md")).toBe(
       "shared agent instructions\n",
     );
-    expect(readRepoFile(".claude-pr/.claude/CLAUDE.md")).toBe(
+    expect(readRepoFile(".haijun-pr/.haijun/HAIJUN.md")).toBe(
       "shared agent instructions\n",
     );
     expectNoLinksInSnapshot();
   });
 
-  test("records CLAUDE.md links to targets outside the working tree as placeholders", () => {
+  test("records HAIJUN.md links to targets outside the working tree as placeholders", () => {
     const outsideFile = writeOutsideFile("notes.md", "outside notes\n");
 
-    rmSync(join(repoDir, "CLAUDE.md"), { force: true });
-    symlinkRepoFile("CLAUDE.md", outsideFile);
+    rmSync(join(repoDir, "HAIJUN.md"), { force: true });
+    symlinkRepoFile("HAIJUN.md", outsideFile);
     git(["add", "-A"]);
-    git(["commit", "-m", "pr links CLAUDE.md outside the repo"]);
+    git(["commit", "-m", "pr links HAIJUN.md outside the repo"]);
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/CLAUDE.md");
-    expect(readRepoFile(".claude-pr/CLAUDE.md")).not.toBe("outside notes\n");
+    expectPlaceholder(".haijun-pr/HAIJUN.md");
+    expect(readRepoFile(".haijun-pr/HAIJUN.md")).not.toBe("outside notes\n");
     expect(snapshotRegularFileContents()).not.toContain("outside notes\n");
     expectNoLinksInSnapshot();
-    expect(readRepoFile("CLAUDE.md")).toBe("base claude instructions\n");
+    expect(readRepoFile("HAIJUN.md")).toBe("base haijun instructions\n");
   });
 
   test("records nested links to targets outside the working tree as placeholders", () => {
@@ -209,35 +209,35 @@ describe("restoreConfigFromBase", () => {
     writeOutsideFile("dir/inner.txt", "outside dir content\n");
     const outsideDir = join(tempDir, "outside", "dir");
 
-    symlinkRepoFile(".claude/linked-file.md", outsideFile);
-    symlinkRepoFile(".claude/linked-dir", outsideDir);
+    symlinkRepoFile(".haijun/linked-file.md", outsideFile);
+    symlinkRepoFile(".haijun/linked-dir", outsideDir);
     git(["add", "-A"]);
     git(["commit", "-m", "pr adds nested links outside the repo"]);
 
     restoreConfigFromBase("main");
 
-    expect(readRepoFile(".claude-pr/.claude/settings.json")).toBe(
+    expect(readRepoFile(".haijun-pr/.haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "pr" })}\n`,
     );
-    expectPlaceholder(".claude-pr/.claude/linked-file.md");
-    expectPlaceholder(".claude-pr/.claude/linked-dir");
+    expectPlaceholder(".haijun-pr/.haijun/linked-file.md");
+    expectPlaceholder(".haijun-pr/.haijun/linked-dir");
     const contents = snapshotRegularFileContents();
     expect(contents).not.toContain("outside file content\n");
     expect(contents).not.toContain("outside dir content\n");
     expectNoLinksInSnapshot();
-    expect(readRepoFile(".claude/settings.json")).toBe(
+    expect(readRepoFile(".haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "base" })}\n`,
     );
   });
 
   test("records links into git metadata as placeholders", () => {
-    symlinkRepoFile(".claude/git-config", "../.git/config");
+    symlinkRepoFile(".haijun/git-config", "../.git/config");
     git(["add", "-A"]);
     git(["commit", "-m", "pr links into git metadata"]);
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/.claude/git-config");
+    expectPlaceholder(".haijun-pr/.haijun/git-config");
     expect(snapshotRegularFileContents()).not.toContain(
       readRepoFile(".git/config"),
     );
@@ -247,16 +247,16 @@ describe("restoreConfigFromBase", () => {
   test("records relative links that only resolve from inside the snapshot as placeholders", () => {
     // Both targets dangle at their source location but would resolve to the
     // repository's .git/config if re-created one directory deeper.
-    symlinkRepoFile(".claude/x", "../../.git/config");
-    rmSync(join(repoDir, "CLAUDE.md"), { force: true });
-    symlinkRepoFile("CLAUDE.md", "../.git/config");
+    symlinkRepoFile(".haijun/x", "../../.git/config");
+    rmSync(join(repoDir, "HAIJUN.md"), { force: true });
+    symlinkRepoFile("HAIJUN.md", "../.git/config");
     git(["add", "-A"]);
     git(["commit", "-m", "pr adds relative links"]);
 
     restoreConfigFromBase("main");
 
     const gitConfig = readRepoFile(".git/config");
-    for (const path of [".claude-pr/.claude/x", ".claude-pr/CLAUDE.md"]) {
+    for (const path of [".haijun-pr/.haijun/x", ".haijun-pr/HAIJUN.md"]) {
       expectPlaceholder(path);
       expect(readRepoFile(path)).not.toBe(gitConfig);
     }
@@ -266,11 +266,11 @@ describe("restoreConfigFromBase", () => {
 
   test("records links into nested git metadata inside the working tree as placeholders", () => {
     writeRepoFile("other/.git/config", "nested checkout config\n");
-    symlinkRepoFile(".claude/x", "../other/.git/config");
+    symlinkRepoFile(".haijun/x", "../other/.git/config");
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/.claude/x");
+    expectPlaceholder(".haijun-pr/.haijun/x");
     expect(snapshotRegularFileContents()).not.toContain(
       "nested checkout config\n",
     );
@@ -279,17 +279,17 @@ describe("restoreConfigFromBase", () => {
 
   test("records links to untracked in-tree files as placeholders", () => {
     writeRepoFile(".env", "untracked env contents\n");
-    symlinkRepoFile(".claude/env", "../.env");
-    git(["add", ".claude/env"]);
+    symlinkRepoFile(".haijun/env", "../.env");
+    git(["add", ".haijun/env"]);
     git(["commit", "-m", "pr links to an untracked file"]);
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/.claude/env");
+    expectPlaceholder(".haijun-pr/.haijun/env");
     expect(snapshotRegularFileContents()).not.toContain(
       "untracked env contents\n",
     );
-    expect(readRepoFile(".claude-pr/.claude/settings.json")).toBe(
+    expect(readRepoFile(".haijun-pr/.haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "pr" })}\n`,
     );
     expectNoLinksInSnapshot();
@@ -297,14 +297,14 @@ describe("restoreConfigFromBase", () => {
 
   test("records links to tracked files modified after checkout as placeholders", () => {
     writeRepoFile(".env", "PLACEHOLDER=1\n");
-    symlinkRepoFile(".claude/env", "../.env");
-    git(["add", ".env", ".claude/env"]);
+    symlinkRepoFile(".haijun/env", "../.env");
+    git(["add", ".env", ".haijun/env"]);
     git(["commit", "-m", "pr links to a tracked file"]);
     writeRepoFile(".env", "written after checkout\n");
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/.claude/env");
+    expectPlaceholder(".haijun-pr/.haijun/env");
     expect(snapshotRegularFileContents()).not.toContain(
       "written after checkout\n",
     );
@@ -312,40 +312,40 @@ describe("restoreConfigFromBase", () => {
   });
 
   test("snapshots a sensitive path that links to a tracked in-tree directory", () => {
-    rmSync(join(repoDir, ".claude"), { recursive: true, force: true });
+    rmSync(join(repoDir, ".haijun"), { recursive: true, force: true });
     writeRepoFile(
-      "config/claude/settings.json",
+      "config/haijun/settings.json",
       `${JSON.stringify({ source: "linked-dir" })}\n`,
     );
-    writeRepoFile("config/claude/agents/reviewer.md", "reviewer agent\n");
+    writeRepoFile("config/haijun/agents/reviewer.md", "reviewer agent\n");
     writeRepoFile("docs/agents/writer.md", "writer agent\n");
-    symlinkRepoFile("config/claude/more-agents", "../../docs/agents");
-    symlinkRepoFile(".claude", "config/claude");
+    symlinkRepoFile("config/haijun/more-agents", "../../docs/agents");
+    symlinkRepoFile(".haijun", "config/haijun");
     git(["add", "-A"]);
-    git(["commit", "-m", "pr links .claude to a tracked directory"]);
-    writeRepoFile("config/claude/local.txt", "untracked file\n");
-    writeRepoFile("config/claude/cache/entry.txt", "untracked dir entry\n");
+    git(["commit", "-m", "pr links .haijun to a tracked directory"]);
+    writeRepoFile("config/haijun/local.txt", "untracked file\n");
+    writeRepoFile("config/haijun/cache/entry.txt", "untracked dir entry\n");
 
     restoreConfigFromBase("main");
 
-    expect(lstatRepoFile(".claude-pr/.claude").isDirectory()).toBe(true);
-    expect(readRepoFile(".claude-pr/.claude/settings.json")).toBe(
+    expect(lstatRepoFile(".haijun-pr/.haijun").isDirectory()).toBe(true);
+    expect(readRepoFile(".haijun-pr/.haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "linked-dir" })}\n`,
     );
-    expect(readRepoFile(".claude-pr/.claude/agents/reviewer.md")).toBe(
+    expect(readRepoFile(".haijun-pr/.haijun/agents/reviewer.md")).toBe(
       "reviewer agent\n",
     );
-    expect(readRepoFile(".claude-pr/.claude/more-agents/writer.md")).toBe(
+    expect(readRepoFile(".haijun-pr/.haijun/more-agents/writer.md")).toBe(
       "writer agent\n",
     );
-    expectPlaceholder(".claude-pr/.claude/local.txt");
-    expectPlaceholder(".claude-pr/.claude/cache");
+    expectPlaceholder(".haijun-pr/.haijun/local.txt");
+    expectPlaceholder(".haijun-pr/.haijun/cache");
     const contents = snapshotRegularFileContents();
     expect(contents).not.toContain("untracked file\n");
     expect(contents).not.toContain("untracked dir entry\n");
     expectNoLinksInSnapshot();
-    expect(lstatRepoFile(".claude").isDirectory()).toBe(true);
-    expect(readRepoFile(".claude/settings.json")).toBe(
+    expect(lstatRepoFile(".haijun").isDirectory()).toBe(true);
+    expect(readRepoFile(".haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "base" })}\n`,
     );
   });
@@ -353,13 +353,13 @@ describe("restoreConfigFromBase", () => {
   test("records links to untracked in-tree directories as a single placeholder", () => {
     writeRepoFile("build/out/a.js", "generated a\n");
     writeRepoFile("build/out/b.js", "generated b\n");
-    symlinkRepoFile(".claude/build", "../build");
-    git(["add", ".claude/build"]);
+    symlinkRepoFile(".haijun/build", "../build");
+    git(["add", ".haijun/build"]);
     git(["commit", "-m", "pr links to an untracked directory"]);
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/.claude/build");
+    expectPlaceholder(".haijun-pr/.haijun/build");
     const contents = snapshotRegularFileContents();
     expect(contents).not.toContain("generated a\n");
     expect(contents).not.toContain("generated b\n");
@@ -367,15 +367,15 @@ describe("restoreConfigFromBase", () => {
   });
 
   test("records links back into a parent directory as placeholders", () => {
-    symlinkRepoFile(".claude/parent-dir", "..");
+    symlinkRepoFile(".haijun/parent-dir", "..");
     git(["add", "-A"]);
     git(["commit", "-m", "pr adds a link back to the repo root"]);
 
     restoreConfigFromBase("main");
 
-    expectPlaceholder(".claude-pr/.claude/parent-dir");
-    expect(existsRepoFile(".claude-pr/.claude/parent-dir/src")).toBe(false);
-    expect(readRepoFile(".claude-pr/.claude/settings.json")).toBe(
+    expectPlaceholder(".haijun-pr/.haijun/parent-dir");
+    expect(existsRepoFile(".haijun-pr/.haijun/parent-dir/src")).toBe(false);
+    expect(readRepoFile(".haijun-pr/.haijun/settings.json")).toBe(
       `${JSON.stringify({ source: "pr" })}\n`,
     );
     expectNoLinksInSnapshot();
@@ -391,7 +391,7 @@ describe("restoreConfigFromBase", () => {
     restoreConfigFromBase("main");
 
     expect(readRepoFile(".gitignore")).toBe(gitignoreBefore);
-    expect(countClaudePrExcludeEntries()).toBe(1);
+    expect(countHaijunPrExcludeEntries()).toBe(1);
   });
 
   test("leaves a full checkout unshallow so base..HEAD stays scoped to the PR", () => {
@@ -414,7 +414,7 @@ describe("restoreConfigFromBase", () => {
     expect(git(["merge-base", "origin/main", "HEAD"]).trim()).toBe(
       mergeBaseBefore,
     );
-    // These are the two commands the prompt tells Claude to run to scope its
+    // These are the two commands the prompt tells Haijun to run to scope its
     // work to the PR: the log range must not pick up already-merged commits,
     // and the three-dot diff must still resolve a merge base at all.
     expect(git(["log", "--format=%s", "origin/main..HEAD"]).trim()).toBe(
@@ -422,7 +422,7 @@ describe("restoreConfigFromBase", () => {
     );
     expect(
       git(["diff", "--name-only", "origin/main...HEAD"]).trim().split("\n"),
-    ).toEqual([".claude/settings.json", "CLAUDE.md"]);
+    ).toEqual([".haijun/settings.json", "HAIJUN.md"]);
   });
 
   function git(args: string[]): string {
@@ -465,7 +465,7 @@ describe("restoreConfigFromBase", () => {
         }
       }
     };
-    visit(join(repoDir, ".claude-pr"));
+    visit(join(repoDir, ".haijun-pr"));
     return contents;
   }
 
@@ -482,7 +482,7 @@ describe("restoreConfigFromBase", () => {
         }
       }
     };
-    visit(join(repoDir, ".claude-pr"));
+    visit(join(repoDir, ".haijun-pr"));
   }
 
   function expectPlaceholder(path: string): void {
@@ -508,21 +508,21 @@ describe("restoreConfigFromBase", () => {
 
   function setupSymlinkedMainBranch(): void {
     git(["checkout", "main"]);
-    rmSync(join(repoDir, "CLAUDE.md"), { force: true });
+    rmSync(join(repoDir, "HAIJUN.md"), { force: true });
     writeRepoFile("AGENTS.md", "shared agent instructions\n");
-    symlinkRepoFile("CLAUDE.md", "AGENTS.md");
-    symlinkRepoFile(".claude/CLAUDE.md", "../AGENTS.md");
-    git(["add", "AGENTS.md", "CLAUDE.md", ".claude/CLAUDE.md"]);
-    git(["commit", "-m", "add symlinked claude files"]);
+    symlinkRepoFile("HAIJUN.md", "AGENTS.md");
+    symlinkRepoFile(".haijun/HAIJUN.md", "../AGENTS.md");
+    git(["add", "AGENTS.md", "HAIJUN.md", ".haijun/HAIJUN.md"]);
+    git(["commit", "-m", "add symlinked haijun files"]);
     git(["push", "origin", "main"]);
     git(["branch", "-D", "pr"]);
     git(["checkout", "-b", "pr"]);
   }
 
-  function countClaudePrExcludeEntries(): number {
+  function countHaijunPrExcludeEntries(): number {
     return readFileSync(getExcludePath(), "utf8")
       .split(/\r?\n/)
-      .filter((line) => line === CLAUDE_PR_EXCLUDE_PATTERN).length;
+      .filter((line) => line === HAIJUN_PR_EXCLUDE_PATTERN).length;
   }
 
   function getExcludePath(): string {

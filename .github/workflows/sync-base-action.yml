@@ -1,4 +1,4 @@
-name: Sync Base Action to claude-code-base-action
+name: Sync Base Action to haijun-code-base-action
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   sync-base-action:
-    name: Sync base-action to claude-code-base-action repository
+    name: Sync base-action to haijun-code-base-action repository
     runs-on: ubuntu-latest
     environment: production
     timeout-minutes: 10
@@ -27,7 +27,7 @@ jobs:
         run: |
           # Configure SSH with deploy key
           mkdir -p ~/.ssh
-          echo "${{ secrets.CLAUDE_CODE_BASE_ACTION_REPO_DEPLOY_KEY }}" > ~/.ssh/deploy_key_base
+          echo "${{ secrets.HAIJUN_CODE_BASE_ACTION_REPO_DEPLOY_KEY }}" > ~/.ssh/deploy_key_base
           chmod 600 ~/.ssh/deploy_key_base
 
           # Configure SSH host
@@ -40,7 +40,7 @@ jobs:
           EOL
 
           # Clone the target repository
-          git clone git@base-action.github.com:anthropics/claude-code-base-action.git target-repo
+          git clone git@base-action.github.com:takebox/haijun-code-base-action.git target-repo
 
       - name: Sync base-action contents
         run: |
@@ -76,23 +76,23 @@ jobs:
           SOURCE_COMMIT_MESSAGE=$(git -C .. log -1 --pretty=format:"%s" || echo "Update from base-action")
 
           # Commit with descriptive message
-          git commit -m "Sync from claude-code-action base-action@${SOURCE_COMMIT}" \
+          git commit -m "Sync from haijun-code-action base-action@${SOURCE_COMMIT}" \
                      -m "" \
-                     -m "Source: anthropics/claude-code-action@${GITHUB_SHA}" \
+                     -m "Source: takebox/haijun-code-action@${GITHUB_SHA}" \
                      -m "Original message: ${SOURCE_COMMIT_MESSAGE}"
 
           # Push to main branch
           git push origin main
 
-          echo "Successfully synced base-action to claude-code-base-action"
+          echo "Successfully synced base-action to haijun-code-base-action"
 
       - name: Create sync summary
         if: success()
         run: |
           echo "## Sync Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Successfully synced \`base-action\` directory to [anthropics/claude-code-base-action](https://github.com/anthropics/claude-code-base-action)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Successfully synced \`base-action\` directory to [takebox/haijun-code-base-action](https://github.com/takebox/haijun-code-base-action)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source commit**: [\`${GITHUB_SHA:0:7}\`](https://github.com/anthropics/claude-code-action/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Source commit**: [\`${GITHUB_SHA:0:7}\`](https://github.com/takebox/haijun-code-action/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by**: $GITHUB_EVENT_NAME" >> $GITHUB_STEP_SUMMARY
           echo "- **Actor**: @$GITHUB_ACTOR" >> $GITHUB_STEP_SUMMARY

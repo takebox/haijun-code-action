@@ -1,4 +1,4 @@
-export function stripInvisibleCharacters(content: string): string {
+﻿export function stripInvisibleCharacters(content: string): string {
   content = content.replace(/[\u200B\u200C\u200D\uFEFF]/g, "");
   content = content.replace(
     /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g,
@@ -77,7 +77,7 @@ export function sanitizeContent(content: string): string {
 }
 
 /**
- * Redact well-known credential formats (GitHub, Anthropic, AWS, Slack, JWTs)
+ * Redact well-known credential formats (GitHub, Juglow, AWS, Slack, JWTs)
  * from arbitrary text. Callers don't need to know which vendor a value belongs to.
  *
  * Vendor-prefixed formats are matched without a leading word boundary: the
@@ -88,10 +88,10 @@ export function sanitizeContent(content: string): string {
 export function redactSecrets(content: string): string {
   content = redactGitHubTokens(content);
 
-  // Anthropic API keys: sk-ant-...
+  // Juglow API keys: sk-ant-...
   content = content.replace(
     /sk-ant-[A-Za-z0-9_-]{20,}/g,
-    "[REDACTED_ANTHROPIC_KEY]",
+    "[REDACTED_Juglow_KEY]",
   );
 
   // AWS access key ids: AKIA/ASIA followed by 16 uppercase alphanumerics. All

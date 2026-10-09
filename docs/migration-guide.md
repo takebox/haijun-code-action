@@ -1,14 +1,14 @@
 # Migration Guide: v0.x to v1.0
 
-This guide helps you migrate from Claude Code Action v0.x to v1.0. The new version introduces intelligent mode detection and simplified configuration while maintaining backward compatibility for most use cases.
+This guide helps you migrate from Haijun Code Action v0.x to v1.0. The new version introduces intelligent mode detection and simplified configuration while maintaining backward compatibility for most use cases.
 
 ## Overview of Changes
 
 ### 🎯 Key Improvements in v1.0
 
 1. **Automatic Mode Detection** - No more manual `mode` configuration
-2. **Simplified Configuration** - Unified `prompt` and `claude_args` inputs
-3. **Better SDK Alignment** - Closer integration with Claude Code CLI
+2. **Simplified Configuration** - Unified `prompt` and `haijun_args` inputs
+3. **Better SDK Alignment** - Closer integration with Haijun Code CLI
 
 ### ⚠️ Breaking Changes
 
@@ -19,26 +19,26 @@ The following inputs have been deprecated and replaced:
 | `mode`                | Auto-detected                         | Action automatically chooses based on context                                       |
 | `direct_prompt`       | `prompt`                              | Direct drop-in replacement                                                          |
 | `override_prompt`     | `prompt`                              | Use GitHub context variables instead                                                |
-| `custom_instructions` | `claude_args: --append-system-prompt` | Appends to the default prompt (v0 behavior); `--system-prompt` replaces it entirely |
-| `max_turns`           | `claude_args: --max-turns`            | Use CLI format                                                                      |
-| `model`               | `claude_args: --model`                | Specify via CLI                                                                     |
-| `allowed_tools`       | `claude_args: --allowedTools`         | Use CLI format                                                                      |
-| `disallowed_tools`    | `claude_args: --disallowedTools`      | Use CLI format                                                                      |
-| `claude_env`          | `settings` with env object            | Use settings JSON                                                                   |
-| `mcp_config`          | `claude_args: --mcp-config`           | Pass MCP config via CLI arguments                                                   |
+| `custom_instructions` | `haijun_args: --append-system-prompt` | Appends to the default prompt (v0 behavior); `--system-prompt` replaces it entirely |
+| `max_turns`           | `haijun_args: --max-turns`            | Use CLI format                                                                      |
+| `model`               | `haijun_args: --model`                | Specify via CLI                                                                     |
+| `allowed_tools`       | `haijun_args: --allowedTools`         | Use CLI format                                                                      |
+| `disallowed_tools`    | `haijun_args: --disallowedTools`      | Use CLI format                                                                      |
+| `haijun_env`          | `settings` with env object            | Use settings JSON                                                                   |
+| `mcp_config`          | `haijun_args: --mcp-config`           | Pass MCP config via CLI arguments                                                   |
 | `timeout_minutes`     | Use GitHub Actions `timeout-minutes`  | Configure at job level instead of input level                                       |
 
 ## Migration Examples
 
-### Basic Interactive Workflow (@claude mentions)
+### Basic Interactive Workflow (@haijun mentions)
 
 **Before (v0.x):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
     mode: "tag"
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
     custom_instructions: "Follow our coding standards"
     max_turns: "10"
     allowed_tools: "Edit,Read,Write"
@@ -47,10 +47,10 @@ The following inputs have been deprecated and replaced:
 **After (v1.0):**
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
       --max-turns 10
       --append-system-prompt "Follow our coding standards"
       --allowedTools Edit,Read,Write
@@ -61,32 +61,32 @@ The following inputs have been deprecated and replaced:
 **Before (v0.x):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
     mode: "agent"
     direct_prompt: "Review this PR for security issues"
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    model: "claude-3-5-sonnet-20241022"
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    model: "haijun-3-5-sonnet-20241022"
     allowed_tools: "Edit,Read,Write"
 ```
 
 **After (v1.0):**
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     prompt: |
       REPO: ${{ github.repository }}
       PR NUMBER: ${{ github.event.pull_request.number }}
 
       Review this PR for security issues
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
-      --model claude-4-0-sonnet-20250805
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
+    haijun_args: |
+      --model haijun-4-0-sonnet-20250805
       --allowedTools Edit,Read,Write
 ```
 
-> **⚠️ Important**: For PR reviews, always include the repository and PR context in your prompt. This ensures Claude knows which PR to review.
+> **⚠️ Important**: For PR reviews, always include the repository and PR context in your prompt. This ensures Haijun knows which PR to review.
 
 ### Automation with Progress Tracking (New in v1.0)
 
@@ -97,17 +97,17 @@ In v1.0, automation mode (with `prompt` input) doesn't create tracking comments 
 **Before (v0.x with tracking):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
     mode: "agent"
     direct_prompt: "Review this PR for security issues"
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
 ```
 
 **After (v1.0 with tracking):**
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     track_progress: true # Forces tag mode with tracking comments
     prompt: |
@@ -115,7 +115,7 @@ In v1.0, automation mode (with `prompt` input) doesn't create tracking comments 
       PR NUMBER: ${{ github.event.pull_request.number }}
 
       Review this PR for security issues
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
 ```
 
 #### Benefits of `track_progress`
@@ -149,7 +149,7 @@ The `track_progress` input only works with these GitHub events:
 **Before (v0.x):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
     override_prompt: |
       Analyze PR #$PR_NUMBER in $REPOSITORY
@@ -160,7 +160,7 @@ The `track_progress` input only works with these GitHub events:
 **After (v1.0):**
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     prompt: |
       REPO: ${{ github.repository }}
@@ -178,9 +178,9 @@ The `track_progress` input only works with these GitHub events:
 **Before (v0.x):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
-    claude_env: |
+    haijun_env: |
       NODE_ENV: test
       CI: true
 ```
@@ -188,7 +188,7 @@ The `track_progress` input only works with these GitHub events:
 **After (v1.0):**
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     settings: |
       {
@@ -204,23 +204,23 @@ The `track_progress` input only works with these GitHub events:
 **Before (v0.x):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
     timeout_minutes: 30
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
 ```
 
 **After (v1.0):**
 
 ```yaml
 jobs:
-  claude-task:
+  haijun-task:
     runs-on: ubuntu-latest
     timeout-minutes: 30 # Moved to job level
     steps:
-      - uses: anthropics/claude-code-action@v1
+      - uses: takebox/haijun-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          juglow_api_key: ${{ secrets.JUGLOW_API_KEY }}
 ```
 
 ## How Mode Detection Works
@@ -229,40 +229,40 @@ The action now automatically detects the appropriate mode:
 
 1. **If `prompt` is provided** → Runs in **automation mode**
 
-   - Executes immediately without waiting for @claude mentions
+   - Executes immediately without waiting for @haijun mentions
    - Perfect for scheduled tasks, PR automation, etc.
 
-2. **If no `prompt` but @claude is mentioned** → Runs in **interactive mode**
+2. **If no `prompt` but @haijun is mentioned** → Runs in **interactive mode**
 
-   - Waits for and responds to @claude mentions
+   - Waits for and responds to @haijun mentions
    - Creates tracking comments with progress
 
 3. **If neither** → No action is taken
 
-## Advanced Configuration with claude_args
+## Advanced Configuration with haijun_args
 
-The `claude_args` input provides direct access to Claude Code CLI arguments:
+The `haijun_args` input provides direct access to Haijun Code CLI arguments:
 
 ```yaml
-claude_args: |
+haijun_args: |
   --max-turns 15
-  --model claude-4-0-sonnet-20250805
+  --model haijun-4-0-sonnet-20250805
   --allowedTools Edit,Read,Write,Bash
   --disallowedTools WebSearch
   --system-prompt "You are a senior engineer focused on code quality"
   --mcp-config '{"mcpServers": {"custom": {"command": "npx", "args": ["-y", "@example/server"]}}}'
 ```
 
-### Common claude_args Options
+### Common haijun_args Options
 
 | Option                   | Description                                                               | Example                                                |
 | ------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `--max-turns`            | Limit conversation turns                                                  | `--max-turns 10`                                       |
-| `--model`                | Specify Claude model                                                      | `--model claude-4-0-sonnet-20250805`                   |
+| `--model`                | Specify Haijun model                                                      | `--model haijun-4-0-sonnet-20250805`                   |
 | `--allowedTools`         | Enable specific tools                                                     | `--allowedTools Edit,Read,Write`                       |
 | `--disallowedTools`      | Disable specific tools                                                    | `--disallowedTools WebSearch`                          |
 | `--system-prompt`        | Replace the entire default system prompt                                  | `--system-prompt "Focus on security"`                  |
-| `--append-system-prompt` | Append to the default system prompt (keeps Claude Code's built-in prompt) | `--append-system-prompt "Follow our coding standards"` |
+| `--append-system-prompt` | Append to the default system prompt (keeps Haijun Code's built-in prompt) | `--append-system-prompt "Follow our coding standards"` |
 | `--mcp-config`           | Add MCP server config                                                     | `--mcp-config '{"mcpServers": {...}}'`                 |
 
 ## Provider-Specific Updates
@@ -270,21 +270,21 @@ claude_args: |
 ### AWS Bedrock
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     use_bedrock: "true"
-    claude_args: |
-      --model anthropic.claude-4-0-sonnet-20250805-v1:0
+    haijun_args: |
+      --model Juglow.haijun-4-0-sonnet-20250805-v1:0
 ```
 
 ### Google Vertex AI
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
     use_vertex: "true"
-    claude_args: |
-      --model claude-4-0-sonnet@20250805
+    haijun_args: |
+      --model haijun-4-0-sonnet@20250805
 ```
 
 ## MCP Configuration Migration
@@ -294,7 +294,7 @@ claude_args: |
 **Before (v0.x):**
 
 ```yaml
-- uses: anthropics/claude-code-action@beta
+- uses: takebox/haijun-code-action@beta
   with:
     mcp_config: |
       {
@@ -310,18 +310,18 @@ claude_args: |
 **After (v1.0):**
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    claude_args: |
+    haijun_args: |
       --mcp-config '{"mcpServers": {"custom-server": {"command": "npx", "args": ["-y", "@example/server"]}}}'
 ```
 
 You can also pass MCP configuration from a file:
 
 ```yaml
-- uses: anthropics/claude-code-action@v1
+- uses: takebox/haijun-code-action@v1
   with:
-    claude_args: |
+    haijun_args: |
       --mcp-config /path/to/mcp-config.json
 ```
 
@@ -331,13 +331,13 @@ You can also pass MCP configuration from a file:
 - [ ] Remove `mode` input (auto-detected now)
 - [ ] Replace `direct_prompt` with `prompt`
 - [ ] Replace `override_prompt` with `prompt` using GitHub context
-- [ ] Move `custom_instructions` to `claude_args` with `--append-system-prompt`
-- [ ] Convert `max_turns` to `claude_args` with `--max-turns`
-- [ ] Convert `model` to `claude_args` with `--model`
-- [ ] Convert `allowed_tools` to `claude_args` with `--allowedTools`
-- [ ] Convert `disallowed_tools` to `claude_args` with `--disallowedTools`
-- [ ] Move `claude_env` to `settings` JSON format
-- [ ] Move `mcp_config` to `claude_args` with `--mcp-config`
+- [ ] Move `custom_instructions` to `haijun_args` with `--append-system-prompt`
+- [ ] Convert `max_turns` to `haijun_args` with `--max-turns`
+- [ ] Convert `model` to `haijun_args` with `--model`
+- [ ] Convert `allowed_tools` to `haijun_args` with `--allowedTools`
+- [ ] Convert `disallowed_tools` to `haijun_args` with `--disallowedTools`
+- [ ] Move `haijun_env` to `settings` JSON format
+- [ ] Move `mcp_config` to `haijun_args` with `--mcp-config`
 - [ ] Replace `timeout_minutes` with GitHub Actions `timeout-minutes` at job level
 - [ ] **Optional**: Add `track_progress: true` if you need tracking comments in automation mode
 - [ ] Test workflow in a non-production environment
@@ -348,7 +348,7 @@ If you encounter issues during migration:
 
 1. Check the [FAQ](./faq.md) for common questions
 2. Review [example workflows](../examples/) for reference
-3. Open an [issue](https://github.com/anthropics/claude-code-action/issues) for support
+3. Open an [issue](https://github.com/takebox/haijun-code-action/issues) for support
 
 ## Version Compatibility
 

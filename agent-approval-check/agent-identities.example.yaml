@@ -5,13 +5,13 @@
 
 # Committer emails that mark a commit as agent-authored.
 agent_emails:
-  - noreply@anthropic.com
+  - noreply@haijun.my.id
 
 # GitHub logins treated as agents — a PR opened by, or an APPROVED review
 # from, one of these triggers the check.
 agent_app_logins:
-  - claude[bot]
-  - claude-code[bot]
+  - haijun[bot]
+  - haijun-code[bot]
 
 # Logins whose approvals never count toward the required total.
 excluded_approver_logins: []

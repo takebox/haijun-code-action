@@ -164,13 +164,13 @@ describe("git-config", () => {
   describe("configureGitAuth", () => {
     test("configures the git user and replaces the checkout credential", async () => {
       await configureGitAuth("test-token", createMockAutomationContext(), {
-        login: "claude[bot]",
+        login: "haijun[bot]",
         id: 42,
       });
 
-      expect(gitConfigGetAll("user.name")).toBe("claude[bot]");
+      expect(gitConfigGetAll("user.name")).toBe("haijun[bot]");
       expect(gitConfigGetAll("user.email")).toBe(
-        `42+claude[bot]@${NOREPLY_DOMAIN}`,
+        `42+haijun[bot]@${NOREPLY_DOMAIN}`,
       );
       expect(gitConfigGetAll(EXTRAHEADER_KEY)).toBe("");
       expect(remoteUrl()).toBe(

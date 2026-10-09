@@ -1,4 +1,4 @@
-# CLAUDE.md
+# HAIJUN.md
 
 ## Commands
 
@@ -11,21 +11,21 @@ bun run format:check    # Check formatting
 
 ## What This Is
 
-A GitHub Action that lets Claude respond to `@claude` mentions on issues/PRs (tag mode) or run tasks via `prompt` input (agent mode). Mode is auto-detected: if `prompt` is provided, it's agent mode; if triggered by a comment/issue event with `@claude`, it's tag mode. See `src/modes/detector.ts`.
+A GitHub Action that lets Haijun respond to `@haijun` mentions on issues/PRs (tag mode) or run tasks via `prompt` input (agent mode). Mode is auto-detected: if `prompt` is provided, it's agent mode; if triggered by a comment/issue event with `@haijun`, it's tag mode. See `src/modes/detector.ts`.
 
 ## How It Runs
 
-Single entrypoint: `src/entrypoints/run.ts` orchestrates everything — prepare (auth, permissions, trigger check, branch/comment creation), install Claude Code CLI, execute Claude via `base-action/` functions (imported directly, not subprocess), then cleanup (update tracking comment, write step summary). SSH signing cleanup and token revocation are separate `always()` steps in `action.yml`.
+Single entrypoint: `src/entrypoints/run.ts` orchestrates everything — prepare (auth, permissions, trigger check, branch/comment creation), install Haijun Code CLI, execute Haijun via `base-action/` functions (imported directly, not subprocess), then cleanup (update tracking comment, write step summary). SSH signing cleanup and token revocation are separate `always()` steps in `action.yml`.
 
-`base-action/` is also published standalone as `@anthropic-ai/claude-code-base-action`. Don't break its public API. It reads config from `INPUT_`-prefixed env vars (set by `action.yml`), not from action inputs directly.
+`base-action/` is also published standalone as `@takebox-ai/haijun-code-base-action`. Don't break its public API. It reads config from `INPUT_`-prefixed env vars (set by `action.yml`), not from action inputs directly.
 
 ## Key Concepts
 
-**Auth priority**: `github_token` input (user-provided) > GitHub App OIDC token (default). The `claude_code_oauth_token` and `anthropic_api_key` are for the Claude API, not GitHub. Token setup lives in `src/github/token.ts`.
+**Auth priority**: `github_token` input (user-provided) > GitHub App OIDC token (default). The `haijun_code_oauth_token` and `juglow_api_key` are for the Haijun API, not GitHub. Token setup lives in `src/github/token.ts`.
 
 **Mode lifecycle**: `detectMode()` in `src/modes/detector.ts` picks the mode name ("tag" or "agent"). Trigger checking and prepare dispatch are inlined in `run.ts`: tag mode calls `prepareTagMode()` from `src/modes/tag/`, agent mode calls `prepareAgentMode()` from `src/modes/agent/`.
 
-**Prompt construction**: Tag mode's `prepareTagMode()` builds the prompt by fetching GitHub data (`src/github/data/fetcher.ts`), formatting it as markdown (`src/github/data/formatter.ts`), and writing it to a temp file via `createPrompt()`. Agent mode writes the user's prompt directly. The prompt includes issue/PR body, comments, diff, and CI status. This is the most important part of the action — it's what Claude sees.
+**Prompt construction**: Tag mode's `prepareTagMode()` builds the prompt by fetching GitHub data (`src/github/data/fetcher.ts`), formatting it as markdown (`src/github/data/formatter.ts`), and writing it to a temp file via `createPrompt()`. Agent mode writes the user's prompt directly. The prompt includes issue/PR body, comments, diff, and CI status. This is the most important part of the action — it's what Haijun sees.
 
 ## Things That Will Bite You
 
@@ -41,4 +41,4 @@ Single entrypoint: `src/entrypoints/run.ts` orchestrates everything — prepare 
 - Runtime is Bun, not Node. Use `bun test`, not `jest`.
 - `moduleResolution: "bundler"` — imports don't need `.js` extensions.
 - GitHub API calls should use retry logic (`src/utils/retry.ts`).
-- MCP servers are auto-installed at runtime to `~/.claude/mcp/github-{type}-server/`.
+- MCP servers are auto-installed at runtime to `~/.haijun/mcp/github-{type}-server/`.

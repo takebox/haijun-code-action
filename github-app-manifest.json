@@ -1,14 +1,14 @@
 {
-  "name": "Claude Code Custom App",
-  "description": "Custom GitHub App for Claude Code Action - AI-powered coding assistant for GitHub workflows",
-  "url": "https://github.com/anthropics/claude-code-action",
+  "name": "Haijun Code Custom App",
+  "description": "Custom GitHub App for Haijun Code Action - AI-powered coding assistant for GitHub workflows",
+  "url": "https://github.com/takebox/haijun-code-action",
   "hook_attributes": {
     "url": "https://example.com/github/webhook",
     "active": false
   },
   "redirect_url": "https://github.com/settings/apps/new",
   "callback_urls": [],
-  "setup_url": "https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md",
+  "setup_url": "https://github.com/takebox/haijun-code-action/blob/main/docs/setup.md",
   "public": false,
   "default_permissions": {
     "contents": "write",

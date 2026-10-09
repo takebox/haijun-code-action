@@ -28,7 +28,7 @@ describe("branch template utilities", () => {
       const template =
         "{{prefix}}fix/{{entityType}}_{{entityNumber}}_{{timestamp}}_{{sha}}";
       const variables = {
-        prefix: "claude-",
+        prefix: "haijun-",
         entityType: "pr",
         entityNumber: 456,
         timestamp: "20240301-1430",
@@ -36,7 +36,7 @@ describe("branch template utilities", () => {
       };
 
       const result = applyBranchTemplate(template, variables);
-      expect(result).toBe("claude-fix/pr_456_20240301-1430_abcd1234");
+      expect(result).toBe("haijun-fix/pr_456_20240301-1430_abcd1234");
     });
 
     it("should handle templates with missing variables gracefully", () => {
@@ -62,15 +62,15 @@ describe("branch template utilities", () => {
     });
 
     it("should use default format when template is empty", () => {
-      const result = generateBranchName("", "claude/", "issue", 123);
+      const result = generateBranchName("", "haijun/", "issue", 123);
 
-      expect(result).toMatch(/^claude\/issue-123-\d{8}-\d{4}$/);
+      expect(result).toMatch(/^haijun\/issue-123-\d{8}-\d{4}$/);
     });
 
     it("should use default format when template is undefined", () => {
-      const result = generateBranchName(undefined, "claude/", "pr", 456);
+      const result = generateBranchName(undefined, "haijun/", "pr", 456);
 
-      expect(result).toMatch(/^claude\/pr-456-\d{8}-\d{4}$/);
+      expect(result).toMatch(/^haijun\/pr-456-\d{8}-\d{4}$/);
     });
 
     it("should preserve custom template formatting (no automatic lowercase/truncation)", () => {
@@ -149,14 +149,14 @@ describe("branch template utilities", () => {
       const template = "{{prefix}}{{label}}/{{entityNumber}}";
       const result = generateBranchName(
         template,
-        "claude/",
+        "haijun/",
         "issue",
         123,
         undefined,
         "area:permissions",
       );
 
-      expect(result).toBe("claude/area-permissions/123");
+      expect(result).toBe("haijun/area-permissions/123");
       // Regression: an unsanitized ":" here previously failed validateBranchName
       // and crashed the run via process.exit(1).
       expect(() => validateBranchName(result)).not.toThrow();
@@ -270,9 +270,9 @@ describe("branch template utilities", () => {
 
     it("should fallback to default format when template produces empty result", () => {
       const template = "{{description}}"; // Will be empty if no title provided
-      const result = generateBranchName(template, "claude/", "issue", 123);
+      const result = generateBranchName(template, "haijun/", "issue", 123);
 
-      expect(result).toMatch(/^claude\/issue-123-\d{8}-\d{4}$/);
+      expect(result).toMatch(/^haijun\/issue-123-\d{8}-\d{4}$/);
       expect(result.length).toBeLessThanOrEqual(50);
     });
 
@@ -294,13 +294,13 @@ describe("branch template utilities", () => {
 
     // Regression: a title with no ASCII-alphanumeric content makes
     // {{description}} sanitize to an empty string. Around a slash separator this
-    // previously produced "claude//123", which validateBranchName rejects
+    // previously produced "haijun//123", which validateBranchName rejects
     // ("cannot contain consecutive slashes"), aborting the entire run.
     it("should collapse the double slash from an empty description (emoji-only title)", () => {
       const template = "{{prefix}}{{description}}/{{entityNumber}}";
       const result = generateBranchName(
         template,
-        "claude/",
+        "haijun/",
         "issue",
         123,
         undefined,
@@ -308,14 +308,14 @@ describe("branch template utilities", () => {
         "🎉🎉🎉",
       );
 
-      expect(result).toBe("claude/123");
+      expect(result).toBe("haijun/123");
     });
 
     it("should collapse the double slash for a CJK-only title", () => {
       const template = "{{prefix}}{{description}}/{{entityNumber}}";
       const result = generateBranchName(
         template,
-        "claude/",
+        "haijun/",
         "issue",
         123,
         undefined,
@@ -323,14 +323,14 @@ describe("branch template utilities", () => {
         "日本語のタイトル",
       );
 
-      expect(result).toBe("claude/123");
+      expect(result).toBe("haijun/123");
     });
 
     it("should drop a trailing slash left by an empty trailing segment", () => {
       const template = "{{prefix}}{{entityNumber}}/{{description}}";
       const result = generateBranchName(
         template,
-        "claude/",
+        "haijun/",
         "issue",
         123,
         undefined,
@@ -338,13 +338,13 @@ describe("branch template utilities", () => {
         "!!! ???",
       );
 
-      expect(result).toBe("claude/123");
+      expect(result).toBe("haijun/123");
     });
 
     it("should produce a name that passes validateBranchName when a segment is empty", () => {
       const result = generateBranchName(
         "{{prefix}}{{description}}/{{entityNumber}}",
-        "claude/",
+        "haijun/",
         "issue",
         123,
         undefined,

@@ -93,7 +93,7 @@ describe("generatePrompt", () => {
       {
         id: "comment2",
         databaseId: "123457",
-        body: "@claude help me",
+        body: "@haijun help me",
         author: { login: "user2" },
         createdAt: "2023-01-01T01:30:00Z",
       },
@@ -129,29 +129,29 @@ describe("generatePrompt", () => {
   test("should generate prompt for issue_comment event", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: false,
         baseBranch: "main",
-        claudeBranch: "claude/issue-67890-20240101-1200",
+        haijunBranch: "haijun/issue-67890-20240101-1200",
         issueNumber: "67890",
-        commentBody: "@claude please fix this",
+        commentBody: "@haijun please fix this",
       },
     };
 
     const prompt = await generatePrompt(envVars, mockGitHubData, false, "tag");
 
-    expect(prompt).toContain("You are Claude, an AI assistant");
+    expect(prompt).toContain("You are Haijun, an AI assistant");
     expect(prompt).toContain("<event_type>GENERAL_COMMENT</event_type>");
     expect(prompt).toContain("<is_pr>false</is_pr>");
     expect(prompt).toContain(
-      "<trigger_context>issue comment with '@claude'</trigger_context>",
+      "<trigger_context>issue comment with '@haijun'</trigger_context>",
     );
     expect(prompt).toContain("<repository>owner/repo</repository>");
-    expect(prompt).toContain("<claude_comment_id>12345</claude_comment_id>");
+    expect(prompt).toContain("<haijun_comment_id>12345</haijun_comment_id>");
     expect(prompt).toContain("<trigger_username>Unknown</trigger_username>");
     expect(prompt).toContain("[user1 at 2023-01-01T01:00:00Z]: First comment"); // from formatted comments
     expect(prompt).not.toContain("filename\tstatus\tadditions\tdeletions\tsha"); // since it's not a PR
@@ -160,13 +160,13 @@ describe("generatePrompt", () => {
   test("should generate prompt for pull_request_review event", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request_review",
         isPR: true,
         prNumber: "456",
-        commentBody: "@claude please fix this bug",
+        commentBody: "@haijun please fix this bug",
       },
     };
 
@@ -184,15 +184,15 @@ describe("generatePrompt", () => {
   test("should generate prompt for issue opened event", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "opened",
         isPR: false,
         issueNumber: "789",
         baseBranch: "main",
-        claudeBranch: "claude/issue-789-20240101-1200",
+        haijunBranch: "haijun/issue-789-20240101-1200",
       },
     };
 
@@ -200,7 +200,7 @@ describe("generatePrompt", () => {
 
     expect(prompt).toContain("<event_type>ISSUE_CREATED</event_type>");
     expect(prompt).toContain(
-      "<trigger_context>new issue with '@claude' in body</trigger_context>",
+      "<trigger_context>new issue with '@haijun' in body</trigger_context>",
     );
     expect(prompt).toContain(
       "[Create a PR](https://github.com/owner/repo/compare/main",
@@ -211,16 +211,16 @@ describe("generatePrompt", () => {
   test("should generate prompt for issue assigned event", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "assigned",
         isPR: false,
         issueNumber: "999",
         baseBranch: "develop",
-        claudeBranch: "claude/issue-999-20240101-1200",
-        assigneeTrigger: "claude-bot",
+        haijunBranch: "haijun/issue-999-20240101-1200",
+        assigneeTrigger: "haijun-bot",
       },
     };
 
@@ -228,7 +228,7 @@ describe("generatePrompt", () => {
 
     expect(prompt).toContain("<event_type>ISSUE_ASSIGNED</event_type>");
     expect(prompt).toContain(
-      "<trigger_context>issue assigned to 'claude-bot'</trigger_context>",
+      "<trigger_context>issue assigned to 'haijun-bot'</trigger_context>",
     );
     expect(prompt).toContain(
       "[Create a PR](https://github.com/owner/repo/compare/develop",
@@ -238,16 +238,16 @@ describe("generatePrompt", () => {
   test("should generate prompt for issue labeled event", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "labeled",
         isPR: false,
         issueNumber: "888",
         baseBranch: "main",
-        claudeBranch: "claude/issue-888-20240101-1200",
-        labelTrigger: "claude-task",
+        haijunBranch: "haijun/issue-888-20240101-1200",
+        labelTrigger: "haijun-task",
       },
     };
 
@@ -255,7 +255,7 @@ describe("generatePrompt", () => {
 
     expect(prompt).toContain("<event_type>ISSUE_LABELED</event_type>");
     expect(prompt).toContain(
-      "<trigger_context>issue labeled with 'claude-task'</trigger_context>",
+      "<trigger_context>issue labeled with 'haijun-task'</trigger_context>",
     );
     expect(prompt).toContain(
       "[Create a PR](https://github.com/owner/repo/compare/main",
@@ -267,8 +267,8 @@ describe("generatePrompt", () => {
   test("should generate prompt for pull_request event", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request",
         eventAction: "opened",
@@ -288,31 +288,31 @@ describe("generatePrompt", () => {
   test("should generate prompt for issue comment without custom fields", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: false,
         issueNumber: "123",
         baseBranch: "main",
-        claudeBranch: "claude/issue-67890-20240101-1200",
-        commentBody: "@claude please fix this",
+        haijunBranch: "haijun/issue-67890-20240101-1200",
+        commentBody: "@haijun please fix this",
       },
     };
 
     const prompt = await generatePrompt(envVars, mockGitHubData, false, "tag");
 
     // Verify prompt generates successfully without custom instructions
-    expect(prompt).toContain("@claude please fix this");
+    expect(prompt).toContain("@haijun please fix this");
     expect(prompt).not.toContain("CUSTOM INSTRUCTIONS");
   });
 
   test("should use override_prompt when provided", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       prompt: "Simple prompt for reviewing PR",
       eventData: {
         eventName: "pull_request",
@@ -331,14 +331,14 @@ describe("generatePrompt", () => {
 
     // Agent mode: Prompt is passed through as-is
     expect(prompt).toBe("Simple prompt for reviewing PR");
-    expect(prompt).not.toContain("You are Claude, an AI assistant");
+    expect(prompt).not.toContain("You are Haijun, an AI assistant");
   });
 
   test("should pass through prompt without variable substitution", async () => {
     const envVars: PreparedContext = {
       repository: "test/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       triggerUsername: "john-doe",
       prompt: `Repository: $REPOSITORY
       PR: $PR_NUMBER
@@ -358,7 +358,7 @@ describe("generatePrompt", () => {
         isPR: true,
         prNumber: "456",
         commentBody: "Please review this code",
-        claudeBranch: "feature-branch",
+        haijunBranch: "feature-branch",
         baseBranch: "main",
       },
     };
@@ -370,7 +370,7 @@ describe("generatePrompt", () => {
       "agent",
     );
 
-    // v1.0: Variables are NOT substituted - prompt is passed as-is to Claude Code
+    // v1.0: Variables are NOT substituted - prompt is passed as-is to Haijun Code
     expect(prompt).toContain("Repository: $REPOSITORY");
     expect(prompt).toContain("PR: $PR_NUMBER");
     expect(prompt).toContain("Title: $PR_TITLE");
@@ -384,8 +384,8 @@ describe("generatePrompt", () => {
   test("should handle override_prompt for issues", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       prompt: "Review issue and provide feedback",
       eventData: {
         eventName: "issues",
@@ -393,7 +393,7 @@ describe("generatePrompt", () => {
         isPR: false,
         issueNumber: "789",
         baseBranch: "main",
-        claudeBranch: "claude/issue-789-20240101-1200",
+        haijunBranch: "haijun/issue-789-20240101-1200",
       },
     };
 
@@ -426,8 +426,8 @@ describe("generatePrompt", () => {
   test("should handle prompt without substitution", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       prompt: "PR: $PR_NUMBER, Issue: $ISSUE_NUMBER, Comment: $TRIGGER_COMMENT",
       eventData: {
         eventName: "pull_request",
@@ -453,29 +453,29 @@ describe("generatePrompt", () => {
   test("should not substitute variables when override_prompt is not provided", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "opened",
         isPR: false,
         issueNumber: "123",
         baseBranch: "main",
-        claudeBranch: "claude/issue-123-20240101-1200",
+        haijunBranch: "haijun/issue-123-20240101-1200",
       },
     };
 
     const prompt = await generatePrompt(envVars, mockGitHubData, false, "tag");
 
-    expect(prompt).toContain("You are Claude, an AI assistant");
+    expect(prompt).toContain("You are Haijun, an AI assistant");
     expect(prompt).toContain("<event_type>ISSUE_CREATED</event_type>");
   });
 
   test("should include trigger username when provided", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       triggerUsername: "johndoe",
       eventData: {
         eventName: "issue_comment",
@@ -483,8 +483,8 @@ describe("generatePrompt", () => {
         isPR: false,
         issueNumber: "123",
         baseBranch: "main",
-        claudeBranch: "claude/issue-67890-20240101-1200",
-        commentBody: "@claude please fix this",
+        haijunBranch: "haijun/issue-67890-20240101-1200",
+        commentBody: "@haijun please fix this",
       },
     };
 
@@ -500,8 +500,8 @@ describe("generatePrompt", () => {
   test("should use numeric GitHub noreply address when trigger user id is provided", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       triggerUsername: "johndoe",
       triggerUserId: 123456,
       eventData: {
@@ -510,8 +510,8 @@ describe("generatePrompt", () => {
         isPR: false,
         issueNumber: "123",
         baseBranch: "main",
-        claudeBranch: "claude/issue-67890-20240101-1200",
-        commentBody: "@claude please fix this",
+        haijunBranch: "haijun/issue-67890-20240101-1200",
+        commentBody: "@haijun please fix this",
       },
     };
 
@@ -526,13 +526,13 @@ describe("generatePrompt", () => {
   test("should include PR-specific instructions only for PR events", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request_review",
         isPR: true,
         prNumber: "456",
-        commentBody: "@claude please fix this",
+        commentBody: "@haijun please fix this",
       },
     };
 
@@ -555,15 +555,15 @@ describe("generatePrompt", () => {
   test("should include Issue-specific instructions only for Issue events", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "opened",
         isPR: false,
         issueNumber: "789",
         baseBranch: "main",
-        claudeBranch: "claude/issue-789-20240101-1200",
+        haijunBranch: "haijun/issue-789-20240101-1200",
       },
     };
 
@@ -571,10 +571,10 @@ describe("generatePrompt", () => {
 
     // Should contain Issue-specific instructions
     expect(prompt).toContain(
-      "You are already on the correct branch (claude/issue-789-20240101-1200)",
+      "You are already on the correct branch (haijun/issue-789-20240101-1200)",
     );
     expect(prompt).toContain(
-      "IMPORTANT: You are already on the correct branch (claude/issue-789-20240101-1200)",
+      "IMPORTANT: You are already on the correct branch (haijun/issue-789-20240101-1200)",
     );
     expect(prompt).toContain("Create a PR](https://github.com/");
     expect(prompt).toContain(
@@ -593,16 +593,16 @@ describe("generatePrompt", () => {
   test("should use actual branch name for issue comments", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: false,
         issueNumber: "123",
         baseBranch: "main",
-        claudeBranch: "claude/issue-123-20240101-1200",
-        commentBody: "@claude please fix this",
+        haijunBranch: "haijun/issue-123-20240101-1200",
+        commentBody: "@haijun please fix this",
       },
     };
 
@@ -610,28 +610,28 @@ describe("generatePrompt", () => {
 
     // Should contain the actual branch name with timestamp
     expect(prompt).toContain(
-      "You are already on the correct branch (claude/issue-123-20240101-1200)",
+      "You are already on the correct branch (haijun/issue-123-20240101-1200)",
     );
     expect(prompt).toContain(
-      "IMPORTANT: You are already on the correct branch (claude/issue-123-20240101-1200)",
+      "IMPORTANT: You are already on the correct branch (haijun/issue-123-20240101-1200)",
     );
     expect(prompt).toContain(
-      "The branch-name is the current branch: claude/issue-123-20240101-1200",
+      "The branch-name is the current branch: haijun/issue-123-20240101-1200",
     );
   });
 
   test("should handle closed PR with new branch", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: true,
         prNumber: "456",
-        commentBody: "@claude please fix this",
-        claudeBranch: "claude/pr-456-20240101-1200",
+        commentBody: "@haijun please fix this",
+        haijunBranch: "haijun/pr-456-20240101-1200",
         baseBranch: "main",
       },
     };
@@ -640,13 +640,13 @@ describe("generatePrompt", () => {
 
     // Should contain branch-specific instructions like issues
     expect(prompt).toContain(
-      "You are already on the correct branch (claude/pr-456-20240101-1200)",
+      "You are already on the correct branch (haijun/pr-456-20240101-1200)",
     );
     expect(prompt).toContain(
       "Create a PR](https://github.com/owner/repo/compare/main",
     );
     expect(prompt).toContain(
-      "The branch-name is the current branch: claude/pr-456-20240101-1200",
+      "The branch-name is the current branch: haijun/pr-456-20240101-1200",
     );
     expect(prompt).toContain("Reference to the original PR");
     expect(prompt).toContain(
@@ -662,15 +662,15 @@ describe("generatePrompt", () => {
   test("should handle open PR without new branch", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: true,
         prNumber: "456",
-        commentBody: "@claude please fix this",
-        // No claudeBranch or baseBranch for open PRs
+        commentBody: "@haijun please fix this",
+        // No haijunBranch or baseBranch for open PRs
       },
     };
 
@@ -693,14 +693,14 @@ describe("generatePrompt", () => {
   test("should handle PR review on closed PR with new branch", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request_review",
         isPR: true,
         prNumber: "789",
-        commentBody: "@claude please update this",
-        claudeBranch: "claude/pr-789-20240101-1230",
+        commentBody: "@haijun please update this",
+        haijunBranch: "haijun/pr-789-20240101-1230",
         baseBranch: "develop",
       },
     };
@@ -709,7 +709,7 @@ describe("generatePrompt", () => {
 
     // Should contain new branch instructions
     expect(prompt).toContain(
-      "You are already on the correct branch (claude/pr-789-20240101-1230)",
+      "You are already on the correct branch (haijun/pr-789-20240101-1230)",
     );
     expect(prompt).toContain(
       "Create a PR](https://github.com/owner/repo/compare/develop",
@@ -720,15 +720,15 @@ describe("generatePrompt", () => {
   test("should handle PR review comment on closed PR with new branch", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request_review_comment",
         isPR: true,
         prNumber: "999",
         commentId: "review-comment-123",
-        commentBody: "@claude fix this issue",
-        claudeBranch: "claude/pr-999-20240101-1400",
+        commentBody: "@haijun fix this issue",
+        haijunBranch: "haijun/pr-999-20240101-1400",
         baseBranch: "main",
       },
     };
@@ -737,7 +737,7 @@ describe("generatePrompt", () => {
 
     // Should contain new branch instructions
     expect(prompt).toContain(
-      "You are already on the correct branch (claude/pr-999-20240101-1400)",
+      "You are already on the correct branch (haijun/pr-999-20240101-1400)",
     );
     expect(prompt).toContain("Create a PR](https://github.com/");
     expect(prompt).toContain("Reference to the original PR");
@@ -749,14 +749,14 @@ describe("generatePrompt", () => {
   test("should handle pull_request event on closed PR with new branch", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request",
         eventAction: "closed",
         isPR: true,
         prNumber: "555",
-        claudeBranch: "claude/pr-555-20240101-1500",
+        haijunBranch: "haijun/pr-555-20240101-1500",
         baseBranch: "main",
       },
     };
@@ -765,7 +765,7 @@ describe("generatePrompt", () => {
 
     // Should contain new branch instructions
     expect(prompt).toContain(
-      "You are already on the correct branch (claude/pr-555-20240101-1500)",
+      "You are already on the correct branch (haijun/pr-555-20240101-1500)",
     );
     expect(prompt).toContain("Create a PR](https://github.com/");
     expect(prompt).toContain("Reference to the original PR");
@@ -774,14 +774,14 @@ describe("generatePrompt", () => {
   test("should include git commands when useCommitSigning is false", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: true,
         prNumber: "123",
-        commentBody: "@claude fix the bug",
+        commentBody: "@haijun fix the bug",
       },
     };
 
@@ -794,7 +794,7 @@ describe("generatePrompt", () => {
     expect(prompt).toContain("scripts/git-push.sh origin");
 
     // Should use the minimal comment tool
-    expect(prompt).toContain("mcp__github_comment__update_claude_comment");
+    expect(prompt).toContain("mcp__github_comment__update_haijun_comment");
 
     // Should not have commit signing tool references
     expect(prompt).not.toContain("mcp__github_file_ops__commit_files");
@@ -803,14 +803,14 @@ describe("generatePrompt", () => {
   test("should include commit signing tools when useCommitSigning is true", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: true,
         prNumber: "123",
-        commentBody: "@claude fix the bug",
+        commentBody: "@haijun fix the bug",
       },
     };
 
@@ -826,15 +826,15 @@ describe("generatePrompt", () => {
       'mcp__github_file_ops__delete_files: {"files":',
     );
     // Comment tool should always be from comment server, not file ops
-    expect(prompt).toContain("mcp__github_comment__update_claude_comment");
+    expect(prompt).toContain("mcp__github_comment__update_haijun_comment");
 
     // Should not have git command instructions
     expect(prompt).not.toContain("Use git commands via the Bash tool");
 
-    // Bash is off unless the user passes --allowedTools through claude_args.
+    // Bash is off unless the user passes --allowedTools through haijun_args.
     // allowed_tools was removed in v1.0 and must not appear as live guidance.
     expect(prompt).toContain(
-      "Run arbitrary Bash commands (unless explicitly allowed via claude_args with --allowedTools)",
+      "Run arbitrary Bash commands (unless explicitly allowed via haijun_args with --allowedTools)",
     );
     expect(prompt).not.toContain("allowed_tools configuration");
   });
@@ -842,14 +842,14 @@ describe("generatePrompt", () => {
   test("does not mention allowed_tools when commit signing is off", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issue_comment",
         commentId: "67890",
         isPR: true,
         prNumber: "123",
-        commentBody: "@claude fix the bug",
+        commentBody: "@haijun fix the bug",
       },
     };
 
@@ -880,14 +880,14 @@ describe("generatePrompt", () => {
       await withSimplePrompt(async () => {
         const envVars: PreparedContext = {
           repository: "owner/repo",
-          claudeCommentId: "12345",
-          triggerPhrase: "@claude",
+          haijunCommentId: "12345",
+          triggerPhrase: "@haijun",
           eventData: {
             eventName: "pull_request_review_comment",
             isPR: true,
             prNumber: "456",
-            commentBody: "@claude please review this",
-            claudeBranch: "feature-branch",
+            commentBody: "@haijun please review this",
+            haijunBranch: "feature-branch",
             baseBranch: "develop",
           },
         };
@@ -901,7 +901,7 @@ describe("generatePrompt", () => {
 
         // Simplified prompt, not the default
         expect(prompt).toContain("You were tagged on a GitHub pull request");
-        expect(prompt).not.toContain("You are Claude, an AI assistant");
+        expect(prompt).not.toContain("You are Haijun, an AI assistant");
 
         // 1. Scoping clarification (neutral, no untrusted/secrets language)
         expect(prompt).toContain(
@@ -927,7 +927,7 @@ describe("generatePrompt", () => {
           "You cannot submit formal GitHub PR reviews, approve, or merge PRs",
         );
         expect(prompt).toContain(
-          "https://github.com/anthropics/claude-code-action/blob/main/docs/faq.md",
+          "https://github.com/takebox/haijun-code-action/blob/main/docs/faq.md",
         );
       });
     });
@@ -936,15 +936,15 @@ describe("generatePrompt", () => {
       await withSimplePrompt(async () => {
         const envVars: PreparedContext = {
           repository: "owner/repo",
-          claudeCommentId: "12345",
-          triggerPhrase: "@claude",
+          haijunCommentId: "12345",
+          triggerPhrase: "@haijun",
           eventData: {
             eventName: "issues",
             eventAction: "opened",
             isPR: false,
             issueNumber: "789",
             baseBranch: "main",
-            claudeBranch: "claude/issue-789-20240101-1200",
+            haijunBranch: "haijun/issue-789-20240101-1200",
           },
         };
 
@@ -984,71 +984,71 @@ describe("getEventTypeAndContext", () => {
   test("should return correct type and context for pull_request_review_comment", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "pull_request_review_comment",
         isPR: true,
         prNumber: "123",
-        commentBody: "@claude please fix this",
+        commentBody: "@haijun please fix this",
       },
     };
 
     const result = getEventTypeAndContext(envVars);
 
     expect(result.eventType).toBe("REVIEW_COMMENT");
-    expect(result.triggerContext).toBe("PR review comment with '@claude'");
+    expect(result.triggerContext).toBe("PR review comment with '@haijun'");
   });
 
   test("should return correct type and context for issue assigned", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "assigned",
         isPR: false,
         issueNumber: "999",
         baseBranch: "main",
-        claudeBranch: "claude/issue-999-20240101-1200",
-        assigneeTrigger: "claude-bot",
+        haijunBranch: "haijun/issue-999-20240101-1200",
+        assigneeTrigger: "haijun-bot",
       },
     };
 
     const result = getEventTypeAndContext(envVars);
 
     expect(result.eventType).toBe("ISSUE_ASSIGNED");
-    expect(result.triggerContext).toBe("issue assigned to 'claude-bot'");
+    expect(result.triggerContext).toBe("issue assigned to 'haijun-bot'");
   });
 
   test("should return correct type and context for issue labeled", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       eventData: {
         eventName: "issues",
         eventAction: "labeled",
         isPR: false,
         issueNumber: "888",
         baseBranch: "main",
-        claudeBranch: "claude/issue-888-20240101-1200",
-        labelTrigger: "claude-task",
+        haijunBranch: "haijun/issue-888-20240101-1200",
+        labelTrigger: "haijun-task",
       },
     };
 
     const result = getEventTypeAndContext(envVars);
 
     expect(result.eventType).toBe("ISSUE_LABELED");
-    expect(result.triggerContext).toBe("issue labeled with 'claude-task'");
+    expect(result.triggerContext).toBe("issue labeled with 'haijun-task'");
   });
 
   test("should return correct type and context for issue assigned without assigneeTrigger", async () => {
     const envVars: PreparedContext = {
       repository: "owner/repo",
-      claudeCommentId: "12345",
-      triggerPhrase: "@claude",
+      haijunCommentId: "12345",
+      triggerPhrase: "@haijun",
       prompt: "Please assess this issue",
       eventData: {
         eventName: "issues",
@@ -1056,7 +1056,7 @@ describe("getEventTypeAndContext", () => {
         isPR: false,
         issueNumber: "999",
         baseBranch: "main",
-        claudeBranch: "claude/issue-999-20240101-1200",
+        haijunBranch: "haijun/issue-999-20240101-1200",
         // No assigneeTrigger when using prompt
       },
     };
@@ -1085,7 +1085,7 @@ describe("buildAllowedToolsString", () => {
     expect(result).toContain("Bash(git add:*)");
     expect(result).toContain("Bash(git commit:*)");
     expect(result).toContain("scripts/git-push.sh:*)");
-    expect(result).toContain("mcp__github_comment__update_claude_comment");
+    expect(result).toContain("mcp__github_comment__update_haijun_comment");
 
     // Should not have commit signing tools
     expect(result).not.toContain("mcp__github_file_ops__commit_files");
@@ -1106,7 +1106,7 @@ describe("buildAllowedToolsString", () => {
     // Should have specific Bash git commands for non-signing mode
     expect(result).toContain("Bash(git add:*)");
     expect(result).toContain("Bash(git commit:*)");
-    expect(result).toContain("mcp__github_comment__update_claude_comment");
+    expect(result).toContain("mcp__github_comment__update_haijun_comment");
 
     // Should not have commit signing tools
     expect(result).not.toContain("mcp__github_file_ops__commit_files");
@@ -1179,7 +1179,7 @@ describe("buildAllowedToolsString", () => {
     expect(result).toContain("mcp__github_file_ops__commit_files");
     expect(result).toContain("mcp__github_file_ops__delete_files");
     // Comment tool should always be from github_comment server
-    expect(result).toContain("mcp__github_comment__update_claude_comment");
+    expect(result).toContain("mcp__github_comment__update_haijun_comment");
 
     // Bash should NOT be included when using commit signing (except in comment tool name)
     expect(result).not.toContain("Bash(");
@@ -1203,7 +1203,7 @@ describe("buildAllowedToolsString", () => {
     expect(result).toContain("Bash(git rm:*)");
 
     // Comment tool from minimal server should be included
-    expect(result).toContain("mcp__github_comment__update_claude_comment");
+    expect(result).toContain("mcp__github_comment__update_haijun_comment");
 
     // Commit signing tools should NOT be included
     expect(result).not.toContain("mcp__github_file_ops__commit_files");
@@ -1226,7 +1226,7 @@ describe("buildAllowedToolsString", () => {
     expect(result).toContain("mcp__github_ci__get_ci_status");
 
     // Comment tool from minimal server should be included
-    expect(result).toContain("mcp__github_comment__update_claude_comment");
+    expect(result).toContain("mcp__github_comment__update_haijun_comment");
 
     // Commit signing tools should NOT be included
     expect(result).not.toContain("mcp__github_file_ops__commit_files");
@@ -1369,21 +1369,21 @@ describe("prepareContext validation errors", () => {
     });
 
     expect(() =>
-      prepareContext(context, commentId, "main", "claude/issue-1"),
+      prepareContext(context, commentId, "main", "haijun/issue-1"),
     ).toThrow("Unsupported issue action: deleted");
   });
 
-  test("issue_comment on an issue requires a claude branch", () => {
+  test("issue_comment on an issue requires a haijun branch", () => {
     const context = createMockContext({
       eventName: "issue_comment",
       isPR: false,
       payload: {
-        comment: { id: 999, body: "@claude help", user: { login: "user1" } },
+        comment: { id: 999, body: "@haijun help", user: { login: "user1" } },
       } as any,
     });
 
     expect(() => prepareContext(context, commentId)).toThrow(
-      "CLAUDE_BRANCH is required for issue_comment event",
+      "HAIJUN_BRANCH is required for issue_comment event",
     );
   });
 });

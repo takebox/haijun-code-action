@@ -1,4 +1,4 @@
-import { execFileSync } from "child_process";
+﻿import { execFileSync } from "child_process";
 import {
   appendFileSync,
   cpSync,
@@ -18,23 +18,23 @@ import { fetchDepthArgs } from "./fetch-depth";
 // Paths that are both PR-controllable and read from cwd at CLI startup.
 //
 // Deliberately excluded from the CLI's broader auto-edit blocklist:
-//   .git/        — not tracked by git; PR commits cannot place files there.
+//   .git/        â€” not tracked by git; PR commits cannot place files there.
 //                  Restoring it would also undo the PR checkout entirely.
-//   .gitconfig   — git reads ~/.gitconfig and .git/config, never cwd/.gitconfig.
-//   .bashrc etc. — shells source these from $HOME; checkout cannot reach $HOME.
-//   .vscode/.idea— IDE config; nothing in the CLI's startup path reads them.
+//   .gitconfig   â€” git reads ~/.gitconfig and .git/config, never cwd/.gitconfig.
+//   .bashrc etc. â€” shells source these from $HOME; checkout cannot reach $HOME.
+//   .vscode/.ideaâ€” IDE config; nothing in the CLI's startup path reads them.
 export const SENSITIVE_PATHS = [
-  ".claude",
+  ".haijun",
   ".mcp.json",
-  ".claude.json",
+  ".haijun.json",
   ".gitmodules",
   ".ripgreprc",
-  "CLAUDE.md",
-  "CLAUDE.local.md",
+  "HAIJUN.md",
+  "haijun.local.md",
   ".husky",
 ];
 
-const CLAUDE_PR_EXCLUDE_PATTERN = "/.claude-pr/";
+const Haijun_PR_EXCLUDE_PATTERN = "/.haijun-pr/";
 
 function isSameOrInside(child: string, parent: string): boolean {
   return child === parent || child.startsWith(`${parent}${sep}`);
@@ -94,9 +94,9 @@ function listTrackedPaths(): TrackedPaths {
 //      targets that pass are descended into and their children are checked
 //      individually.
 // Files and directories at their literal, non-linked location are unaffected
-// by rule 4 and are copied as-is. Every other entry — targets outside the
+// by rule 4 and are copied as-is. Every other entry â€” targets outside the
 // tree, dangling or looping links, git metadata, submodule contents, untracked
-// or locally modified files reached through a link — is recorded as a
+// or locally modified files reached through a link â€” is recorded as a
 // placeholder file (see recordPlaceholder), so nothing in the snapshot
 // resolves anywhere else.
 function shouldSnapshotContent(
@@ -110,7 +110,7 @@ function shouldSnapshotContent(
       return false;
     }
     const targetParts = relative(workTreeRealPath, targetRealPath).split(sep);
-    if (targetParts.includes(".git") || targetParts[0] === ".claude-pr") {
+    if (targetParts.includes(".git") || targetParts[0] === ".haijun-pr") {
       return false;
     }
     for (let dir = dirname(entryPath); ; dir = dirname(dir)) {
@@ -206,7 +206,7 @@ function snapshotSensitivePath(
   }
 }
 
-function ensureClaudePrExcludedFromGit(): void {
+function ensureHaijunPrExcludedFromGit(): void {
   const excludePath = execFileSync(
     "git",
     ["rev-parse", "--git-path", "info/exclude"],
@@ -217,7 +217,7 @@ function ensureClaudePrExcludedFromGit(): void {
     ? readFileSync(excludePath, "utf8")
     : "";
 
-  if (excludeContents.split(/\r?\n/).includes(CLAUDE_PR_EXCLUDE_PATTERN)) {
+  if (excludeContents.split(/\r?\n/).includes(Haijun_PR_EXCLUDE_PATTERN)) {
     return;
   }
 
@@ -225,33 +225,33 @@ function ensureClaudePrExcludedFromGit(): void {
 
   const prefix =
     excludeContents.length === 0 || excludeContents.endsWith("\n") ? "" : "\n";
-  appendFileSync(excludePath, `${prefix}${CLAUDE_PR_EXCLUDE_PATTERN}\n`);
+  appendFileSync(excludePath, `${prefix}${Haijun_PR_EXCLUDE_PATTERN}\n`);
 }
 
 /**
  * Restores security-sensitive config paths from the PR base branch.
  *
  * The CLI's non-interactive mode trusts cwd: it reads `.mcp.json`,
- * `.claude/settings.json`, and `.claude/settings.local.json` from the working
- * directory and acts on them before any tool-permission gating — executing
+ * `.haijun/settings.json`, and `.haijun/settings.local.json` from the working
+ * directory and acts on them before any tool-permission gating â€” executing
  * hooks (including SessionStart), setting env vars (NODE_OPTIONS, LD_PRELOAD,
  * PATH), running apiKeyHelper/awsAuthRefresh shell commands, and auto-approving
  * MCP servers. When this action checks out a PR head, all of these are
  * attacker-controlled.
  *
- * Rather than enumerate every dangerous key, this replaces the entire `.claude/`
+ * Rather than enumerate every dangerous key, this replaces the entire `.haijun/`
  * tree and `.mcp.json` with the versions from the PR base branch, which a
  * maintainer has reviewed and merged. Paths absent on base are deleted.
  *
- * Known limitation: if a PR legitimately modifies `.claude/` and the CLI later
+ * Known limitation: if a PR legitimately modifies `.haijun/` and the CLI later
  * commits with `git add -A`, the revert will be included in that commit. This
  * is a narrow UX tradeoff for closing the RCE surface.
  *
  * Only the paths listed in SENSITIVE_PATHS come from the base branch; the rest
  * of the working tree stays at the PR head. A base-branch hook or setting that
- * calls out through files a PR can change — package-manager scripts
+ * calls out through files a PR can change â€” package-manager scripts
  * (`bun run`, `npm run`, `yarn`, `pnpm run`), Makefile or task-runner targets,
- * repo-relative script paths, or tools that load executable project config —
+ * repo-relative script paths, or tools that load executable project config â€”
  * therefore runs whatever the PR head provides. Keep restored hooks
  * self-contained: invoke the tool binary directly, pin its version, and pass
  * config on the command line rather than reading it from the checkout. This
@@ -271,34 +271,34 @@ export function restoreConfigFromBase(baseBranch: string): string[] {
     `Restoring ${SENSITIVE_PATHS.join(", ")} from origin/${baseBranch} (PR head is untrusted)`,
   );
 
-  // Snapshot every PR-authored sensitive path into .claude-pr/ before deletion
+  // Snapshot every PR-authored sensitive path into .haijun-pr/ before deletion
   // so review agents can inspect what the PR changes without those files ever
   // being executed. Captured before the security delete so it reflects the
   // PR-authored version. Links are followed only to tracked, unmodified content
   // inside the working tree; anything else is recorded as a placeholder file,
   // so the snapshot itself never contains links.
-  rmSync(".claude-pr", { recursive: true, force: true });
+  rmSync(".haijun-pr", { recursive: true, force: true });
   const workTreeRealPath = realpathSync(process.cwd());
   const tracked = listTrackedPaths();
   for (const p of SENSITIVE_PATHS) {
     if (lstatSync(p, { throwIfNoEntry: false })) {
-      snapshotSensitivePath(p, `.claude-pr/${p}`, workTreeRealPath, tracked);
+      snapshotSensitivePath(p, `.haijun-pr/${p}`, workTreeRealPath, tracked);
     }
   }
-  if (existsSync(".claude-pr")) {
+  if (existsSync(".haijun-pr")) {
     console.log(
-      "Preserved PR's sensitive paths -> .claude-pr/ for review agents (not executed)",
+      "Preserved PR's sensitive paths -> .haijun-pr/ for review agents (not executed)",
     );
-    ensureClaudePrExcludedFromGit();
+    ensureHaijunPrExcludedFromGit();
   }
 
   // Delete PR-controlled versions BEFORE fetching so the attacker-controlled
   // .gitmodules is absent during the network operation. If git reads .gitmodules
   // during fetch (fetch.recurseSubmodules=on-demand, the git default), it will
-  // attempt to fetch submodule objects and block on credential prompts in CI —
+  // attempt to fetch submodule objects and block on credential prompts in CI â€”
   // causing an indefinite hang. Deleting first closes that window.
   //
-  // If the restore below fails for a given path, that path stays deleted —
+  // If the restore below fails for a given path, that path stays deleted â€”
   // the safe fallback (no attacker-controlled config). A bare `git checkout`
   // alone wouldn't remove files the PR added, so nuke first.
   for (const p of SENSITIVE_PATHS) {
@@ -328,7 +328,7 @@ export function restoreConfigFromBase(baseBranch: string): string[] {
         stdio: "pipe",
       });
     } catch {
-      // Path doesn't exist on base — it stays deleted.
+      // Path doesn't exist on base â€” it stays deleted.
     }
   }
 
@@ -339,7 +339,7 @@ export function restoreConfigFromBase(baseBranch: string): string[] {
       stdio: "pipe",
     });
   } catch {
-    // Nothing was staged, or paths don't exist on HEAD — either is fine.
+    // Nothing was staged, or paths don't exist on HEAD â€” either is fine.
   }
 
   // Every sensitive path is reported, not just the ones that changed: the

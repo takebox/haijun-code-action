@@ -42,8 +42,8 @@ describe("Tag Mode", () => {
           async () =>
             ({
               baseBranch: "main",
-              claudeBranch: "claude/test",
-              currentBranch: "claude/test",
+              haijunBranch: "haijun/test",
+              currentBranch: "haijun/test",
             }) as any,
         ),
         spyOn(createPrompt, "createPrompt").mockImplementation(async () => {}),

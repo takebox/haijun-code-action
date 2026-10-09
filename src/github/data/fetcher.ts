@@ -1,4 +1,4 @@
-import { execFileSync } from "child_process";
+﻿import { execFileSync } from "child_process";
 import type { IssuesEvent } from "@octokit/webhooks-types";
 import type { Octokits } from "../api/client";
 import { ISSUE_QUERY, PR_QUERY, USER_QUERY } from "../api/queries/github";
@@ -303,7 +303,7 @@ export function filterReviewsToTriggerTime<
 /**
  * Checks if the issue/PR body was edited after the trigger time.
  * This prevents a race condition where an attacker could edit the issue/PR body
- * between when an authorized user triggered Claude and when Claude processes the request.
+ * between when an authorized user triggered haijun and when haijun processes the request.
  *
  * @param contextData - The PR or issue data containing body and edit timestamps
  * @param triggerTime - ISO timestamp of when the trigger event occurred

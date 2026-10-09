@@ -28,18 +28,18 @@ describe("workload identity federation", () => {
     originalEnv = { ...process.env };
     tempDir = mkdtempSync(join(tmpdir(), "wif-test-"));
     process.env.RUNNER_TEMP = tempDir;
-    delete process.env.ANTHROPIC_API_KEY;
-    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
-    delete process.env.ANTHROPIC_FEDERATION_RULE_ID;
-    delete process.env.ANTHROPIC_ORGANIZATION_ID;
-    delete process.env.ANTHROPIC_OIDC_AUDIENCE;
-    delete process.env.ANTHROPIC_IDENTITY_TOKEN_FILE;
-    delete process.env.ANTHROPIC_SERVICE_ACCOUNT_ID;
-    delete process.env.ANTHROPIC_WORKSPACE_ID;
-    delete process.env.ANTHROPIC_BASE_URL;
-    delete process.env.ANTHROPIC_SCOPE;
-    delete process.env.ANTHROPIC_CONFIG_DIR;
-    delete process.env.ANTHROPIC_PROFILE;
+    delete process.env.JUGLOW_API_KEY;
+    delete process.env.HAIJUN_CODE_OAUTH_TOKEN;
+    delete process.env.JUGLOW_FEDERATION_RULE_ID;
+    delete process.env.JUGLOW_ORGANIZATION_ID;
+    delete process.env.JUGLOW_OIDC_AUDIENCE;
+    delete process.env.JUGLOW_IDENTITY_TOKEN_FILE;
+    delete process.env.JUGLOW_SERVICE_ACCOUNT_ID;
+    delete process.env.JUGLOW_WORKSPACE_ID;
+    delete process.env.JUGLOW_BASE_URL;
+    delete process.env.JUGLOW_SCOPE;
+    delete process.env.JUGLOW_CONFIG_DIR;
+    delete process.env.JUGLOW_PROFILE;
 
     getIDTokenSpy = spyOn(core, "getIDToken").mockResolvedValue(
       "test-identity-token",
@@ -62,13 +62,13 @@ describe("workload identity federation", () => {
     });
 
     test("returns false when only one federation variable is set", () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
       expect(isWorkloadIdentityConfigured()).toBe(false);
     });
 
     test("returns true when rule ID and organization ID are set", () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
       expect(isWorkloadIdentityConfigured()).toBe(true);
     });
@@ -82,30 +82,30 @@ describe("workload identity federation", () => {
     });
 
     test("returns undefined and warns when an API key is also set", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
-      process.env.ANTHROPIC_API_KEY = "sk-ant-test";
+      process.env.JUGLOW_API_KEY = "sk-ant-test";
 
       const handle = await setupWorkloadIdentity();
       expect(handle).toBeUndefined();
       expect(warningSpy).toHaveBeenCalled();
       expect(getIDTokenSpy).not.toHaveBeenCalled();
-      expect(process.env.ANTHROPIC_IDENTITY_TOKEN_FILE).toBeUndefined();
+      expect(process.env.JUGLOW_IDENTITY_TOKEN_FILE).toBeUndefined();
     });
 
     test("writes the identity token file and exports its path", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
 
       const handle = await setupWorkloadIdentity();
       try {
         expect(handle).toBeDefined();
         expect(handle!.tokenFile).toBe(
-          join(tempDir, "claude-workload-identity", "identity-token"),
+          join(tempDir, "haijun-workload-identity", "identity-token"),
         );
-        expect(process.env.ANTHROPIC_IDENTITY_TOKEN_FILE).toBe(
+        expect(process.env.JUGLOW_IDENTITY_TOKEN_FILE).toBe(
           handle!.tokenFile,
         );
         expect(existsSync(handle!.tokenFile)).toBe(true);
@@ -114,18 +114,18 @@ describe("workload identity federation", () => {
         );
         expect(statSync(handle!.tokenFile).mode & 0o777).toBe(0o600);
         expect(setSecretSpy).toHaveBeenCalledWith("test-identity-token");
-        // Default audience scopes the JWT to the Claude API token exchange
-        expect(getIDTokenSpy).toHaveBeenCalledWith("https://api.anthropic.com");
+        // Default audience scopes the JWT to the Haijun API token exchange
+        expect(getIDTokenSpy).toHaveBeenCalledWith("https://platform.juglow.my.id");
       } finally {
         handle?.stop();
       }
     });
 
     test("requests the configured audience", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
-      process.env.ANTHROPIC_OIDC_AUDIENCE = "https://example.com/custom";
+      process.env.JUGLOW_OIDC_AUDIENCE = "https://example.com/custom";
 
       const handle = await setupWorkloadIdentity();
       try {
@@ -138,27 +138,27 @@ describe("workload identity federation", () => {
     });
 
     test("writes a minimal federation profile and selects it", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
-      process.env.ANTHROPIC_SERVICE_ACCOUNT_ID = "svac_test";
-      process.env.ANTHROPIC_WORKSPACE_ID = "wrkspc_test";
+      process.env.JUGLOW_SERVICE_ACCOUNT_ID = "svac_test";
+      process.env.JUGLOW_WORKSPACE_ID = "wrkspc_test";
 
       const handle = await setupWorkloadIdentity();
       try {
-        const configDir = process.env.ANTHROPIC_CONFIG_DIR;
+        const configDir = process.env.JUGLOW_CONFIG_DIR;
         expect(configDir).toBeDefined();
         expect(
           configDir!.startsWith(
-            join(tempDir, "claude-workload-identity", "config-"),
+            join(tempDir, "haijun-workload-identity", "config-"),
           ),
         ).toBe(true);
-        expect(process.env.ANTHROPIC_PROFILE).toBe("default");
+        expect(process.env.JUGLOW_PROFILE).toBe("default");
 
         const profilePath = join(configDir!, "configs", "default.json");
         expect(statSync(profilePath).mode & 0o777).toBe(0o600);
         // Minimal on purpose: the SDK gap-fills the federation fields from
-        // the ANTHROPIC_* env vars the action exports.
+        // the JUGLOW_* env vars the action exports.
         expect(JSON.parse(readFileSync(profilePath, "utf-8"))).toEqual({
           version: "1.0",
           authentication: { type: "oidc_federation" },
@@ -169,53 +169,53 @@ describe("workload identity federation", () => {
     });
 
     test("derives the config dir from the federation inputs", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
-      process.env.ANTHROPIC_WORKSPACE_ID = "wrkspc_a";
+      process.env.JUGLOW_WORKSPACE_ID = "wrkspc_a";
 
       (await setupWorkloadIdentity())?.stop();
-      const firstConfigDir = process.env.ANTHROPIC_CONFIG_DIR;
+      const firstConfigDir = process.env.JUGLOW_CONFIG_DIR;
       expect(firstConfigDir).toBeDefined();
 
       // A later step in the same job with a different workspace must not
       // share the first step's credentials cache.
-      delete process.env.ANTHROPIC_CONFIG_DIR;
-      delete process.env.ANTHROPIC_PROFILE;
-      process.env.ANTHROPIC_WORKSPACE_ID = "wrkspc_b";
+      delete process.env.JUGLOW_CONFIG_DIR;
+      delete process.env.JUGLOW_PROFILE;
+      process.env.JUGLOW_WORKSPACE_ID = "wrkspc_b";
 
       (await setupWorkloadIdentity())?.stop();
-      const secondConfigDir = process.env.ANTHROPIC_CONFIG_DIR;
+      const secondConfigDir = process.env.JUGLOW_CONFIG_DIR;
       expect(secondConfigDir).toBeDefined();
       expect(secondConfigDir).not.toBe(firstConfigDir);
 
       // Same inputs land in the same dir, so an unchanged config can still
       // reuse a cached token.
-      delete process.env.ANTHROPIC_CONFIG_DIR;
-      delete process.env.ANTHROPIC_PROFILE;
+      delete process.env.JUGLOW_CONFIG_DIR;
+      delete process.env.JUGLOW_PROFILE;
 
       (await setupWorkloadIdentity())?.stop();
-      expect(process.env.ANTHROPIC_CONFIG_DIR).toBe(secondConfigDir!);
+      expect(process.env.JUGLOW_CONFIG_DIR).toBe(secondConfigDir!);
     });
 
-    test("does not overwrite an operator-set ANTHROPIC_PROFILE", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+    test("does not overwrite an operator-set JUGLOW_PROFILE", async () => {
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
-      process.env.ANTHROPIC_PROFILE = "operator";
+      process.env.JUGLOW_PROFILE = "operator";
 
       const handle = await setupWorkloadIdentity();
       try {
-        expect(process.env.ANTHROPIC_PROFILE).toBe("operator");
-        expect(process.env.ANTHROPIC_CONFIG_DIR).toBeUndefined();
+        expect(process.env.JUGLOW_PROFILE).toBe("operator");
+        expect(process.env.JUGLOW_CONFIG_DIR).toBeUndefined();
         expect(warningSpy).toHaveBeenCalled();
 
-        const entries = readdirSync(join(tempDir, "claude-workload-identity"));
+        const entries = readdirSync(join(tempDir, "haijun-workload-identity"));
         expect(entries.filter((e) => e.startsWith("config-"))).toEqual([]);
 
         // The identity token file is still provisioned for the operator's
         // profile (or the env-var fallback) to consume.
-        expect(process.env.ANTHROPIC_IDENTITY_TOKEN_FILE).toBe(
+        expect(process.env.JUGLOW_IDENTITY_TOKEN_FILE).toBe(
           handle!.tokenFile,
         );
       } finally {
@@ -223,17 +223,17 @@ describe("workload identity federation", () => {
       }
     });
 
-    test("does not overwrite an operator-set ANTHROPIC_CONFIG_DIR", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+    test("does not overwrite an operator-set JUGLOW_CONFIG_DIR", async () => {
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
       const operatorConfigDir = join(tempDir, "operator-config");
-      process.env.ANTHROPIC_CONFIG_DIR = operatorConfigDir;
+      process.env.JUGLOW_CONFIG_DIR = operatorConfigDir;
 
       const handle = await setupWorkloadIdentity();
       try {
-        expect(process.env.ANTHROPIC_CONFIG_DIR).toBe(operatorConfigDir);
-        expect(process.env.ANTHROPIC_PROFILE).toBeUndefined();
+        expect(process.env.JUGLOW_CONFIG_DIR).toBe(operatorConfigDir);
+        expect(process.env.JUGLOW_PROFILE).toBeUndefined();
         expect(warningSpy).toHaveBeenCalled();
       } finally {
         handle?.stop();
@@ -241,14 +241,14 @@ describe("workload identity federation", () => {
     });
 
     test("stop removes the identity token and credential cache", async () => {
-      process.env.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_test";
-      process.env.ANTHROPIC_ORGANIZATION_ID =
+      process.env.JUGLOW_FEDERATION_RULE_ID = "fdrl_test";
+      process.env.JUGLOW_ORGANIZATION_ID =
         "00000000-0000-0000-0000-000000000000";
 
       const handle = await setupWorkloadIdentity();
-      const tokenDir = join(tempDir, "claude-workload-identity");
+      const tokenDir = join(tempDir, "haijun-workload-identity");
       expect(existsSync(handle!.tokenFile)).toBe(true);
-      expect(existsSync(process.env.ANTHROPIC_CONFIG_DIR!)).toBe(true);
+      expect(existsSync(process.env.JUGLOW_CONFIG_DIR!)).toBe(true);
 
       handle!.stop();
 

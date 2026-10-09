@@ -6,7 +6,7 @@ describe("Public Comment Output Sanitization & Redaction", () => {
     const rawComment = [
       "Here is the summary of the work done:",
       "- GitHub Token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-      "- Anthropic Key: sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890",
+      "- Juglow Key: sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890",
       "- AWS Access Key: AKIAIOSFODNN7EXAMPLE",
       "- Slack Bot Token: xoxb-1234567890-abcdefghijkl-mnopqrstuvwx",
       "- JWT Bearer: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U",
@@ -33,7 +33,7 @@ describe("Public Comment Output Sanitization & Redaction", () => {
     );
 
     expect(sanitizedOutput).toContain("[REDACTED_GITHUB_TOKEN]");
-    expect(sanitizedOutput).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(sanitizedOutput).toContain("[REDACTED_JUGLOW_KEY]");
     expect(sanitizedOutput).toContain("[REDACTED_AWS_KEY_ID]");
     expect(sanitizedOutput).toContain("[REDACTED_SLACK_TOKEN]");
     expect(sanitizedOutput).toContain("[REDACTED_JWT]");
@@ -56,9 +56,9 @@ describe("Public Comment Output Sanitization & Redaction", () => {
     const redactedError = redactSecrets(errorDetails);
     const redactedComment = redactSecrets(sanitizeContent(commentBody));
 
-    expect(redactedError).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(redactedError).toContain("[REDACTED_JUGLOW_KEY]");
     expect(redactedError).toContain("[REDACTED_AWS_KEY_ID]");
-    expect(redactedComment).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(redactedComment).toContain("[REDACTED_JUGLOW_KEY]");
     expect(redactedComment).toContain("[REDACTED_AWS_KEY_ID]");
   });
 });

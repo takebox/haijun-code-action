@@ -1,4 +1,4 @@
-import type { Octokits } from "../api/client";
+﻿import type { Octokits } from "../api/client";
 import { GITHUB_SERVER_URL } from "../api/config";
 import { encodeBranchNameForUrl } from "./comments/common";
 import { $ } from "bun";
@@ -7,7 +7,7 @@ export async function checkAndCommitOrDeleteBranch(
   octokit: Octokits,
   owner: string,
   repo: string,
-  claudeBranch: string | undefined,
+  haijunBranch: string | undefined,
   baseBranch: string,
   useCommitSigning: boolean,
   restoredConfigPaths: string[] = [],
@@ -15,7 +15,7 @@ export async function checkAndCommitOrDeleteBranch(
   let branchLink = "";
   let shouldDeleteBranch = false;
 
-  // On pull requests, restoreConfigFromBase replaces .claude/, CLAUDE.md and
+  // On pull requests, restoreConfigFromBase replaces .haijun/, HAIJUN.md and
   // friends with the base branch's versions and leaves them unstaged so the
   // revert does not reach a commit. Auto-committing with a bare `git add -A`
   // would stage them anyway and push a silent revert of the PR author's own
@@ -23,8 +23,8 @@ export async function checkAndCommitOrDeleteBranch(
   //
   // The exclusion is driven by what was actually restored rather than applied
   // unconditionally: this path also runs for issues, where no restore happens
-  // and Claude may legitimately have been asked to edit CLAUDE.md or
-  // .claude/settings.json. Excluding those there would silently drop the work.
+  // and haijun may legitimately have been asked to edit HAIJUN.md or
+  // .haijun/settings.json. Excluding those there would silently drop the work.
   const pathspecArgs =
     restoredConfigPaths.length > 0
       ? ["--", ".", ...restoredConfigPaths.map((p) => `:(exclude)${p}`)]
@@ -36,19 +36,19 @@ export async function checkAndCommitOrDeleteBranch(
     );
   }
 
-  if (claudeBranch) {
+  if (haijunBranch) {
     // First check if the branch exists remotely
     let branchExistsRemotely = false;
     try {
       await octokit.rest.repos.getBranch({
         owner,
         repo,
-        branch: claudeBranch,
+        branch: haijunBranch,
       });
       branchExistsRemotely = true;
     } catch (error: any) {
       if (error.status === 404) {
-        console.log(`Branch ${claudeBranch} does not exist remotely`);
+        console.log(`Branch ${haijunBranch} does not exist remotely`);
       } else {
         console.error("Error checking if branch exists:", error);
       }
@@ -57,25 +57,25 @@ export async function checkAndCommitOrDeleteBranch(
     // Only proceed if branch exists remotely
     if (!branchExistsRemotely) {
       console.log(
-        `Branch ${claudeBranch} does not exist remotely, no branch link will be added`,
+        `Branch ${haijunBranch} does not exist remotely, no branch link will be added`,
       );
       return { shouldDeleteBranch: false, branchLink: "" };
     }
 
-    // Check if Claude made any commits to the branch
+    // Check if haijun made any commits to the branch
     try {
       const { data: comparison } =
         await octokit.rest.repos.compareCommitsWithBasehead({
           owner,
           repo,
-          basehead: `${baseBranch}...${claudeBranch}`,
+          basehead: `${baseBranch}...${haijunBranch}`,
         });
 
       // If there are no commits, check for uncommitted changes if not using commit signing
       if (comparison.total_commits === 0) {
         if (!useCommitSigning) {
           console.log(
-            `Branch ${claudeBranch} has no commits from Claude, checking for uncommitted changes...`,
+            `Branch ${haijunBranch} has no commits from haijun, checking for uncommitted changes...`,
           );
 
           // Check for uncommitted changes using git status
@@ -96,18 +96,18 @@ export async function checkAndCommitOrDeleteBranch(
 
               // Commit with a descriptive message
               const runId = process.env.GITHUB_RUN_ID || "unknown";
-              const commitMessage = `Auto-commit: Save uncommitted changes from Claude\n\nRun ID: ${runId}`;
+              const commitMessage = `Auto-commit: Save uncommitted changes from haijun\n\nRun ID: ${runId}`;
               await $`git commit -m ${commitMessage}`;
 
               // Push the changes
-              await $`git push origin ${claudeBranch}`;
+              await $`git push origin ${haijunBranch}`;
 
               console.log(
-                "✅ Successfully committed and pushed uncommitted changes",
+                "âœ… Successfully committed and pushed uncommitted changes",
               );
 
               // Set branch link since we now have commits
-              const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(claudeBranch)}`;
+              const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(haijunBranch)}`;
               branchLink = `\n[View branch](${branchUrl})`;
             } else {
               console.log(
@@ -118,39 +118,39 @@ export async function checkAndCommitOrDeleteBranch(
           } catch (gitError) {
             console.error("Error checking/committing changes:", gitError);
             // If we can't check git status, assume the branch might have changes
-            const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(claudeBranch)}`;
+            const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(haijunBranch)}`;
             branchLink = `\n[View branch](${branchUrl})`;
           }
         } else {
           console.log(
-            `Branch ${claudeBranch} has no commits from Claude, will delete it`,
+            `Branch ${haijunBranch} has no commits from haijun, will delete it`,
           );
           shouldDeleteBranch = true;
         }
       } else {
         // Only add branch link if there are commits
-        const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(claudeBranch)}`;
+        const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(haijunBranch)}`;
         branchLink = `\n[View branch](${branchUrl})`;
       }
     } catch (error) {
-      console.error("Error comparing commits on Claude branch:", error);
+      console.error("Error comparing commits on haijun branch:", error);
       // If we can't compare but the branch exists remotely, include the branch link
-      const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(claudeBranch)}`;
+      const branchUrl = `${GITHUB_SERVER_URL}/${owner}/${repo}/tree/${encodeBranchNameForUrl(haijunBranch)}`;
       branchLink = `\n[View branch](${branchUrl})`;
     }
   }
 
   // Delete the branch if it has no commits
-  if (shouldDeleteBranch && claudeBranch) {
+  if (shouldDeleteBranch && haijunBranch) {
     try {
       await octokit.rest.git.deleteRef({
         owner,
         repo,
-        ref: `heads/${claudeBranch}`,
+        ref: `heads/${haijunBranch}`,
       });
-      console.log(`✅ Deleted empty branch: ${claudeBranch}`);
+      console.log(`âœ… Deleted empty branch: ${haijunBranch}`);
     } catch (deleteError) {
-      console.error(`Failed to delete branch ${claudeBranch}:`, deleteError);
+      console.error(`Failed to delete branch ${haijunBranch}:`, deleteError);
       // Continue even if deletion fails
     }
   }

@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 import { readFileSync, existsSync } from "fs";
 import { exit } from "process";
@@ -210,7 +210,7 @@ export function formatResultContent(content: any): string {
     !contentStr.includes("\n")
   ) {
     // Short text results don't need code blocks
-    return `**→** ${contentStr}\n\n`;
+    return `**â†’** ${contentStr}\n\n`;
   } else {
     return `**Result:**\n\`\`\`${contentType}\n${contentStr}\n\`\`\`\n\n`;
   }
@@ -223,7 +223,7 @@ export function formatToolWithResult(
   const toolName = toolUse.name || "unknown_tool";
   const toolInput = toolUse.input || {};
 
-  let result = `### 🔧 \`${toolName}\`\n\n`;
+  let result = `### ðŸ”§ \`${toolName}\`\n\n`;
 
   // Add parameters if they exist and are not empty
   if (Object.keys(toolInput).length > 0) {
@@ -238,7 +238,7 @@ export function formatToolWithResult(
     const isError = toolResult.is_error || false;
 
     if (isError) {
-      result += `❌ **Error:** \`${content}\`\n\n`;
+      result += `âŒ **Error:** \`${content}\`\n\n`;
     } else {
       result += formatResultContent(content);
     }
@@ -356,15 +356,15 @@ export function groupTurnsNaturally(data: Turn[]): GroupedContent[] {
 }
 
 export function formatGroupedContent(groupedContent: GroupedContent[]): string {
-  let markdown = "## Claude Code Report\n\n";
+  let markdown = "## haijun Code Report\n\n";
 
   for (const item of groupedContent) {
     const itemType = item.type;
 
     if (itemType === "system_init") {
-      markdown += `## 🚀 System Initialization\n\n**Available Tools:** ${item.tools_count} tools loaded\n\n---\n\n`;
+      markdown += `## ðŸš€ System Initialization\n\n**Available Tools:** ${item.tools_count} tools loaded\n\n---\n\n`;
     } else if (itemType === "system_other") {
-      markdown += `## ⚙️ System Message\n\n${JSON.stringify(item.data, null, 2)}\n\n---\n\n`;
+      markdown += `## âš™ï¸ System Message\n\n${JSON.stringify(item.data, null, 2)}\n\n---\n\n`;
     } else if (itemType === "assistant_action") {
       // Add text content first (if any) - no header needed
       for (const text of item.text_parts || []) {
@@ -401,7 +401,7 @@ export function formatGroupedContent(groupedContent: GroupedContent[]): string {
         markdown += "---\n\n";
       }
     } else if (itemType === "user_message") {
-      markdown += "## 👤 User\n\n";
+      markdown += "## ðŸ‘¤ User\n\n";
       for (const text of item.text_parts || []) {
         if (text.trim()) {
           markdown += `${text}\n\n`;
@@ -414,7 +414,7 @@ export function formatGroupedContent(groupedContent: GroupedContent[]): string {
       const duration = (data as any).duration_ms || 0;
       const resultText = (data as any).result || "";
 
-      markdown += "## ✅ Final Result\n\n";
+      markdown += "## âœ… Final Result\n\n";
       if (resultText) {
         markdown += `${resultText}\n\n`;
       }

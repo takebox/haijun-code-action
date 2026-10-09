@@ -6,7 +6,7 @@ on:
 
 jobs:
   review:
-    # Skip on fork PRs since they can't mint the OIDC token used for Claude API auth
+    # Skip on fork PRs since they can't mint the OIDC token used for Haijun API auth
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
@@ -20,16 +20,16 @@ jobs:
           fetch-depth: 1
 
       - name: PR Review with Progress Tracking
-        uses: anthropics/claude-code-action@v1
+        uses: takebox/haijun-code-action@v1
         with:
-          # Authenticate to the Claude API via Workload Identity Federation
+          # Authenticate to the Haijun API via Workload Identity Federation
           # (the workflow's OIDC token is exchanged for a short-lived access
           # token) instead of a static API key. See docs/setup.md.
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          juglow_federation_rule_id: ${{ vars.JUGLOW_FEDERATION_RULE_ID }}
+          juglow_organization_id: ${{ vars.JUGLOW_ORGANIZATION_ID }}
+          juglow_service_account_id: ${{ vars.JUGLOW_SERVICE_ACCOUNT_ID }}
 
           prompt: "/review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ github.event.pull_request.number }}"
-          claude_args: |
+          haijun_args: |
             --allowedTools "mcp__github_inline_comment__create_inline_comment"
-            --model "claude-opus-4-7"
+            --model "haijun-opus-4-7"

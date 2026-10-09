@@ -41,14 +41,14 @@ const mockGitHubData = {
 
 const signingContext: PreparedContext = {
   repository: "owner/repo",
-  claudeCommentId: "12345",
-  triggerPhrase: "@claude",
+  haijunCommentId: "12345",
+  triggerPhrase: "@haijun",
   eventData: {
     eventName: "issue_comment",
     commentId: "67890",
     isPR: true,
     prNumber: "123",
-    commentBody: "@claude delete the old file",
+    commentBody: "@haijun delete the old file",
   },
 };
 

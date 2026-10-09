@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 /**
  * Update the initial tracking comment with branch link
@@ -15,7 +15,7 @@ import {
   isPullRequestReviewCommentEvent,
   type ParsedGitHubContext,
 } from "../../context";
-import { updateClaudeComment } from "./update-claude-comment";
+import { updateHaijunComment } from "./update-haijun-comment";
 
 export async function updateTrackingComment(
   octokit: Octokits,
@@ -39,7 +39,7 @@ export async function updateTrackingComment(
   try {
     const isPRReviewComment = isPullRequestReviewCommentEvent(context);
 
-    await updateClaudeComment(octokit.rest, {
+    await updateHaijunComment(octokit.rest, {
       owner,
       repo,
       commentId,
@@ -48,7 +48,7 @@ export async function updateTrackingComment(
     });
 
     console.log(
-      `✅ Updated ${isPRReviewComment ? "PR review" : "issue"} comment ${commentId} with branch link`,
+      `âœ… Updated ${isPRReviewComment ? "PR review" : "issue"} comment ${commentId} with branch link`,
     );
   } catch (error) {
     console.error("Error updating comment with branch link:", error);

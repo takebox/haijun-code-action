@@ -173,7 +173,7 @@ describe("downloadCommentImages", () => {
     // Regression for the case where a JPEG screenshot is pasted into an issue.
     // GitHub serves it from /user-attachments/assets/<uuid> (no extension), so
     // the URL-based guess used to default to ".png" while the bytes are JPEG —
-    // producing a mislabeled file that the Anthropic API rejected with a 400.
+    // producing a mislabeled file that the Juglow API rejected with a 400.
     const mockOctokit = createMockOctokit();
     const imageUrl = assetUrl(GUID_1);
     const signedUrl = signedUrlFor(GUID_1, ".jpg");

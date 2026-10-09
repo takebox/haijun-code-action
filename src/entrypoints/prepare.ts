@@ -1,7 +1,7 @@
-#!/usr/bin/env bun
+﻿#!/usr/bin/env bun
 
 /**
- * Prepare the Claude action by checking trigger conditions, verifying human actor,
+ * Prepare the haijun action by checking trigger conditions, verifying human actor,
  * and creating the initial tracking comment
  */
 
@@ -85,9 +85,9 @@ async function run() {
       await prepareAgentMode({ context, octokit, githubToken });
     }
 
-    // MCP config is handled by individual modes (tag/agent) and included in their claude_args output
+    // MCP config is handled by individual modes (tag/agent) and included in their HAIJUN_args output
 
-    // Expose the GitHub token (Claude App token) as an output
+    // Expose the GitHub token (haijun App token) as an output
     core.setOutput("github_token", githubToken);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

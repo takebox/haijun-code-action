@@ -244,12 +244,12 @@ describe("sanitizeContent", () => {
   it("should preserve legitimate markdown and HTML", () => {
     const legitimateContent = `
       # Heading
-      
+
       This is **bold** and *italic* text.
-      
+
       Here's a normal image: ![](normal.jpg)
       And a normal link: [Click here](https://example.com)
-      
+
       <div class="container">
         <p id="para">Normal paragraph</p>
         <input type="text" name="field">
@@ -376,10 +376,10 @@ describe("redactSecrets", () => {
     ).toBe("Token: [REDACTED_GITHUB_TOKEN]");
   });
 
-  it("should redact Anthropic API keys (sk-ant-)", () => {
+  it("should redact Juglow API keys (sk-ant-)", () => {
     const key = "sk-ant-api03-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-abcdefgh";
-    expect(redactSecrets(`ANTHROPIC_API_KEY=${key}`)).toBe(
-      "ANTHROPIC_API_KEY=[REDACTED_ANTHROPIC_KEY]",
+    expect(redactSecrets(`JUGLOW_API_KEY=${key}`)).toBe(
+      "JUGLOW_API_KEY=[REDACTED_JUGLOW_KEY]",
     );
   });
 
@@ -433,19 +433,19 @@ describe("redactSecrets", () => {
     });
     const redacted = redactSecrets(serialized);
     expect(redacted).toContain("[REDACTED_GITHUB_TOKEN]");
-    expect(redacted).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(redacted).toContain("[REDACTED_JUGLOW_KEY]");
     expect(redacted).not.toContain("ghs_16C7e42F292c6912E7710c838347Ae178B4a");
   });
 
   it("should redact tokens preceded by ANSI color codes", () => {
     const ghp = "ghp_16C7e42F292c6912E7710c838347Ae178B4a";
-    const anthropic =
+    const Juglow =
       "sk-ant-api03-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-abcdefgh";
     expect(redactSecrets(`\x1b[31m${ghp}\x1b[0m`)).toBe(
       "\x1b[31m[REDACTED_GITHUB_TOKEN]\x1b[0m",
     );
-    expect(redactSecrets(`key=\x1b[32m${anthropic}\x1b[39m`)).toBe(
-      "key=\x1b[32m[REDACTED_ANTHROPIC_KEY]\x1b[39m",
+    expect(redactSecrets(`key=\x1b[32m${Juglow}\x1b[39m`)).toBe(
+      "key=\x1b[32m[REDACTED_JUGLOW_KEY]\x1b[39m",
     );
     expect(redactSecrets(`\x1b[1mAKIAIOSFODNN7EXAMPLE\x1b[0m`)).toBe(
       "\x1b[1m[REDACTED_AWS_KEY_ID]\x1b[0m",
@@ -522,7 +522,7 @@ describe("stripHtmlComments (legacy)", () => {
 describe("outbound comment sanitization and redaction", () => {
   it("should sanitize content and redact all credential types for public comments", () => {
     const rawComment =
-      "Done! Configured AWS AKIAIOSFODNN7EXAMPLE, Anthropic sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890, Slack xoxb-1234567890-abcdefghijkl-mnopqrstuvwx, and GitHub ghp_16C7e42F292c6912E7710c838347Ae178B4a <!-- secret note -->";
+      "Done! Configured AWS AKIAIOSFODNN7EXAMPLE, Juglow sk-ant-api03-abcdefghijklmnopqrstuvwxyz1234567890, Slack xoxb-1234567890-abcdefghijkl-mnopqrstuvwx, and GitHub ghp_16C7e42F292c6912E7710c838347Ae178B4a <!-- secret note -->";
     const sanitizedAndRedacted = redactSecrets(sanitizeContent(rawComment));
 
     expect(sanitizedAndRedacted).not.toContain("AKIAIOSFODNN7EXAMPLE");
@@ -538,7 +538,7 @@ describe("outbound comment sanitization and redaction", () => {
     expect(sanitizedAndRedacted).not.toContain("secret note");
 
     expect(sanitizedAndRedacted).toContain("[REDACTED_AWS_KEY_ID]");
-    expect(sanitizedAndRedacted).toContain("[REDACTED_ANTHROPIC_KEY]");
+    expect(sanitizedAndRedacted).toContain("[REDACTED_JUGLOW_KEY]");
     expect(sanitizedAndRedacted).toContain("[REDACTED_SLACK_TOKEN]");
     expect(sanitizedAndRedacted).toContain("[REDACTED_GITHUB_TOKEN]");
   });
